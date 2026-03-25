@@ -1,0 +1,114 @@
+# Multi-stage build for VTK Workbench
+# Stage 1: WebAssembly Build Environment
+#FROM emscripten/emsdk:4.0.14 AS wasm-builder
+FROM emscripten/emsdk:4.0.12-arm64 AS wasm-builder
+
+# Install CMake and Ninja
+RUN apt-get update && apt-get install -y \
+    cmake \
+    ninja-build \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy dependency and build files
+COPY CMakeLists.txt Dependency.cmake ./
+COPY webassembly/ ./webassembly/
+
+# Pre-download and cache dependencies
+RUN mkdir -p webassembly/dependencies/VTK webassembly/dependencies/OCCT
+
+# Create output directory for WASM files
+RUN mkdir -p public/wasm
+
+# Build WebAssembly (Debug build for faster compilation)
+RUN emcmake cmake -GNinja -S. -Bwebassembly/build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DVTK_DIR=webassembly/dependencies/VTK/Release/lib/cmake/vtk \
+    && cmake --build webassembly/build --target install
+
+# Debug: List contents to verify build output
+RUN echo "=== WebAssembly build output ===" && \
+    find webassembly/build -name "*.wasm" -o -name "*.js" | head -20 && \
+    echo "=== Public directory contents ===" && \
+    ls -la public/ || echo "No public directory found" && \
+    echo "=== App directory structure ===" && \
+    find . -maxdepth 3 -type d | sort
+
+# Copy WASM files to public directory (adjust paths as needed)
+RUN if [ -d "webassembly/build/install" ]; then \
+        cp -r webassembly/build/install/* public/wasm/ 2>/dev/null || true; \
+    fi && \
+    if [ -d "webassembly/build/bin" ]; then \
+        cp webassembly/build/bin/*.wasm public/wasm/ 2>/dev/null || true; \
+        cp webassembly/build/bin/*.js public/wasm/ 2>/dev/null || true; \
+    fi && \
+    find webassembly/build -name "*.wasm" -exec cp {} public/wasm/ \; 2>/dev/null || true && \
+    find webassembly/build -name "*.js" -exec cp {} public/wasm/ \; 2>/dev/null || true
+
+# Stage 2: Node.js Build Environment
+FROM node:22-alpine AS node-builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci && npm cache clean --force
+
+# Copy source code
+COPY app/ ./app/
+COPY components/ ./components/
+COPY lib/ ./lib/
+COPY public/ ./public/
+COPY types/ ./types/
+COPY *.json *.js *.ts *.mjs ./
+
+# Copy built WebAssembly files from previous stage (with fallback)
+COPY --from=wasm-builder /app/public/ ./public/
+# Alternative: copy specific WASM files if they exist
+# RUN mkdir -p public/wasm
+
+# Debug: Check what WASM files were copied
+RUN echo "=== WASM files in Node.js stage ===" && \
+    ls -la public/wasm/ || echo "No wasm directory found" && \
+    find public -name "*.wasm" -o -name "*.js" | grep -v node_modules || echo "No WASM files found"
+
+# Build Next.js application
+RUN npm run build
+
+# Stage 3: Production Runtime
+FROM node:22-alpine AS runtime
+
+# Install dumb-init and wget for health check
+RUN apk add --no-cache dumb-init wget
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+WORKDIR /app
+
+# Copy built application
+COPY --from=node-builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=node-builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=node-builder --chown=nextjs:nodejs /app/public ./public
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+ENV PORT=3000
+ENV NODE_ENV=production
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1
+
+# Start application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]

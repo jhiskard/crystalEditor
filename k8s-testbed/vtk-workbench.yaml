@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vtk-workbench
+  namespace: pt
+  labels:
+    app: vtk-workbench
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vtk-workbench
+  template:
+    metadata:
+      labels:
+        app: vtk-workbench
+        version: v1
+    spec:
+      containers:
+      - name: vtk-workbench
+        image: 10.183.3.3:5000/vtk-workbench:1.11
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        volumeMounts:
+        - name: public-volume
+          mountPath: /app/public
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+# 헬스체크 제거 - 간단한 배포를 위해
+        # livenessProbe:
+        #   httpGet:
+        #     path: /crystal-editor/api/health
+        #     port: http
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /crystal-editor/api/health
+        #     port: http
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: public-volume
+        hostPath:
+          path: /mnt/luck/service/crystal-editor/public
+          type: DirectoryOrCreate
+      securityContext:
+        fsGroup: 1001
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vtk-workbench-service
+  namespace: pt
+  labels:
+    app: vtk-workbench
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: vtk-workbench
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vtk-workbench-ingress
+  namespace: pt
+  labels:
+    app: vtk-workbench
+  annotations:
+    # Enable SSL redirect
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # Increase proxy timeout for WebAssembly loading
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+
+    # Enable large file uploads if needed
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+
+    # Enable CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+
+    # Enable regex support for path matching
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
+    # Upstream에서 내려오는 X-Frame-Options 헤더 제거 (임베드 허용을 위해)
+    nginx.ingress.kubernetes.io/proxy-hide-headers: "X-Frame-Options"
+
+    # Custom headers for security
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   # Security headers
+    #   # X-Frame-Options는 제거하고, CSP의 frame-ancestors로 허용 도메인만 지정합니다.
+    #   #add_header Content-Security-Policy "frame-ancestors 'self' http://host.docker.internal http://localhost https://portal-test.edison.re.kr" always;
+    #   # Enable cross-origin isolation for SharedArrayBuffer (COOP/COEP)
+    #   add_header Cross-Origin-Opener-Policy "same-origin" always;
+    #   add_header Cross-Origin-Embedder-Policy "require-corp" always;
+    #   #add_header Cross-Origin-Embedder-Policy "credentialless" always;
+    #   add_header Cross-Origin-Resource-Policy "cross-origin" always;
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Cross-Origin-Opener-Policy: same-origin";
+      more_set_headers "Cross-Origin-Embedder-Policy: require-corp";
+      # Ingress 레벨에서 iframe 정책 제어
+      more_set_headers "Content-Security-Policy: frame-ancestors 'self' https://*.edison.re.kr;";
+
+
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - crystal-test.edison.re.kr
+    secretName: vtk-workbench-tls
+  rules:
+  - host: crystal-test.edison.re.kr
+    http:
+      paths:
+      # Handle all requests to root path
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vtk-workbench-service
+            port:
+              number: 80

@@ -1,0 +1,48 @@
+{
+  "name": "vtk-workbench",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "build:full": "npm run build-wasm:release && next build",
+    "build:standalone": "npm run build-wasm:release && next build && next export",
+    "start": "next start",
+    "build-wasm:debug": "emcmake cmake -GNinja -S. -Bwebassembly/build -DCMAKE_BUILD_TYPE=Debug -DVTK_DIR=webassembly/dependencies/VTK/Debug/lib/cmake/vtk && cmake --build webassembly/build --target install",
+    "build-wasm:release": "emcmake cmake -GNinja -S. -Bwebassembly/build -DCMAKE_BUILD_TYPE=Release -DVTK_DIR=webassembly/dependencies/VTK/Release/lib/cmake/vtk && cmake --build webassembly/build --target install",
+    "build:docker": "docker build -t vtk-workbench .",
+    "build:production": "npm run clean && npm run build",
+    "clean": "npm run rm-build && npm run rm-wasm && rm -rf .next",
+    "rm-build": "rm -rf webassembly/build",
+    "rm-wasm": "rm -f public/wasm/*",
+    "health": "echo 'OK'",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.55.0",
+    "@radix-ui/react-navigation-menu": "^1.2.5",
+    "@radix-ui/react-slot": "^1.1.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.475.0",
+    "next": "^15.1.7",
+    "puppeteer": "^24.21.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.1",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.7",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vtk-workbench
+  namespace: pt
+  labels:
+    app: vtk-workbench
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vtk-workbench
+  template:
+    metadata:
+      labels:
+        app: vtk-workbench
+        version: v1
+    spec:
+      containers:
+      - name: vtk-workbench
+        image: 10.183.3.3:5000/vtk-workbench:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+# 헬스체크 제거 - 간단한 배포를 위해
+        # livenessProbe:
+        #   httpGet:
+        #     path: /crystal-editor/api/health
+        #     port: http
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /crystal-editor/api/health
+        #     port: http
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        fsGroup: 1001
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vtk-workbench-service
+  namespace: pt
+  labels:
+    app: vtk-workbench
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: vtk-workbench
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vtk-workbench-ingress
+  namespace: pt
+  labels:
+    app: vtk-workbench
+  annotations:
+    # Enable SSL redirect
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # Enable regex support
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
+    # Increase proxy timeout for WebAssembly loading
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+
+    # Enable large file uploads if needed
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+
+    # Enable gzip compression
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+
+    # Add security headers and URL rewriting logic
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Cross-Origin-Opener-Policy "same-origin" always;
+      add_header Cross-Origin-Embedder-Policy "require-corp" always;
+      add_header X-Frame-Options "DENY" always;
+      add_header X-Content-Type-Options "nosniff" always;
+
+      # Rewrite URLs based on path
+      if ($request_uri ~ "^/crystal-editor/_next/(.*)$") {
+        rewrite ^ /_next/$1 break;
+      }
+      if ($request_uri ~ "^/crystal-editor/wasm/(.*)$") {
+        rewrite ^ /wasm/$1 break;
+      }
+      if ($request_uri ~ "^/crystal-editor(/.*)?$") {
+        rewrite ^ $1 break;
+      }
+
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - portal-test.edison.re.kr
+    secretName: vtk-workbench-tls
+  rules:
+  - host: portal-test.edison.re.kr
+    http:
+      paths:
+      - path: /crystal-editor(/.*)?
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: vtk-workbench-service
+            port:
+              number: 80
