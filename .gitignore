@@ -186,3 +186,9 @@ test-results.xml
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Python cache / large local datasets / backup wasm outputs
+__pycache__/
+*.pyc
+xsf_examples/TABS_data/
+public/wasm.old2/
