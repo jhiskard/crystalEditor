@@ -195,3 +195,6 @@ public/wasm.old2/
 
 # Local refactoring notes
 /refactoring_*.md
+
+# Example datasets
+/xsf_examples/
