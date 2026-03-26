@@ -192,3 +192,6 @@ __pycache__/
 *.pyc
 xsf_examples/TABS_data/
 public/wasm.old2/
+
+# Local refactoring notes
+/refactoring_*.md
