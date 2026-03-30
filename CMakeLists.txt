@@ -100,6 +100,9 @@ add_executable(${PROJECT_NAME}
   webassembly/src/atoms/atoms_template.h 
   webassembly/src/atoms/application/structure_read_model.cpp
   webassembly/src/atoms/application/structure_read_model.h
+  webassembly/src/atoms/application/measurement_controller.cpp
+  webassembly/src/atoms/application/structure_lifecycle_service.cpp
+  webassembly/src/atoms/application/visibility_service.cpp
   webassembly/src/atoms/infrastructure/batch_update_system.cpp 
   webassembly/src/atoms/infrastructure/batch_update_system.h 
   webassembly/src/atoms/infrastructure/bond_renderer.cpp

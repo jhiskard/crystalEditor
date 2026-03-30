@@ -203,4 +203,5 @@
 - [x] `refactor/phase4-ui-render-split` 브랜치 생성
 - [x] W1 AtomsTemplate Builder/Editor 분해
 - [x] W2 Charge Density UI 분해
-- [ ] W3 착수
+- [x] W3 Measurement/Visibility 서비스 분해
+- [ ] W4 착수
