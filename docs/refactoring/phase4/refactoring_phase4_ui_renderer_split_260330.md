@@ -200,5 +200,5 @@
 - [x] Phase 3 `GO` 판정 확인
 - [x] Phase 3 변경사항 `main` 머지 확인
 - [x] `phase3-go-20260330` 태그 생성/원격 동기화 확인
-- [ ] `refactor/phase4-ui-render-split` 브랜치 생성
+- [x] `refactor/phase4-ui-render-split` 브랜치 생성
 - [ ] W1 착수
