@@ -205,4 +205,5 @@
 - [x] W2 Charge Density UI 분해
 - [x] W3 Measurement/Visibility 서비스 분해
 - [x] W4 ModelTree 섹션 분해
-- [ ] W5 착수
+- [x] W5 VtkViewer 상호작용/카메라 분해
+- [ ] W6 착수

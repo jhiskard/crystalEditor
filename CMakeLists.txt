@@ -94,6 +94,8 @@ add_executable(${PROJECT_NAME}
   webassembly/src/mesh_group_detail.cpp       webassembly/src/mesh_group_detail.h
 
   # Render
+  webassembly/src/render/application/viewer_interaction_controller.cpp
+  webassembly/src/render/application/camera_align_service.cpp
   webassembly/src/render/application/render_gateway.h
   webassembly/src/render/infrastructure/vtk_render_gateway.cpp
   webassembly/src/render/infrastructure/vtk_render_gateway.h
