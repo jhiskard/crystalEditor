@@ -144,6 +144,8 @@ add_executable(${PROJECT_NAME}
   webassembly/src/atoms/ui/bz_plot_ui.h 
   webassembly/src/atoms/presentation/builder_windows_controller.cpp
   webassembly/src/atoms/presentation/editor_windows_controller.cpp
+  webassembly/src/atoms/presentation/isosurface_panel.cpp
+  webassembly/src/atoms/presentation/slice_view_panel.cpp
   # webassembly/src/atoms/ui/atoms_template_main_window_ui.cpp 
   # webassembly/src/atoms/ui/atoms_template_main_window_ui.h 
   webassembly/src/atoms/ui/ui_color_utils.h
