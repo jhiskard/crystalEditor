@@ -201,4 +201,5 @@
 - [x] Phase 3 변경사항 `main` 머지 확인
 - [x] `phase3-go-20260330` 태그 생성/원격 동기화 확인
 - [x] `refactor/phase4-ui-render-split` 브랜치 생성
-- [ ] W1 착수
+- [x] W1 AtomsTemplate Builder/Editor 분해
+- [ ] W2 착수
