@@ -154,5 +154,5 @@
 - [x] Phase 2 `GO` 판정 확인
 - [x] Phase 2 변경사항 동기화 계획 반영
 - [x] Phase 3 Git 운영 규칙 확정
-- [ ] `refactor/phase3-import-pipeline` 브랜치 생성
+- [x] `refactor/phase3-import-pipeline` 브랜치 생성
 - [ ] W1 착수
