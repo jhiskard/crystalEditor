@@ -204,4 +204,5 @@
 - [x] W1 AtomsTemplate Builder/Editor 분해
 - [x] W2 Charge Density UI 분해
 - [x] W3 Measurement/Visibility 서비스 분해
-- [ ] W4 착수
+- [x] W4 ModelTree 섹션 분해
+- [ ] W5 착수

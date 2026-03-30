@@ -79,6 +79,9 @@ add_executable(${PROJECT_NAME}
   webassembly/src/mesh.cpp                    webassembly/src/mesh.h
   webassembly/src/mesh_manager.cpp            webassembly/src/mesh_manager.h
   webassembly/src/model_tree.cpp              webassembly/src/model_tree.h
+  webassembly/src/mesh/presentation/model_tree_dialogs.cpp
+  webassembly/src/mesh/presentation/model_tree_structure_section.cpp
+  webassembly/src/mesh/presentation/model_tree_mesh_section.cpp
   webassembly/src/custom_ui.cpp               webassembly/src/custom_ui.h
   webassembly/src/image.cpp                   webassembly/src/image.h
   webassembly/src/texture.cpp                 webassembly/src/texture.h
