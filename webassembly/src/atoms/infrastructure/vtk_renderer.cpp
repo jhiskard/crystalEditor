@@ -1,7 +1,8 @@
-// atoms/infrastructure/vtk_renderer.cpp
+﻿// atoms/infrastructure/vtk_renderer.cpp
 #include "vtk_renderer.h"
 #include "../domain/special_points.h"
 #include "../../config/log_config.h"
+#include "../../render/application/render_gateway.h"
 #include <vtkSphereSource.h>
 #include <vtkCylinderSource.h>
 #include <vtkLineSource.h>
@@ -116,7 +117,7 @@ void VTKRenderer::initializeAtomGroupVTK(const std::string& symbol, float radius
         setupActorProperties(group.actor);
         
         // 렌더러에 추가 (편집 동작 중 카메라 시점 유지)
-        VtkViewer::Instance().AddActor(group.actor, false);
+        render::application::GetRenderGateway().AddActor(group.actor, false);
         
         SPDLOG_DEBUG("Successfully initialized VTK pipeline for atom group: {}", symbol);
         
@@ -251,7 +252,7 @@ void VTKRenderer::clearAtomGroupVTK(const std::string& symbol) {
     
     try {
         if (group.actor) {
-            VtkViewer::Instance().RemoveActor(group.actor);
+            render::application::GetRenderGateway().RemoveActor(group.actor);
             group.actor = nullptr;
         }
         
@@ -278,7 +279,7 @@ void VTKRenderer::clearAllAtomGroupsVTK() {
     for (auto& [symbol, group] : m_atomGroups) {
         try {
             if (group.actor) {
-                VtkViewer::Instance().RemoveActor(group.actor);
+                render::application::GetRenderGateway().RemoveActor(group.actor);
             }
             if (group.appender) {
                 group.appender->RemoveAllInputs();
@@ -347,8 +348,8 @@ void VTKRenderer::initializeBondGroup(const std::string& bondTypeKey, float radi
         setupActorProperties(group.actor2, true);
         
         // 렌더러에 추가 (편집 동작 중 카메라 시점 유지)
-        VtkViewer::Instance().AddActor(group.actor1, false);
-        VtkViewer::Instance().AddActor(group.actor2, false);
+        render::application::GetRenderGateway().AddActor(group.actor1, false);
+        render::application::GetRenderGateway().AddActor(group.actor2, false);
         
         SPDLOG_DEBUG("Successfully initialized 2-color bond group: {}", bondTypeKey);
         
@@ -539,12 +540,12 @@ void VTKRenderer::clearBondGroup(const std::string& bondTypeKey) {
     
     try {
         if (group.actor1) {
-            VtkViewer::Instance().RemoveActor(group.actor1);
+            render::application::GetRenderGateway().RemoveActor(group.actor1);
             group.actor1 = nullptr;
         }
         
         if (group.actor2) {
-            VtkViewer::Instance().RemoveActor(group.actor2);
+            render::application::GetRenderGateway().RemoveActor(group.actor2);
             group.actor2 = nullptr;
         }
         
@@ -577,10 +578,10 @@ void VTKRenderer::clearAllBondGroups() {
     for (auto& [bondTypeKey, group] : m_bondGroups) {
         try {
             if (group.actor1) {
-                VtkViewer::Instance().RemoveActor(group.actor1);
+                render::application::GetRenderGateway().RemoveActor(group.actor1);
             }
             if (group.actor2) {
-                VtkViewer::Instance().RemoveActor(group.actor2);
+                render::application::GetRenderGateway().RemoveActor(group.actor2);
             }
             if (group.appender1) {
                 group.appender1->RemoveAllInputs();
@@ -762,7 +763,7 @@ void VTKRenderer::createUnitCell(int32_t structureId, const float matrix[3][3]) 
         actor->SetVisibility(effectiveVisible ? 1 : 0);
         
         // 렌더러에 추가
-        VtkViewer::Instance().AddActor(actor);
+        render::application::GetRenderGateway().AddActor(actor);
         
         actors.push_back(actor);
     }
@@ -779,7 +780,7 @@ void VTKRenderer::clearUnitCell() {
         (void)structureId;
         for (auto& actor : actors) {
             if (actor) {
-                VtkViewer::Instance().RemoveActor(actor);
+                render::application::GetRenderGateway().RemoveActor(actor);
             }
         }
     }
@@ -798,7 +799,7 @@ void VTKRenderer::clearUnitCell(int32_t structureId) {
     
     for (auto& actor : it->second) {
         if (actor) {
-            VtkViewer::Instance().RemoveActor(actor);
+            render::application::GetRenderGateway().RemoveActor(actor);
         }
     }
     
@@ -958,7 +959,7 @@ void VTKRenderer::createBZPlot(const domain::BZVerticesResult& bzData) {
             actor->GetProperty()->SetLineWidth(3.0);
             
             // 렌더러에 추가
-            VtkViewer::Instance().AddActor(actor);
+            render::application::GetRenderGateway().AddActor(actor);
             
             // Actor 저장
             m_bzPlotActors.push_back(actor);
@@ -975,13 +976,13 @@ void VTKRenderer::clearBZPlot() {
     
     for (auto& actor : m_bzPlotActors) {
         if (actor) {
-            VtkViewer::Instance().RemoveActor(actor);
+            render::application::GetRenderGateway().RemoveActor(actor);
         }
     }
 
     for (auto& actor : m_bzPlotActors2D) {
         if (actor) {
-            VtkViewer::Instance().RemoveActor2D(actor);
+            render::application::GetRenderGateway().RemoveActor2D(actor);
         }
     }
     
@@ -1081,7 +1082,7 @@ void VTKRenderer::createCompleteBZPlot(
                 double lineWidth = 3.0;
                 actor->GetProperty()->SetLineWidth(lineWidth);
                 
-                VtkViewer::Instance().AddActor(actor);
+                render::application::GetRenderGateway().AddActor(actor);
                 m_bzPlotActors.push_back(actor);
             }
         }
@@ -1283,7 +1284,7 @@ void VTKRenderer::renderReciprocalVectors(const double icell[3][3]) {
         vtkSmartPointer<vtkActor> arrowActor = createArrowActor(
             origin, end, black, tipLength, shaftRadius);
         
-        VtkViewer::Instance().AddActor(arrowActor);
+        render::application::GetRenderGateway().AddActor(arrowActor);
         m_bzPlotActors.push_back(arrowActor);
         
         // 라벨 위치 (화살표 끝에서 약간 더 멀리)
@@ -1298,7 +1299,7 @@ void VTKRenderer::renderReciprocalVectors(const double icell[3][3]) {
         vtkSmartPointer<vtkActor2D> labelActor = createTextActor2D(
             labels[i], labelPos, fontSize, black);
         
-        VtkViewer::Instance().AddActor2D(labelActor, false);
+        render::application::GetRenderGateway().AddActor2D(labelActor, false);
         m_bzPlotActors2D.push_back(labelActor);
         
         SPDLOG_DEBUG("Rendered reciprocal vector {}: ({:.3f}, {:.3f}, {:.3f})", 
@@ -1355,7 +1356,7 @@ void VTKRenderer::renderBandpath(const std::vector<std::array<double, 3>>& kpoin
     double lineWidth = 5.0;
     actor->GetProperty()->SetLineWidth(lineWidth);
     
-    VtkViewer::Instance().AddActor(actor);
+    render::application::GetRenderGateway().AddActor(actor);
     m_bzPlotActors.push_back(actor);
     
     SPDLOG_DEBUG("Bandpath rendered successfully with line width {:.1f}", lineWidth);
@@ -1403,7 +1404,7 @@ void VTKRenderer::renderKpoints(
     actor->SetMapper(mapper);
     actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  // 빨간색
     
-    VtkViewer::Instance().AddActor(actor);
+    render::application::GetRenderGateway().AddActor(actor);
     m_bzPlotActors.push_back(actor);
     
     SPDLOG_DEBUG("K-points rendered successfully (actor added to m_bzPlotActors)");
@@ -1438,7 +1439,7 @@ void VTKRenderer::renderSpecialPointLabels(
         vtkSmartPointer<vtkActor2D> labelActor = createTextActor2D(
             displayName, labelPos, fontSize, black);
         
-        VtkViewer::Instance().AddActor2D(labelActor, false);
+        render::application::GetRenderGateway().AddActor2D(labelActor, false);
         m_bzPlotActors2D.push_back(labelActor);
         
         SPDLOG_DEBUG("Rendered label '{}' at ({:.3f}, {:.3f}, {:.3f}) with fontSize {}", 
@@ -1706,7 +1707,7 @@ void VTKRenderer::syncAtomLabelActors(const std::vector<LabelActorSpec>& labels)
     for (auto it = m_atomLabelActors2D.begin(); it != m_atomLabelActors2D.end();) {
         if (labelLookup.find(it->first) == labelLookup.end()) {
             if (it->second) {
-                VtkViewer::Instance().RemoveActor2D(it->second);
+                render::application::GetRenderGateway().RemoveActor2D(it->second);
             }
             it = m_atomLabelActors2D.erase(it);
         } else {
@@ -1719,7 +1720,7 @@ void VTKRenderer::syncAtomLabelActors(const std::vector<LabelActorSpec>& labels)
         if (actorIt == m_atomLabelActors2D.end()) {
             double position[3] = { label->worldPosition[0], label->worldPosition[1], label->worldPosition[2] };
             vtkSmartPointer<vtkActor2D> actor = createTextActor2D(label->text, position, 14, nullptr);
-            VtkViewer::Instance().AddActor2D(actor, false);
+            render::application::GetRenderGateway().AddActor2D(actor, false);
             m_atomLabelActors2D.emplace(labelId, actor);
             updateLabelActor2D(actor, *label);
         } else {
@@ -1741,7 +1742,7 @@ void VTKRenderer::syncBondLabelActors(const std::vector<LabelActorSpec>& labels)
     for (auto it = m_bondLabelActors2D.begin(); it != m_bondLabelActors2D.end();) {
         if (labelLookup.find(it->first) == labelLookup.end()) {
             if (it->second) {
-                VtkViewer::Instance().RemoveActor2D(it->second);
+                render::application::GetRenderGateway().RemoveActor2D(it->second);
             }
             it = m_bondLabelActors2D.erase(it);
         } else {
@@ -1754,7 +1755,7 @@ void VTKRenderer::syncBondLabelActors(const std::vector<LabelActorSpec>& labels)
         if (actorIt == m_bondLabelActors2D.end()) {
             double position[3] = { label->worldPosition[0], label->worldPosition[1], label->worldPosition[2] };
             vtkSmartPointer<vtkActor2D> actor = createTextActor2D(label->text, position, 14, nullptr);
-            VtkViewer::Instance().AddActor2D(actor, false);
+            render::application::GetRenderGateway().AddActor2D(actor, false);
             m_bondLabelActors2D.emplace(labelId, actor);
             updateLabelActor2D(actor, *label);
         } else {
@@ -1767,7 +1768,7 @@ void VTKRenderer::clearAllAtomLabelActors() {
     for (auto& [labelId, actor] : m_atomLabelActors2D) {
         (void)labelId;
         if (actor) {
-            VtkViewer::Instance().RemoveActor2D(actor);
+            render::application::GetRenderGateway().RemoveActor2D(actor);
         }
     }
     m_atomLabelActors2D.clear();
@@ -1777,7 +1778,7 @@ void VTKRenderer::clearAllBondLabelActors() {
     for (auto& [labelId, actor] : m_bondLabelActors2D) {
         (void)labelId;
         if (actor) {
-            VtkViewer::Instance().RemoveActor2D(actor);
+            render::application::GetRenderGateway().RemoveActor2D(actor);
         }
     }
     m_bondLabelActors2D.clear();
@@ -1790,3 +1791,4 @@ void VTKRenderer::clearAllStructureLabelActors() {
 
 } // namespace infrastructure
 } // namespace atoms
+

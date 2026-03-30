@@ -49,6 +49,7 @@
 
 #include "ui/charge_density_ui.h"
 #include "infrastructure/chgcar_parser.h"
+#include "domain/structure_state_store.h"
 
 
 // ============================================================================
@@ -56,7 +57,6 @@
 // ============================================================================
 
 static int resolution = 20;
-static bool surroundingsVisible = false; // 二쇰? ?먯옄 ?쒖떆 ?곹깭 (TODO: manager濡??댁쟾)
 
 // ============================================================================
 // (251212) Performance
@@ -1174,7 +1174,6 @@ static float bondToleranceFactor = 0.10f;
 static float bondThickness = 1.0f;      // 寃고빀 ?먭퍡 (湲곕낯媛?1.0)
 static float bondOpacity = 1.0f;        // 寃고빀 ?щ챸??(湲곕낯媛?1.0)
 
-static uint32_t nextBondId = 1;
 
 // struct BondGroupInfo --> bond_manager.h 濡??대룞
 using atoms::domain::bondGroups;
@@ -1219,7 +1218,7 @@ void clearAllBondGroups() {
 // ============================================================================
 
 AtomsTemplate::AtomsTemplate() {
-    surroundingsVisible = false;
+    atoms::domain::setSurroundingsVisible(false);
 
     // *** 異붽?: ElementDatabase 珥덇린??***
     m_elementDB = &atoms::domain::ElementDatabase::getInstance();
@@ -1297,7 +1296,7 @@ AtomsTemplate::~AtomsTemplate() {
         surroundingBonds.clear();
         atomGroups.clear();
         bondGroups.clear();
-        surroundingsVisible = false;
+        atoms::domain::setSurroundingsVisible(false);
         atoms::domain::setCellVisible(false);
         
         SPDLOG_INFO("AtomsTemplate destructor completed successfully");
@@ -2613,11 +2612,11 @@ bool AtomsTemplate::hasUnitCell() const {
 
 // Surroundings visible getter/setter 援ы쁽 異붽?
 bool AtomsTemplate::isSurroundingsVisible() const {
-    return surroundingsVisible;
+    return atoms::domain::isSurroundingsVisible();
 }
 
 void AtomsTemplate::setSurroundingsVisible(bool visible) {
-    surroundingsVisible = visible;
+    atoms::domain::setSurroundingsVisible(visible);
 }
 
 void AtomsTemplate::SetBoundaryAtomsEnabled(bool enabled) {
@@ -2986,11 +2985,11 @@ void AtomsTemplate::createBond(
 
 // createBond
 uint32_t AtomsTemplate::generateUniqueBondId() {
-    return nextBondId++;
+    return atoms::domain::StructureStateStore::Instance().GenerateBondId();
 }
 
 void AtomsTemplate::resetBondIdCounter(uint32_t startId) {
-    nextBondId = startId;
+    atoms::domain::StructureStateStore::Instance().ResetBondIdCounter(startId);
 }
 
 // updatePerformanceStatsInternal

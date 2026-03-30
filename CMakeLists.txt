@@ -82,9 +82,16 @@ add_executable(${PROJECT_NAME}
   webassembly/src/mesh_group.cpp              webassembly/src/mesh_group.h
   webassembly/src/mesh_group_detail.cpp       webassembly/src/mesh_group_detail.h
 
+  # Render
+  webassembly/src/render/application/render_gateway.h
+  webassembly/src/render/infrastructure/vtk_render_gateway.cpp
+  webassembly/src/render/infrastructure/vtk_render_gateway.h
+
   # Atoms
   webassembly/src/atoms/atoms_template.cpp 
   webassembly/src/atoms/atoms_template.h 
+  webassembly/src/atoms/application/structure_read_model.cpp
+  webassembly/src/atoms/application/structure_read_model.h
   webassembly/src/atoms/infrastructure/batch_update_system.cpp 
   webassembly/src/atoms/infrastructure/batch_update_system.h 
   webassembly/src/atoms/infrastructure/bond_renderer.cpp
@@ -101,6 +108,8 @@ add_executable(${PROJECT_NAME}
   webassembly/src/atoms/domain/bond_manager.h 
   webassembly/src/atoms/domain/cell_manager.cpp 
   webassembly/src/atoms/domain/cell_manager.h 
+  webassembly/src/atoms/domain/structure_state_store.cpp
+  webassembly/src/atoms/domain/structure_state_store.h
   webassembly/src/atoms/domain/element_database.cpp 
   webassembly/src/atoms/domain/element_database.h 
   webassembly/src/atoms/domain/surrounding_atom_manager.cpp

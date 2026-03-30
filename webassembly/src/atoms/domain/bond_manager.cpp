@@ -1,6 +1,7 @@
-#include "bond_manager.h"
+﻿#include "bond_manager.h"
 #include "../atoms_template.h"
-#include "../../vtk_viewer.h"
+#include "../../render/application/render_gateway.h"
+#include "structure_state_store.h"
 #include <algorithm>
 #include <cmath>
 #include <cfloat>
@@ -11,9 +12,17 @@
 namespace atoms {
 namespace domain {
 
-std::vector<atoms::domain::BondInfo> createdBonds;
-std::vector<atoms::domain::BondInfo> surroundingBonds; // 주변 원자들의 결합
-std::map<std::string, atoms::domain::BondGroupInfo> bondGroups;
+std::vector<atoms::domain::BondInfo>& GetCreatedBonds() {
+    return StructureStateStore::Instance().CreatedBonds();
+}
+
+std::vector<atoms::domain::BondInfo>& GetSurroundingBonds() {
+    return StructureStateStore::Instance().SurroundingBonds();
+}
+
+std::map<std::string, atoms::domain::BondGroupInfo>& GetBondGroups() {
+    return StructureStateStore::Instance().BondGroups();
+}
 
 namespace {
 void initializeBondGroupRenderer(AtomsTemplate* parent, const std::string& bondTypeKey, float radius) {
@@ -49,11 +58,11 @@ void updateBondGroupRenderer(AtomsTemplate* parent, const std::string& bondTypeK
     }
     if (auto* renderer = parent->bondRenderer()) {
         renderer->updateBondGroup(bondTypeKey, it->second);
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
         return;
     }
     parent->updateBondGroupVTK(bondTypeKey);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void clearAllBondGroupsRenderer(AtomsTemplate* parent) {
@@ -898,3 +907,4 @@ bool shouldCreateBond(
 
 } //atoms
 } // domain 
+

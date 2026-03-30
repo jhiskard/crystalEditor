@@ -1,7 +1,7 @@
-#include "bz_plot.h"
+﻿#include "bz_plot.h"
 #include "../atoms_template.h"
 #include "../infrastructure/vtk_renderer.h"
-#include "../../vtk_viewer.h"
+#include "../../render/application/render_gateway.h"
 #include "../domain/cell_manager.h"
 #include "../../config/log_config.h"
 #include <vtkCamera.h>
@@ -423,7 +423,7 @@ bool BZPlotController::enterBZPlotMode(
         }
 
         if (!m_hasSavedCamera) {
-            vtkCamera* camera = VtkViewer::Instance().GetActiveCamera();
+            vtkCamera* camera = render::application::GetRenderGateway().GetActiveCamera();
             if (camera) {
                 camera->GetPosition(m_savedCameraState.position.data());
                 camera->GetFocalPoint(m_savedCameraState.focalPoint.data());
@@ -469,7 +469,7 @@ bool BZPlotController::enterBZPlotMode(
             npoints
         );
 
-        VtkViewer::Instance().FitViewToVisibleProps();
+        render::application::GetRenderGateway().FitViewToVisibleProps();
         SPDLOG_INFO("=== Switched to BZ Plot mode ===");
         return true;
 
@@ -498,7 +498,7 @@ void BZPlotController::exitBZPlotMode(AtomsTemplate* parent) {
     }
 
     if (m_hasSavedCamera) {
-        vtkCamera* camera = VtkViewer::Instance().GetActiveCamera();
+        vtkCamera* camera = render::application::GetRenderGateway().GetActiveCamera();
         if (camera) {
             camera->SetPosition(
                 m_savedCameraState.position[0],
@@ -525,9 +525,10 @@ void BZPlotController::exitBZPlotMode(AtomsTemplate* parent) {
         m_hasSavedCamera = false;
     }
 
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
     SPDLOG_INFO("=== Back to crystal mode ===");
 }
 
 } // namespace domain
 } // namespace atoms
+

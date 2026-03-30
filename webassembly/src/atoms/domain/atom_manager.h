@@ -201,10 +201,16 @@ struct AtomGroupInfo {
     }
 };
 
-// 전역 원자 벡터 선언 (extern)
-extern std::vector<atoms::domain::AtomInfo> createdAtoms;
-extern std::vector<atoms::domain::AtomInfo> surroundingAtoms; 
-extern std::map<std::string, atoms::domain::AtomGroupInfo> atomGroups;
+// Phase 2 migration bridge:
+// 기존 전역 상태 이름(createdAtoms/surroundingAtoms/atomGroups)은 유지하되
+// 실소유권은 StructureStateStore로 이전한다.
+std::vector<atoms::domain::AtomInfo>& GetCreatedAtoms();
+std::vector<atoms::domain::AtomInfo>& GetSurroundingAtoms();
+std::map<std::string, atoms::domain::AtomGroupInfo>& GetAtomGroups();
+
+inline std::vector<atoms::domain::AtomInfo>& createdAtoms = GetCreatedAtoms();
+inline std::vector<atoms::domain::AtomInfo>& surroundingAtoms = GetSurroundingAtoms();
+inline std::map<std::string, atoms::domain::AtomGroupInfo>& atomGroups = GetAtomGroups();
 
 /// 심볼 기준 그룹 초기화 (없으면 생성, 있으면 baseRadius 갱신)
 void initializeAtomGroup(const std::string& symbol, float radius);

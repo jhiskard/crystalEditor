@@ -1,7 +1,6 @@
 // atoms/infrastructure/vtk_renderer.h
 #pragma once
 
-#include "../../vtk_viewer.h"
 #include "bz_plot_layer.h"      // 추가
 #include "../domain/bz_plot.h"  // 추가
 #include "../domain/color.h" 

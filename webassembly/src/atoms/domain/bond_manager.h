@@ -71,8 +71,8 @@ struct BondInfo {
     }
 };
 
-extern std::vector<atoms::domain::BondInfo> createdBonds;
-extern std::vector<atoms::domain::BondInfo> surroundingBonds; // 주변 원자들의 결합
+std::vector<atoms::domain::BondInfo>& GetCreatedBonds();
+std::vector<atoms::domain::BondInfo>& GetSurroundingBonds();
 
 
 struct BondGroupInfo {
@@ -97,7 +97,10 @@ struct BondGroupInfo {
         : element1(elem1), element2(elem2), radius(r) {}
 };
 
-extern std::map<std::string, atoms::domain::BondGroupInfo> bondGroups;
+std::map<std::string, atoms::domain::BondGroupInfo>& GetBondGroups();
+inline std::vector<atoms::domain::BondInfo>& createdBonds = GetCreatedBonds();
+inline std::vector<atoms::domain::BondInfo>& surroundingBonds = GetSurroundingBonds();
+inline std::map<std::string, atoms::domain::BondGroupInfo>& bondGroups = GetBondGroups();
 // extern std::set<std::string> bondGroupsToUpdate;
 
 // Phase 1: 도메인 API

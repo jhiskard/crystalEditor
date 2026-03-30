@@ -2,11 +2,19 @@
 #include "../../config/log_config.h"
 #include "../atoms_template.h"
 #include "atom_manager.h"
+#include "structure_state_store.h"
 
+CellInfo& GetCellInfo() {
+    return atoms::domain::StructureStateStore::Instance().Cell();
+}
 
-CellInfo cellInfo;
-std::vector<vtkSmartPointer<vtkActor>> cellEdgeActors;
-bool cellVisible = false;
+std::vector<vtkSmartPointer<vtkActor>>& GetCellEdgeActors() {
+    return atoms::domain::StructureStateStore::Instance().CellEdgeActors();
+}
+
+bool& GetCellVisible() {
+    return atoms::domain::StructureStateStore::Instance().CellVisible();
+}
 
 namespace atoms::domain {
 

@@ -1,6 +1,6 @@
-// atoms/infrastructure/bz_plot_layer.cpp
+﻿// atoms/infrastructure/bz_plot_layer.cpp
 #include "bz_plot_layer.h"
-#include "../../vtk_viewer.h"
+#include "../../render/application/render_gateway.h"
 
 namespace atoms {
 namespace infrastructure {
@@ -22,7 +22,7 @@ void BZPlotLayer::ActorGroup::clear() {
     // VtkViewer에서 Actor 제거
     for (auto& actor : actors) {
         if (actor) {
-            VtkViewer::Instance().RemoveActor(actor);
+            render::application::GetRenderGateway().RemoveActor(actor);
         }
     }
     
@@ -113,7 +113,7 @@ void BZPlotLayer::addIBZLineActor(vtkSmartPointer<vtkActor> actor) {
     if (!actor) return;
     
     // VtkViewer에 추가
-    VtkViewer::Instance().AddActor(actor);
+    render::application::GetRenderGateway().AddActor(actor);
     
     // 그룹에 저장
     m_ibzLines.actors.push_back(actor);
@@ -125,7 +125,7 @@ void BZPlotLayer::addIBZLineActor(vtkSmartPointer<vtkActor> actor) {
 void BZPlotLayer::addReciprocalVectorActor(vtkSmartPointer<vtkActor> actor) {
     if (!actor) return;
     
-    VtkViewer::Instance().AddActor(actor);
+    render::application::GetRenderGateway().AddActor(actor);
     
     m_reciprocalVectors.actors.push_back(actor);
     actor->SetVisibility(m_isVisible && m_reciprocalVectors.visible);
@@ -134,7 +134,7 @@ void BZPlotLayer::addReciprocalVectorActor(vtkSmartPointer<vtkActor> actor) {
 void BZPlotLayer::addBandpathActor(vtkSmartPointer<vtkActor> actor) {
     if (!actor) return;
     
-    VtkViewer::Instance().AddActor(actor);
+    render::application::GetRenderGateway().AddActor(actor);
     
     m_bandpaths.actors.push_back(actor);
     actor->SetVisibility(m_isVisible && m_bandpaths.visible);
@@ -143,7 +143,7 @@ void BZPlotLayer::addBandpathActor(vtkSmartPointer<vtkActor> actor) {
 void BZPlotLayer::addKpointActor(vtkSmartPointer<vtkActor> actor) {
     if (!actor) return;
     
-    VtkViewer::Instance().AddActor(actor);
+    render::application::GetRenderGateway().AddActor(actor);
     
     m_kpoints.actors.push_back(actor);
     actor->SetVisibility(m_isVisible && m_kpoints.visible);
@@ -152,7 +152,7 @@ void BZPlotLayer::addKpointActor(vtkSmartPointer<vtkActor> actor) {
 void BZPlotLayer::addLabelActor(vtkSmartPointer<vtkActor> actor) {
     if (!actor) return;
     
-    VtkViewer::Instance().AddActor(actor);
+    render::application::GetRenderGateway().AddActor(actor);
     
     m_labels.actors.push_back(actor);
     actor->SetVisibility(m_isVisible && m_labels.visible);

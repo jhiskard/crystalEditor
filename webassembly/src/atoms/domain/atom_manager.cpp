@@ -3,6 +3,7 @@
 #include "bond_manager.h"
 #include "element_database.h"
 #include "cell_manager.h"
+#include "structure_state_store.h"
 
 #include <algorithm>
 #include <cmath>
@@ -12,22 +13,28 @@ namespace atoms {
 namespace domain {
 
 // 전역 원자 벡터 정의 (실제 메모리 할당)
-std::vector<atoms::domain::AtomInfo> createdAtoms;
-std::vector<atoms::domain::AtomInfo> surroundingAtoms;
-std::map<std::string, atoms::domain::AtomGroupInfo> atomGroups;
-static bool surroundingsVisible = false;
-static uint32_t nextAtomId = 1;
+std::vector<atoms::domain::AtomInfo>& GetCreatedAtoms() {
+    return StructureStateStore::Instance().CreatedAtoms();
+}
+
+std::vector<atoms::domain::AtomInfo>& GetSurroundingAtoms() {
+    return StructureStateStore::Instance().SurroundingAtoms();
+}
+
+std::map<std::string, atoms::domain::AtomGroupInfo>& GetAtomGroups() {
+    return StructureStateStore::Instance().AtomGroups();
+}
 
 bool isSurroundingsVisible() {
-    return surroundingsVisible;
+    return StructureStateStore::Instance().SurroundingsVisible();
 }
 
 void setSurroundingsVisible(bool visible) {
-    surroundingsVisible = visible;
+    StructureStateStore::Instance().SurroundingsVisible() = visible;
 }
 
 uint32_t generateUniqueAtomId() {
-    return nextAtomId++;
+    return StructureStateStore::Instance().GenerateAtomId();
 }
 
 void applyAtomChanges(::AtomsTemplate* parent,

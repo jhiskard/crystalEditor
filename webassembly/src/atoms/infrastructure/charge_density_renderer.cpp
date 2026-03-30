@@ -1,8 +1,8 @@
-// atoms/infrastructure/charge_density_renderer.cpp
+﻿// atoms/infrastructure/charge_density_renderer.cpp
 #include "charge_density_renderer.h"
 #include "chgcar_parser.h"
 #include "../../config/log_config.h"
-#include "../../vtk_viewer.h"
+#include "../../render/application/render_gateway.h"
 
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
@@ -366,7 +366,7 @@ void ChargeDensityRenderer::addIsosurface(float value, float r, float g, float b
     actor->GetProperty()->SetOpacity(alpha);
     actor->SetVisibility(1);
     
-    VtkViewer::Instance().AddActor(actor, false);
+    render::application::GetRenderGateway().AddActor(actor, false);
     
     m_isosurfaces.push_back({value, actor});
 }
@@ -384,7 +384,7 @@ void ChargeDensityRenderer::setIsosurfaceColorForValue(float value, float r, flo
 void ChargeDensityRenderer::clearIsosurfaces() {
     for (auto& iso : m_isosurfaces) {
         if (iso.actor) {
-            VtkViewer::Instance().RemoveActor(iso.actor);
+            render::application::GetRenderGateway().RemoveActor(iso.actor);
         }
     }
     m_isosurfaces.clear();
@@ -400,7 +400,7 @@ void ChargeDensityRenderer::updateIsosurface() {
     
     // 기존 액터 제거
     if (m_isosurfaceActor) {
-        VtkViewer::Instance().RemoveActor(m_isosurfaceActor);
+        render::application::GetRenderGateway().RemoveActor(m_isosurfaceActor);
         m_isosurfaceActor = nullptr;
     }
     
@@ -457,19 +457,19 @@ void ChargeDensityRenderer::updateIsosurface() {
     m_isosurfaceActor->SetVisibility(1);
     
     // 렌더러에 추가
-    VtkViewer::Instance().AddActor(m_isosurfaceActor, false);
+    render::application::GetRenderGateway().AddActor(m_isosurfaceActor, false);
     
     SPDLOG_INFO("Isosurface actor added with lattice transform");
 }
 
 void ChargeDensityRenderer::clear() {
     if (m_isosurfaceActor) {
-        VtkViewer::Instance().RemoveActor(m_isosurfaceActor);
+        render::application::GetRenderGateway().RemoveActor(m_isosurfaceActor);
         m_isosurfaceActor = nullptr;
     }
     
     if (m_sliceActor) {
-        VtkViewer::Instance().RemoveActor(m_sliceActor);
+        render::application::GetRenderGateway().RemoveActor(m_sliceActor);
         m_sliceActor = nullptr;
     }
     
@@ -890,7 +890,7 @@ bool ChargeDensityRenderer::captureRenderedSliceImage(std::vector<uint8_t>& pixe
     double backgroundColor[3] = {0.0, 0.0, 0.0};
     colorTransfer->GetColor(rangeMin, backgroundColor);
 
-    const bool captured = VtkViewer::Instance().CaptureActorImage(
+    const bool captured = render::application::GetRenderGateway().CaptureActorImage(
         m_sliceActor.GetPointer(),
         pixels,
         width,
@@ -914,7 +914,7 @@ void ChargeDensityRenderer::updateSlice() {
     
     // 기존 액터 제거
     if (m_sliceActor) {
-        VtkViewer::Instance().RemoveActor(m_sliceActor);
+        render::application::GetRenderGateway().RemoveActor(m_sliceActor);
     }
     
     // 슬라이스 위치 계산
@@ -1018,7 +1018,7 @@ void ChargeDensityRenderer::updateSlice() {
     m_sliceActor->SetMapper(mapper);
     m_sliceActor->SetVisibility(m_sliceVisible ? 1 : 0);
     
-    VtkViewer::Instance().AddActor(m_sliceActor, false);
+    render::application::GetRenderGateway().AddActor(m_sliceActor, false);
     
     if (m_slicePlane == SlicePlane::Miller) {
         SPDLOG_DEBUG("Slice updated: plane=Miller, hkl=({},{},{}), position={:.2f}",
@@ -1090,3 +1090,4 @@ bool ChargeDensityRenderer::loadFromParseResult(
 
 } // namespace infrastructure
 } // namespace atoms
+

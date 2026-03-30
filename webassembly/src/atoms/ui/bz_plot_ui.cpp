@@ -4,6 +4,7 @@
 #include "../domain/cell_manager.h"
 #include "../../app.h"
 #include "../../config/log_config.h"
+#include "../../render/application/render_gateway.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -502,7 +503,7 @@ void BZPlotUI::renderBZplot() {
         }
         
         // 렌더링 업데이트
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
     }
     
     if (sameLineButtons) {
@@ -529,7 +530,7 @@ void BZPlotUI::renderBZplot() {
             
             lastErrorMessage.clear();
             SPDLOG_INFO("BZ Plot cleared");
-            VtkViewer::Instance().RequestRender();
+            render::application::GetRenderGateway().RequestRender();
         }
     }
     

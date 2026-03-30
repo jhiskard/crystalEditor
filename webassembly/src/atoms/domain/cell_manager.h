@@ -25,9 +25,12 @@ struct CellInfo {
     }
 };
 
-extern CellInfo cellInfo;
-extern std::vector<vtkSmartPointer<vtkActor>> cellEdgeActors;
-extern bool cellVisible;
+CellInfo& GetCellInfo();
+std::vector<vtkSmartPointer<vtkActor>>& GetCellEdgeActors();
+bool& GetCellVisible();
+inline CellInfo& cellInfo = GetCellInfo();
+inline std::vector<vtkSmartPointer<vtkActor>>& cellEdgeActors = GetCellEdgeActors();
+inline bool& cellVisible = GetCellVisible();
 
 namespace atoms::domain {
 void setCellVisible(bool visible);

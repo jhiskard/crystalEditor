@@ -9,13 +9,7 @@
 #include <imgui.h>
 #include "atoms/atoms_template.h"
 #include "atoms/ui/charge_density_ui.h"
-#include "atoms/domain/bond_manager.h"
-#include "atoms/domain/atom_manager.h"
-using atoms::domain::bondGroups;
-using atoms::domain::createdAtoms;
-using atoms::domain::createdBonds;
-using atoms::domain::surroundingAtoms;
-using atoms::domain::surroundingBonds;
+#include "atoms/application/structure_read_model.h"
 
 int32_t ModelTree::s_DeleteMeshId = -1;
 int32_t ModelTree::s_SelectedMeshId = -1;
@@ -192,6 +186,11 @@ void ModelTree::renderClearMeasurementsConfirmPopup() {
 void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
     AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     auto structures = atomsTemplate.GetStructures();
+    const auto& createdAtoms = atoms::application::StructureReadModel::GetCreatedAtoms();
+    const auto& surroundingAtoms = atoms::application::StructureReadModel::GetSurroundingAtoms();
+    const auto& createdBonds = atoms::application::StructureReadModel::GetCreatedBonds();
+    const auto& surroundingBonds = atoms::application::StructureReadModel::GetSurroundingBonds();
+    const auto& bondGroups = atoms::application::StructureReadModel::GetBondGroups();
 
     if (structures.empty() && !atomsTemplate.HasChargeDensity()) {
         return;

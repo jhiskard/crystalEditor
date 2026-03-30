@@ -1,7 +1,7 @@
-// atoms/infrastructure/batch_update_system.cpp
+﻿// atoms/infrastructure/batch_update_system.cpp
 #include "batch_update_system.h"
 #include "../atoms_template.h"
-#include "../../vtk_viewer.h"
+#include "../../render/application/render_gateway.h"
 #include <spdlog/spdlog.h>
 
 namespace atoms {
@@ -63,7 +63,7 @@ void BatchUpdateSystem::endBatch() {
         pendingBondGroups.clear();
         
         // 4. 단일 렌더링 호출
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
         
         // 5. 성능 측정
         auto batchEnd = std::chrono::high_resolution_clock::now();
@@ -90,7 +90,7 @@ void BatchUpdateSystem::forceBatchEnd() {
         
         // 안전한 상태로 복구하기 위해 렌더링 실행
         try {
-            VtkViewer::Instance().RequestRender();
+            render::application::GetRenderGateway().RequestRender();
         } catch (const std::exception& e) {
             SPDLOG_ERROR("Failed to render during force batch end: {}", e.what());
         }
@@ -162,3 +162,4 @@ BatchUpdateSystem::BatchGuard::~BatchGuard() {
 
 } // namespace infrastructure
 } // namespace atoms
+
