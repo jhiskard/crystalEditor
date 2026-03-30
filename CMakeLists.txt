@@ -66,6 +66,14 @@ add_executable(${PROJECT_NAME}
   webassembly/src/test_window.cpp             webassembly/src/test_window.h
   webassembly/src/font_manager.cpp            webassembly/src/font_manager.h
   webassembly/src/file_loader.cpp             webassembly/src/file_loader.h
+  webassembly/src/io/platform/browser_file_picker.cpp
+  webassembly/src/io/platform/browser_file_picker.h
+  webassembly/src/io/application/parser_worker_service.cpp
+  webassembly/src/io/application/parser_worker_service.h
+  webassembly/src/io/application/import_apply_service.cpp
+  webassembly/src/io/application/import_apply_service.h
+  webassembly/src/io/application/import_orchestrator.cpp
+  webassembly/src/io/application/import_orchestrator.h
   webassembly/src/bind_function.cpp
   webassembly/src/lcrs_tree.cpp               webassembly/src/lcrs_tree.h
   webassembly/src/mesh.cpp                    webassembly/src/mesh.h

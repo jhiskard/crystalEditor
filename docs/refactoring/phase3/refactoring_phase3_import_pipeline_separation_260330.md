@@ -154,5 +154,11 @@
 - [x] Phase 2 `GO` 판정 확인
 - [x] Phase 2 변경사항 동기화 계획 반영
 - [x] Phase 3 Git 운영 규칙 확정
-- [ ] `refactor/phase3-import-pipeline` 브랜치 생성
-- [ ] W1 착수
+- [x] `refactor/phase3-import-pipeline` 브랜치 생성
+- [x] W1 BrowserAdapter 분리
+- [x] W2 ParserWorkerService 분리
+- [x] W3 ImportApplyService 통합
+- [x] W4 ImportOrchestrator 추출
+- [x] W5 통합/호환 정리
+- [x] W6 Gate 문서/로그 작성
+- [x] 수동 런타임 스모크 최종 PASS 기록
