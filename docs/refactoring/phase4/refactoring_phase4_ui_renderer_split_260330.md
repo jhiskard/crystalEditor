@@ -206,4 +206,5 @@
 - [x] W3 Measurement/Visibility 서비스 분해
 - [x] W4 ModelTree 섹션 분해
 - [x] W5 VtkViewer 상호작용/카메라 분해
-- [ ] W6 착수
+- [x] W6 통합/호환 정리
+- [ ] W7 Gate 검사/문서화
