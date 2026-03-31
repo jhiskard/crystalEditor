@@ -1,32 +1,30 @@
-# Phase 5 Go/No-Go (Phase 4 Close)
+# Phase 5 Go/No-Go (Phase 4 종료 판정)
 
-Decision date: `2026-03-30 (KST)`  
-Decision basis:
-- Plan: `docs/refactoring/phase4/refactoring_phase4_ui_renderer_split_260330.md`
-- Gate report: `docs/refactoring/phase4/dependency_gate_report.md`
+판정일: `2026-03-30 (KST)`  
+판정 근거:
+- 계획서: `docs/refactoring/phase4/refactoring_phase4_ui_renderer_split_260330.md`
+- 게이트 리포트: `docs/refactoring/phase4/dependency_gate_report.md`
 
-## 1. Gate Checklist
-| Gate | Criteria | Status | Evidence |
+## 1. 게이트 체크리스트
+| 게이트 | 기준 | 상태 | 근거 |
 |---|---|---|---|
-| G1. WBS completion | W0~W7 implemented and documented | PASS | Phase 4 plan checklist + branch commits |
-| G2. Static split gate | Moved definitions relocated and wired | PASS | `dependency_check_phase4_latest.txt` |
-| G3. Boundary gate | R1~R6 zero violation | PASS | `boundary_check_phase4_latest.txt` |
-| G4. Release build gate | WASM release build PASS log | SKIPPED | `build_phase4_gate_latest.txt` |
-| G5. Manual smoke gate | Core scenario smoke PASS record | PENDING | `manual_smoke_phase4_latest.md` |
+| G1. WBS 완료 | W0~W7 구현 및 문서화 완료 | PASS | Phase 4 계획서 체크리스트 + 브랜치 커밋 |
+| G2. 정적 분리 게이트 | 분리 대상 정의가 재배치되고 wiring 완료 | PASS | `dependency_check_phase4_latest.txt` |
+| G3. 경계 게이트 | R1~R6 위반 0건 | PASS | `boundary_check_phase4_latest.txt` |
+| G4. Release 빌드 게이트 | WASM release build PASS 로그 확보 | PASS | `build_phase4_gate_latest.txt` |
+| G5. 수동 스모크 게이트 | 핵심 시나리오 smoke PASS 기록 | PASS | `manual_smoke_phase4_latest.md` |
 
-## 2. Decision
-- **CONDITIONAL GO**
-- Interpretation:
-  - Structural refactor completion and static quality gates are satisfied.
-  - Runtime confirmation gates are explicitly deferred in this execution.
+## 2. 최종 판정
+- **GO**
+- 해석:
+  - 구조 분해 완료, 정적 게이트, Release 빌드, 수동 스모크까지 모두 충족했다.
 
-## 3. Mandatory Follow-ups Before Main Merge
-1. Run release build gate once and update `build_phase4_gate_latest.txt` with PASS evidence.
-2. Execute manual smoke for import/measurement/visibility/charge density/camera align and update `manual_smoke_phase4_latest.md`.
-3. If either follow-up fails, return this decision to `NO-GO` until corrected.
+## 3. 머지 전 참고사항
+1. 권고 지표(라인 감축 목표)는 일부 미달이며 최적화 백로그로 관리한다.
+2. 머지 후 회귀 이슈가 확인되면 판정을 `NO-GO`로 되돌리고 Phase 4 보완 작업을 재개한다.
 
-## 4. Residual Risks
-| ID | Risk | Level | Mitigation |
+## 4. 잔여 리스크
+| ID | 리스크 | 수준 | 대응 |
 |---|---|---|---|
-| R1 | Runtime regression not yet exercised in this run | Medium | Complete deferred build/smoke gates before merge |
-| R2 | Advisory line-reduction targets partially unmet | Low | Carry additional extraction candidates into Phase 5 backlog |
+| R1 | 더 넓은 사용자 시나리오에서 런타임 회귀 가능성 | Medium | 머지 후 스모크 범위 확장 및 이슈 모니터링 |
+| R2 | 권고 라인 감축 목표 일부 미달 | Low | Phase 5 백로그에 추가 분해 후보 반영 |

@@ -25,6 +25,15 @@ void TextCentered(const char* text) {
     ImGui::Text("%s", text);
 }
 
+void TextCenteredInt(int value) {
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%d", value);
+    float columnWidth = ImGui::GetColumnWidth();
+    float textWidth = ImGui::CalcTextSize(buf).x;
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f);
+    ImGui::Text("%s", buf);
+}
+
 void TextCenteredSizeT(size_t value) {
     char buf[16];
     snprintf(buf, sizeof(buf), "%zu", value);

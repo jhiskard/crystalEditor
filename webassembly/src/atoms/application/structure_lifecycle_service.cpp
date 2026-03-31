@@ -4,6 +4,13 @@
 #include <unordered_map>
 #include <unordered_set>
 
+using atoms::domain::atomGroups;
+using atoms::domain::bondGroups;
+using atoms::domain::createdAtoms;
+using atoms::domain::createdBonds;
+using atoms::domain::surroundingAtoms;
+using atoms::domain::surroundingBonds;
+
 void AtomsTemplate::RegisterStructure(int32_t id, const std::string& name) {
     if (id < 0) {
         return;
