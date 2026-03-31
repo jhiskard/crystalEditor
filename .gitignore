@@ -110,6 +110,7 @@ build/Release
 
 # WebAssembly build outputs (keep source build directory excluded)
 webassembly/build/
+webassembly/tests/build*/
 webassembly/dependencies/
 **/Release/
 **/Debug/
@@ -201,6 +202,9 @@ public/wasm.old2/
 !docs/refactoring/phase5/logs/
 !docs/refactoring/phase5/logs/*.md
 !docs/refactoring/phase5/logs/*.txt
+!docs/refactoring/phase6/logs/
+!docs/refactoring/phase6/logs/*.md
+!docs/refactoring/phase6/logs/*.txt
 
 # Example datasets
 /xsf_examples/

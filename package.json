@@ -17,6 +17,9 @@
     "rm-build": "if exist webassembly\\build rmdir /s /q webassembly\\build",
     "rm-wasm": "if exist public\\wasm\\* del /f /q public\\wasm\\*",
     "health": "echo 'OK'",
+    "test:cpp": "cmd /c \"..\\emsdk\\emsdk_env.bat && emcmake cmake --fresh -S webassembly/tests -B webassembly/tests/build-em -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CROSSCOMPILING_EMULATOR=node && cmake --build webassembly/tests/build-em --config Release && ctest --test-dir webassembly/tests/build-em --output-on-failure -C Release\"",
+    "test:smoke": "playwright test",
+    "test:phase6": "npm run test:cpp && npm run test:smoke",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
   },

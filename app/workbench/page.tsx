@@ -12,14 +12,23 @@ type VtkWasmModule = {
       canWrite: boolean,
       canOwn: boolean
     ) => void;
+    unlink?: (path: string) => void;
+    analyzePath?: (path: string) => { exists?: boolean };
     syncfs?: (populate: boolean, callback: (err?: unknown) => void) => void;
   };
   loadArrayBuffer: (name: string, deleteFile?: boolean) => void;
+  loadChgcarFile?: (name: string) => void;
   initIdbfs: () => void;
   saveImGuiIniFile?: () => void;
   loadImGuiIniFile?: () => void;
   exportXSF?: (fileName: string) => void;
   integrateXSF?: (fileName: string) => void;
+  getStructureCount?: () => number;
+  getCurrentStructureId?: () => number;
+  isStructureVisible?: (id: number) => boolean;
+  setStructureVisible?: (id: number, visible: boolean) => void;
+  getMeshCount?: () => number;
+  hasChargeDensity?: () => boolean;
   resize?: (width: number, height: number) => void;
 };
 // 전역 보강 대신 안전한 캐스팅을 위한 로컬 인터페이스
@@ -27,12 +36,64 @@ interface WindowWithVtk {
   VtkModule?: unknown;
 }
 
+type PendingImportKind = "xsf" | "chgcar";
+
+type PendingImport = {
+  text: string;
+  fileName: string;
+  kind: PendingImportKind;
+};
+
+type WorkbenchTestApi = {
+  importXsfText: (fileName: string, text: string) => void;
+  importChgcarText: (fileName: string, text: string) => void;
+  getStructureCount: () => number;
+  getCurrentStructureId: () => number;
+  isStructureVisible: (id: number) => boolean;
+  setStructureVisible: (id: number, visible: boolean) => void;
+  getMeshCount: () => number;
+  hasChargeDensity: () => boolean;
+};
+
+interface WindowWithVtk {
+  __VTK_WORKBENCH_TEST__?: WorkbenchTestApi;
+}
+
 export default function Workbench() {
   const vtkCanvasRef = useRef<HTMLCanvasElement>(null);
-  const pendingXSFRef = useRef<{ text: string; fileName: string } | null>(null);
+  const pendingImportRef = useRef<PendingImport | null>(null);
   const vtkModuleRef = useRef<VtkWasmModule | null>(null);
   const idbfsMountedRef = useRef(false);
   const [ready, setReady] = useState(false);
+
+  const removeExistingFile = (module: VtkWasmModule, fileName: string) => {
+    const filePath = `/${fileName}`;
+    const pathState = module.FS.analyzePath?.(filePath);
+    if (pathState?.exists) {
+      module.FS.unlink?.(filePath);
+    }
+  };
+
+  const importTextIntoModule = (
+    module: VtkWasmModule,
+    fileName: string,
+    text: string,
+    kind: PendingImportKind
+  ) => {
+    const bytes = new TextEncoder().encode(text);
+    removeExistingFile(module, fileName);
+    module.FS.createDataFile("/", fileName, bytes, true, false, true);
+
+    if (kind === "chgcar") {
+      if (!module.loadChgcarFile) {
+        throw new Error("loadChgcarFile binding is not available");
+      }
+      module.loadChgcarFile(fileName);
+      return;
+    }
+
+    module.loadArrayBuffer(fileName, true);
+  };
 
   const handleContextMenu = (e: React.FormEvent<HTMLCanvasElement>) => {
     e.preventDefault(); // To prevent the browser context menu
@@ -158,11 +219,8 @@ export default function Workbench() {
               if (!vm?.FS || !vm?.loadArrayBuffer) {
                 throw new Error("VtkModule is not ready");
               }
-              const te = new TextEncoder();
-              const bytes = te.encode(xsfText as string);
-              vm.FS.createDataFile("/", fileName, bytes, true, false, true);
-              vm.loadArrayBuffer(fileName, true);
-              console.debug('[WorkbenchBridge][child] XSF imported via MemFS/loadArrayBuffer', fileName, 'bytes=', bytes.length);
+              importTextIntoModule(vm, fileName, xsfText as string, "xsf");
+              console.debug('[WorkbenchBridge][child] XSF imported via test seam', fileName);
             } catch (err) {
               console.error("Failed to import XSF into VtkModule", err);
             }
@@ -172,7 +230,7 @@ export default function Workbench() {
           if ((window as unknown as WindowWithVtk).VtkModule) {
             doImport();
           } else {
-            pendingXSFRef.current = { text: xsfText, fileName };
+            pendingImportRef.current = { text: xsfText, fileName, kind: "xsf" };
             console.debug('[WorkbenchBridge][child] VtkModule not ready, pending XSF stored', fileName, 'length=', xsfText.length);
           }
         }
@@ -199,6 +257,7 @@ export default function Workbench() {
       window.removeEventListener("pagehide", handlePageHide);
       window.removeEventListener("beforeunload", handleBeforeUnload);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      delete (window as unknown as WindowWithVtk).__VTK_WORKBENCH_TEST__;
     };
   }, []);
 
@@ -331,19 +390,34 @@ export default function Workbench() {
       // Module ready
       setReady(true);
 
+      (window as unknown as WindowWithVtk).__VTK_WORKBENCH_TEST__ = {
+        importXsfText: (fileName: string, text: string) =>
+          importTextIntoModule(vtkModule, fileName, text, "xsf"),
+        importChgcarText: (fileName: string, text: string) =>
+          importTextIntoModule(vtkModule, fileName, text, "chgcar"),
+        getStructureCount: () => vtkModule.getStructureCount?.() ?? 0,
+        getCurrentStructureId: () => vtkModule.getCurrentStructureId?.() ?? -1,
+        isStructureVisible: (id: number) => vtkModule.isStructureVisible?.(id) ?? false,
+        setStructureVisible: (id: number, visible: boolean) =>
+          vtkModule.setStructureVisible?.(id, visible),
+        getMeshCount: () => vtkModule.getMeshCount?.() ?? 0,
+        hasChargeDensity: () => vtkModule.hasChargeDensity?.() ?? false,
+      };
+
       // 모듈 초기화 이후, 대기 중이던 XSF가 있으면 즉시 임포트
-      if (pendingXSFRef.current) {
+      if (pendingImportRef.current) {
         try {
-          const te = new TextEncoder();
-          const bytes = te.encode(pendingXSFRef.current.text);
-          const vm2 = vtkModule;
-          vm2.FS.createDataFile("/", pendingXSFRef.current.fileName, bytes, true, false, true);
-          vm2.loadArrayBuffer(pendingXSFRef.current.fileName, true);
-          console.debug('[WorkbenchBridge][child] pending XSF imported after init', pendingXSFRef.current.fileName, 'bytes=', bytes.length);
+          importTextIntoModule(
+            vtkModule,
+            pendingImportRef.current.fileName,
+            pendingImportRef.current.text,
+            pendingImportRef.current.kind
+          );
+          console.debug('[WorkbenchBridge][child] pending import applied after init', pendingImportRef.current.fileName);
         } catch (e) {
-          console.error("Failed to import pending XSF", e);
+          console.error("Failed to import pending file", e);
         } finally {
-          pendingXSFRef.current = null;
+          pendingImportRef.current = null;
         }
       }
 
@@ -389,7 +463,11 @@ export default function Workbench() {
   };
 
   return (
-    <div className="h-full">
+    <div
+      className="h-full"
+      data-testid="workbench-root"
+      data-ready={ready ? "true" : "false"}
+    >
       <div></div>
       <canvas
         ref={vtkCanvasRef}

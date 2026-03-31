@@ -4,6 +4,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkActor.h>
 
+#include "cell_transform.h"
+
 class AtomsTemplate;
 
 
@@ -42,7 +44,4 @@ void getCellInverse(float out[3][3]);
 void setCellModified(bool modified);
 bool isCellModified();
 void applyCellChanges(::AtomsTemplate* parent);
-void calculateInverseMatrix(const float matrix[3][3], float inverse[3][3]);
-void cartesianToFractional(const float cartesian[3], float fractional[3], const float invmatrix[3][3]);
-void fractionalToCartesian(const float fractional[3], float cartesian[3], const float matrix[3][3]);
 } // namespace atoms::domain

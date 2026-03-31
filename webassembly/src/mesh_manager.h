@@ -44,6 +44,7 @@ public:
         vtkSmartPointer<vtkDataSet> faceDataSet = nullptr, vtkSmartPointer<vtkDataSet> volumeDataSet = nullptr,
         int32_t parentId = 0);
     const LcrsTreeUPtr& GetMeshTree() const { return m_MeshTree; }
+    size_t GetMeshCount() const { return m_IdToMeshMap.size(); }
     const Mesh* GetMeshById(int32_t id) const;
     Mesh* GetMeshByIdMutable(int32_t id);
 

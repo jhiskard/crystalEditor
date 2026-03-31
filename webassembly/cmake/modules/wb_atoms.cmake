@@ -8,10 +8,12 @@ target_sources(wb_atoms PRIVATE
   webassembly/src/atoms/domain/bond_manager.cpp
   webassembly/src/atoms/domain/bz_plot.cpp
   webassembly/src/atoms/domain/cell_manager.cpp
+  webassembly/src/atoms/domain/cell_transform.cpp
   webassembly/src/atoms/domain/charge_density.cpp
   webassembly/src/atoms/domain/crystal_structure.cpp
   webassembly/src/atoms/domain/crystal_system.cpp
   webassembly/src/atoms/domain/element_database.cpp
+  webassembly/src/atoms/domain/measurement_geometry.cpp
   webassembly/src/atoms/domain/structure_state_store.cpp
   webassembly/src/atoms/domain/surrounding_atom_manager.cpp
   webassembly/src/atoms/infrastructure/batch_update_system.cpp

@@ -2,6 +2,7 @@
 #include "file_io_manager.h"
 #include "../atoms_template.h"
 #include "../../config/log_config.h"
+#include "../../io/infrastructure/xsf_parser.h"
 #include "../domain/element_database.h"
 #include "../domain/atom_manager.h"
 #include "../domain/cell_manager.h"
@@ -328,6 +329,8 @@ std::string FileIOManager::getFileExtension(const std::string& filePath) {
 // ============================================================================
 
 FileIOManager::ParseResult FileIOManager::parseXSFFile(const std::string& filePath) {
+    return io::infrastructure::XsfParser::parseStructureFile(filePath, m_progressCallback);
+
     ParseResult result;
     
     std::ifstream file(filePath);
@@ -451,6 +454,8 @@ FileIOManager::ParseResult FileIOManager::parseXSFFile(const std::string& filePa
 }
 
 FileIOManager::Grid3DParseResult FileIOManager::parse3DGridXSFFile(const std::string& filePath) {
+    return io::infrastructure::XsfParser::parseGridFile(filePath, m_progressCallback);
+
     Grid3DParseResult result;
 
     const std::string blockBegin = "BEGIN_BLOCK_DATAGRID_3D";
