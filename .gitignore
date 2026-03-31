@@ -129,6 +129,9 @@ Makefile
 *.cmake
 !CMakeLists.txt
 !Dependency.cmake
+!webassembly/cmake/
+!webassembly/cmake/modules/
+!webassembly/cmake/modules/*.cmake
 
 # C++ build artifacts
 *.o
@@ -195,6 +198,9 @@ public/wasm.old2/
 
 # Local refactoring notes
 /refactoring_*.md
+!docs/refactoring/phase5/logs/
+!docs/refactoring/phase5/logs/*.md
+!docs/refactoring/phase5/logs/*.txt
 
 # Example datasets
 /xsf_examples/

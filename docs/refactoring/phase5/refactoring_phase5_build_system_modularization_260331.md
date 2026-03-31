@@ -1,9 +1,9 @@
 # Phase 5 세부 작업계획서: 빌드 시스템 모듈화
 
 작성일: `2026-03-31 (KST)`  
-최종 업데이트: `2026-03-31 (Phase 1 양식 재정리)`  
+최종 업데이트: `2026-03-31 (Phase 종료 판정 완료)`  
 대상 범위: 루트 `CMakeLists.txt`, `webassembly/cmake/modules/*`, 모듈별 소스 등록 경계  
-진행 상태: `착수 전 계획 확정`
+진행 상태: `Phase 종료 판정 완료(근거: docs/refactoring/phase5/dependency_gate_report.md, docs/refactoring/phase5/go_no_go_phase6.md)`
 
 ## 0. Phase 4 종료 반영사항
 
@@ -16,7 +16,7 @@
 ### 0.2 착수 기준선(Phase 4 종료 시점)
 | 항목 | 기준값 | 출처 |
 |---|---:|---|
-| 루트 `CMakeLists.txt` 라인 수 | 296 | 코드 기준선 |
+| 루트 `CMakeLists.txt` 라인 수 | 271 | 코드 기준선(Phase 5 착수 직전 실측) |
 | 빌드 소스 등록 방식 | 단일 `add_executable` 중심 | 착수 시점 빌드 스크립트 |
 | 모듈 CMake 파일 수 | 0 | 착수 시점 파일 구조 |
 
@@ -154,6 +154,7 @@
 
 ### 주요 수정 파일
 - `CMakeLists.txt`
+- `docs/refactoring/phase5/logs/cmake_inventory_phase5_latest.md`
 - `docs/refactoring/phase5/dependency_gate_report.md`
 - `docs/refactoring/phase5/go_no_go_phase6.md`
 
@@ -187,13 +188,13 @@
 ## 10. 착수 체크리스트
 - [x] Phase 4 종료 `GO` 확인
 - [x] 컴파일 정책 확인(WBS별 미수행, 최종 1회 수행)
-- [ ] `refactor/phase5-build-system-modularization` 브랜치 생성
-- [ ] W1 CMake Baseline 인벤토리
-- [ ] W2 모듈 타깃 설계/스캐폴딩
-- [ ] W3 소스 리스트 모듈 이관
-- [ ] W4 의존성/링크 경계 정리
-- [ ] W5 정적 게이트 스크립트/리포트
-- [ ] W6 Gate 문서화/종료 판정 준비(최종 컴파일 1회 포함)
+- [x] `refactor/phase5-build-system-modularization` 브랜치 생성
+- [x] W1 CMake Baseline 인벤토리
+- [x] W2 모듈 타깃 설계/스캐폴딩
+- [x] W3 소스 리스트 모듈 이관
+- [x] W4 의존성/링크 경계 정리
+- [x] W5 정적 게이트 스크립트/리포트
+- [x] W6 Gate 문서화/종료 판정 준비(최종 컴파일 1회 포함)
 
 ## 11. Phase 5 클래스/함수 및 빌드 블록 이동 매핑표
 > Phase 5는 코드 함수 이동보다 빌드 정의 블록 이동이 핵심이다.  
@@ -224,7 +225,7 @@
 ## 13. Phase 5 수용 기준(정량)
 | 항목 | Baseline | Target | 검증 방식 |
 |---|---:|---:|---|
-| 루트 `CMakeLists.txt` 라인 수 | 296 | <= 177 | 라인 수 측정 |
+| 루트 `CMakeLists.txt` 라인 수 | 271 | <= 177 | 라인 수 측정 |
 | 모듈 CMake 파일 수 | 0 | 6 이상 | 파일 존재 확인 |
 | 미분류 소스 수 | N/A | 0 | 인벤토리 리포트 |
 | 소스 등록 중복/누락 | N/A | 0 | `check_phase5_build_modules.ps1` |
