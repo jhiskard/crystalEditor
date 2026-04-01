@@ -32,4 +32,8 @@ target_sources(wb_atoms PRIVATE
   webassembly/src/atoms/ui/cell_info_ui.cpp
   webassembly/src/atoms/ui/charge_density_ui.cpp
   webassembly/src/atoms/ui/periodic_table_ui.cpp
+  webassembly/src/structure/domain/structure_repository.cpp
+  webassembly/src/structure/application/structure_service.cpp
+  webassembly/src/measurement/application/measurement_service.cpp
+  webassembly/src/density/application/density_service.cpp
 )

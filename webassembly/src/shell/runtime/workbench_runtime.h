@@ -14,6 +14,24 @@ class ModelTree;
 class TestWindow;
 class VtkViewer;
 
+namespace structure {
+namespace application {
+class StructureService;
+} // namespace application
+} // namespace structure
+
+namespace measurement {
+namespace application {
+class MeasurementService;
+} // namespace application
+} // namespace measurement
+
+namespace density {
+namespace application {
+class DensityService;
+} // namespace application
+} // namespace density
+
 /**
  * @brief Runtime composition root facade for legacy singleton graph.
  * @details Phase 7에서는 singleton 제거 대신 접근 경계를 runtime으로 제한한다.
@@ -52,6 +70,21 @@ public:
      * @brief Returns atoms feature facade.
      */
     AtomsTemplate& AtomsTemplateFacade();
+
+    /**
+     * @brief Returns structure feature service facade.
+     */
+    structure::application::StructureService& StructureFeature();
+
+    /**
+     * @brief Returns measurement feature service facade.
+     */
+    measurement::application::MeasurementService& MeasurementFeature();
+
+    /**
+     * @brief Returns density feature service facade.
+     */
+    density::application::DensityService& DensityFeature();
 
     /**
      * @brief Returns model tree panel facade.

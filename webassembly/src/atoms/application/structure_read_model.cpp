@@ -1,26 +1,27 @@
 #include "structure_read_model.h"
+#include "../../structure/domain/structure_repository.h"
 
 namespace atoms {
 namespace application {
 
 const std::vector<domain::AtomInfo>& StructureReadModel::GetCreatedAtoms() {
-    return domain::createdAtoms;
+    return structure::domain::GetStructureRepository().CreatedAtoms();
 }
 
 const std::vector<domain::AtomInfo>& StructureReadModel::GetSurroundingAtoms() {
-    return domain::surroundingAtoms;
+    return structure::domain::GetStructureRepository().SurroundingAtoms();
 }
 
 const std::vector<domain::BondInfo>& StructureReadModel::GetCreatedBonds() {
-    return domain::createdBonds;
+    return structure::domain::GetStructureRepository().CreatedBonds();
 }
 
 const std::vector<domain::BondInfo>& StructureReadModel::GetSurroundingBonds() {
-    return domain::surroundingBonds;
+    return structure::domain::GetStructureRepository().SurroundingBonds();
 }
 
 const std::map<std::string, domain::BondGroupInfo>& StructureReadModel::GetBondGroups() {
-    return domain::bondGroups;
+    return structure::domain::GetStructureRepository().BondGroups();
 }
 
 } // namespace application

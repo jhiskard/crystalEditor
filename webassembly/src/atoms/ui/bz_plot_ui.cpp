@@ -120,7 +120,7 @@ void BZPlotUI::renderOptions() {
 
         // ⚠️ 중요: 현재 옵션(m_showVectors / m_showLabels)을 그대로 넘겨서
         // 전체 BZ Plot을 다시 생성하도록 한다.
-        bool success = m_parent->enterBZPlotMode(
+        bool success = m_parent->EnterBZPlotMode(
             pathStr,
             npoints,
             m_showVectors,   // ← 벡터 표시 여부
@@ -162,7 +162,7 @@ void BZPlotUI::renderToggleAndClearButtons() {
 
             bool success = false;
             if (m_parent) {
-                success = m_parent->enterBZPlotMode(
+                success = m_parent->EnterBZPlotMode(
                     pathStr,
                     npoints,
                     m_showVectors,
@@ -177,7 +177,7 @@ void BZPlotUI::renderToggleAndClearButtons() {
         } else {
             // Crystal 모드로 복귀
             if (m_parent) {
-                m_parent->exitBZPlotMode();
+                m_parent->ExitBZPlotMode();
             }
             m_showingBZ = false;
         }
@@ -192,7 +192,7 @@ void BZPlotUI::renderToggleAndClearButtons() {
         m_lastErrorMessage.clear();
         if (m_parent) {
             // BZ Plot을 제거하고 crystal 모드로 복귀
-            m_parent->exitBZPlotMode();
+            m_parent->ExitBZPlotMode();
         }
         m_showingBZ = false;
     }
@@ -420,12 +420,12 @@ void BZPlotUI::renderBZplot() {
                 // 3. 기존 객체 숨기기 (원자, 결합, Unit Cell)
                 SPDLOG_INFO("Hiding crystal structure...");
                 
-                if (m_parent->m_vtkRenderer) {
-                    m_parent->m_vtkRenderer->setAllAtomGroupsVisible(false);
-                    m_parent->m_vtkRenderer->setAllBondGroupsVisible(false);
+                if (auto* vtkRenderer = m_parent->vtkRenderer()) {
+                    vtkRenderer->setAllAtomGroupsVisible(false);
+                    vtkRenderer->setAllBondGroupsVisible(false);
                     
                     if (m_parent->isCellVisible()) {
-                        m_parent->m_vtkRenderer->setUnitCellVisible(false);
+                        vtkRenderer->setUnitCellVisible(false);
                     }
                 }
                 
@@ -447,10 +447,10 @@ void BZPlotUI::renderBZplot() {
                 }
 
                 // 5. 완전한 BZ Plot 생성 (모든 요소 포함)
-                if (m_parent->m_vtkRenderer) {
+                if (auto* vtkRenderer = m_parent->vtkRenderer()) {
                     SPDLOG_INFO("Creating complete BZ Plot with path: '{}'", pathStr);
                     
-                    m_parent->m_vtkRenderer->createCompleteBZPlot(
+                    vtkRenderer->createCompleteBZPlot(
                         bzData,
                         cell, 
                         icell, 
@@ -482,20 +482,20 @@ void BZPlotUI::renderBZplot() {
             SPDLOG_INFO("=== Switching to Crystal mode ===");
             
             // 1. BZ Plot 숨기기
-            if (m_parent->m_vtkRenderer) {
+            if (auto* vtkRenderer = m_parent->vtkRenderer()) {
                 SPDLOG_INFO("Hiding BZ Plot...");
-                m_parent->m_vtkRenderer->setBZPlotVisible(false);
+                vtkRenderer->setBZPlotVisible(false);
             }
             
             // 2. 기존 객체 다시 표시 (원자, 결합, Unit Cell)
             SPDLOG_INFO("Showing crystal structure...");
             
-            if (m_parent->m_vtkRenderer) {
-                m_parent->m_vtkRenderer->setAllAtomGroupsVisible(true);
-                m_parent->m_vtkRenderer->setAllBondGroupsVisible(true);
+            if (auto* vtkRenderer = m_parent->vtkRenderer()) {
+                vtkRenderer->setAllAtomGroupsVisible(true);
+                vtkRenderer->setAllBondGroupsVisible(true);
                 
                 if (m_parent->isCellVisible()) {
-                    m_parent->m_vtkRenderer->setUnitCellVisible(true);
+                    vtkRenderer->setUnitCellVisible(true);
                 }
             }
             
@@ -512,17 +512,17 @@ void BZPlotUI::renderBZplot() {
     
     // Clear 버튼
     if (ImGui::Button("Clear BZ", buttonSize)) {
-        if (m_parent->m_vtkRenderer) {
-            m_parent->m_vtkRenderer->clearBZPlot();
+        if (auto* vtkRenderer = m_parent->vtkRenderer()) {
+            vtkRenderer->clearBZPlot();
             
             // Crystal 모드로 돌아가기
             if (showingBZ) {
-                if (m_parent->m_vtkRenderer) {
-                    m_parent->m_vtkRenderer->setAllAtomGroupsVisible(true);
-                    m_parent->m_vtkRenderer->setAllBondGroupsVisible(true);
+                if (auto* restoreRenderer = m_parent->vtkRenderer()) {
+                    restoreRenderer->setAllAtomGroupsVisible(true);
+                    restoreRenderer->setAllBondGroupsVisible(true);
                     
                     if (m_parent->isCellVisible()) {
-                        m_parent->m_vtkRenderer->setUnitCellVisible(true);
+                        restoreRenderer->setUnitCellVisible(true);
                     }
                 }
                 showingBZ = false;

@@ -26,6 +26,7 @@
 #include <imgui.h>
 
 #include <array>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -101,6 +102,24 @@ namespace infrastructure {
 class ChargeDensityRenderer;
 }
 }
+
+namespace structure {
+namespace application {
+class StructureService;
+} // namespace application
+} // namespace structure
+
+namespace measurement {
+namespace application {
+class MeasurementService;
+} // namespace application
+} // namespace measurement
+
+namespace density {
+namespace application {
+class DensityService;
+} // namespace application
+} // namespace density
 
 // ============================================================================
 // MAIN ATOMISTIC MODEL BUILDER CLASS
@@ -222,6 +241,7 @@ public:
     
     /// ?꾪븯 諛??UI ?묎렐
     atoms::ui::ChargeDensityUI* chargeDensityUI() { return m_chargeDensityUI.get(); }
+    const atoms::ui::ChargeDensityUI* chargeDensityUI() const { return m_chargeDensityUI.get(); }
 
     // ========================================================================
     // Charge Density Visibility
@@ -237,6 +257,24 @@ public:
     void SetAllChargeDensityAdvancedGridVisible(int32_t structureId, bool volumeMode, bool visible);
     void ApplyChargeDensityAdvancedGridVisibilityForStructure(int32_t structureId);
     void SetChargeDensityStructureId(int32_t id);
+
+    /**
+     * @brief Returns structure feature service facade.
+     */
+    structure::application::StructureService& structureService() noexcept;
+    const structure::application::StructureService& structureService() const noexcept;
+
+    /**
+     * @brief Returns measurement feature service facade.
+     */
+    measurement::application::MeasurementService& measurementService() noexcept;
+    const measurement::application::MeasurementService& measurementService() const noexcept;
+
+    /**
+     * @brief Returns density feature service facade.
+     */
+    density::application::DensityService& densityService() noexcept;
+    const density::application::DensityService& densityService() const noexcept;
     
     // ========================================================================
 
@@ -555,6 +593,39 @@ public:
     BatchGuard createBatchGuard() { 
         return BatchGuard(m_batchSystem.get()); 
     }
+
+    /**
+     * @brief Applies staged atom edits from editor workflows.
+     * @details Public wrapper introduced in Phase 8 to remove UI friend coupling.
+     */
+    void ApplyAtomChangesFromEditor();
+
+    /**
+     * @brief Applies staged unit-cell edits from editor workflows.
+     * @details Public wrapper introduced in Phase 8 to remove UI friend coupling.
+     */
+    void ApplyCellChangesFromEditor();
+
+    /**
+     * @brief Enters Brillouin-zone plot mode through public module API.
+     */
+    bool EnterBZPlotMode(
+        const std::string& path,
+        int npoints,
+        bool showVectors,
+        bool showLabels,
+        std::string& outErrorMessage);
+
+    /**
+     * @brief Exits Brillouin-zone plot mode through public module API.
+     */
+    void ExitBZPlotMode();
+
+    /**
+     * @brief Updates batch performance statistics from infrastructure hooks.
+     * @details Public wrapper introduced in Phase 8 to remove infrastructure friend coupling.
+     */
+    void UpdateBatchPerformanceStats(float duration, size_t atomGroupCount, size_t bondGroupCount);
 
     // ========================================================================
     // BOND LOGIC LAYER (遺꾨━ ?꾨낫 - BondLogic ?대옒??
@@ -1389,15 +1460,10 @@ private:
     std::unique_ptr<atoms::ui::BravaisLatticeUI> m_bravaisLatticeUI; ///< Bravais lattice UI ?뚯쑀.
 
     // ========================================================================
-    // FRIENDS
+    // Phase 8 modular service facades
     // ========================================================================
-    friend class atoms::infrastructure::BatchUpdateSystem;
-    friend class atoms::infrastructure::VTKRenderer;
-    friend class atoms::infrastructure::FileIOManager;  // [異붽?] FileIOManager friend ?좎뼵
-    friend class atoms::ui::PeriodicTableUI; 
-    friend class atoms::ui::BravaisLatticeUI;
-    friend class atoms::ui::AtomEditorUI;
-    friend class atoms::ui::BondUI;
-    friend class atoms::ui::CellInfoUI;
-    friend class atoms::ui::BZPlotUI;
+    std::unique_ptr<structure::application::StructureService> m_structureService;
+    std::unique_ptr<measurement::application::MeasurementService> m_measurementService;
+    std::unique_ptr<density::application::DensityService> m_densityService;
+
 };

@@ -78,7 +78,7 @@ void AtomEditorUI::render() {
             // 🔧 변경점: applyAtomChanges()가 내부에서 BatchGuard 사용
             // UI 스레드에서 직접 호출 가능
             if (m_parent) {
-                m_parent->applyAtomChanges();
+                m_parent->ApplyAtomChangesFromEditor();
             }
             hasChanges = false;
             
@@ -832,7 +832,7 @@ void AtomEditorUI::renderSelectionPanel(bool editMode, bool useFractionalCoords,
             atom.modified = true;
         }
         if (m_parent) {
-            m_parent->applyAtomChanges();
+            m_parent->ApplyAtomChangesFromEditor();
         }
         if (hasChanges) {
             *hasChanges = false;
@@ -878,7 +878,7 @@ void AtomEditorUI::renderSelectionPanel(bool editMode, bool useFractionalCoords,
         }
 
         if (anySelected && m_parent) {
-            m_parent->applyAtomChanges();
+            m_parent->ApplyAtomChangesFromEditor();
         }
         if (anySelected && hasChanges) {
             *hasChanges = false;
