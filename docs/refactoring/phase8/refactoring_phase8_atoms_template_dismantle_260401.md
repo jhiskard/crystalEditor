@@ -1,11 +1,11 @@
 # Phase 8 세부 작업계획서: `AtomsTemplate` 해체 (structure / measurement / density 분리)
 
 작성일: `2026-04-01 (KST)`  
-최종 업데이트: `2026-04-01 (W1~W5 실행 반영)`  
+최종 업데이트: `2026-04-01 (W1~W6 실행 반영)`  
 기준 계획: `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md` (Phase 8 절)  
 선행 판정: **GO** (`docs/refactoring/phase7/go_no_go_phase8.md`)  
 대상 범위: `webassembly/src/atoms/*`, `webassembly/src/shell/runtime/*`, `webassembly/src/platform/wasm/*`, `webassembly/src/app.cpp`, `webassembly/src/file_loader.cpp`, `webassembly/src/model_tree.cpp`, `scripts/refactoring/*`, `docs/refactoring/phase8/*`  
-진행 상태: `W1~W5 완료, W6 대기`
+진행 상태: `W1~W6 완료 (Phase 8 종료 문서 반영)`
 
 ## 0. Phase 7 종료 반영사항
 
@@ -253,4 +253,4 @@
 - [x] W3 density 서비스 API 도입 및 model tree 경로 일부 전환
 - [x] W4 `atoms_template.h` friend class 0건 달성 + wrapper API 전환
 - [x] W5 `check_phase8_atoms_template_dismantle.ps1` 작성 및 정적 게이트 PASS 로그 확보
-- [ ] W6 빌드/테스트/종료 판정 문서화
+- [x] W6 빌드/테스트/종료 판정 문서화
