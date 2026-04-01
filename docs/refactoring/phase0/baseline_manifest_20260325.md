@@ -2,7 +2,7 @@
 
 ## 1. 메타 정보
 - 기준 계획 문서:
-  - `refactoring_plan_260324.md`
+  - `docs/refactoring/refactoring_plan_260324.md`
   - `refactoring_phase0_stabilization_baseline_260325.md`
 - 측정 일시(KST): `2026-03-27 10:52:30 +09:00`
 - 측정자: `user` + Codex
