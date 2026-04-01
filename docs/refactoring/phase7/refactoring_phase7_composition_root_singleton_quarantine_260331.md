@@ -1,9 +1,9 @@
 # Phase 7 세부 작업계획서: Composition Root 도입 + singleton quarantine
 
 작성일: `2026-03-31 (KST)`  
-최종 업데이트: `2026-03-31 (계획 수립)`  
+최종 업데이트: `2026-04-01 (W0~W6 실행 + 폰트/VASP-XSF 회귀 수정 반영)`  
 대상 범위: `webassembly/src/main.cpp`, `webassembly/src/app.cpp`, `webassembly/src/bind_function.cpp`, `webassembly/src/file_loader.*`, `CMakeLists.txt`, `scripts/refactoring/*`, `docs/refactoring/phase7/*`  
-진행 상태: `착수 준비 완료 (Phase 7 implementation 대기)`
+진행 상태: `W0~W6 완료`
 
 ## 0. Phase 6 종료 반영사항
 
@@ -187,17 +187,22 @@
 
 ## W6. 컴파일/테스트 및 종료 판정 문서화
 ### 작업
-- 빌드/테스트 실행(권장):
+- 게이트 로그 수집 실행:
+  - `powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase7_runtime_composition.ps1`
   - `npm run build-wasm:release`
   - `npm run test:cpp`
   - `npm run test:smoke`
-- 로그 기록:
+- 실행 로그 기록:
+  - `docs/refactoring/phase7/logs/check_phase7_runtime_composition_latest.txt`
   - `docs/refactoring/phase7/logs/build_phase7_latest.txt`
   - `docs/refactoring/phase7/logs/unit_test_phase7_latest.txt`
   - `docs/refactoring/phase7/logs/smoke_phase7_latest.txt`
-- 종료 문서 작성:
+- 종료 문서 작성 완료:
   - `docs/refactoring/phase7/dependency_gate_report.md`
   - `docs/refactoring/phase7/go_no_go_phase8.md`
+- W5 완료 이후 회귀 수정 반영:
+  - 폰트/아이콘 복구: `PrimeLegacySingletons()`에서 `FontRegistry()` 선행 초기화 제거, `main.cpp`의 `ImGui::CreateContext()` 이후 초기화 순서 고정
+  - VASP/XSF 회귀 수정: `ChargeDensityUI::setGridDataEntries()`에서 첫 grid 강제 bootstrap 적용으로 `VASP -> XSF(Grid)` 순서에서 Isosurface 누락 방지
 
 ### 완료 기준
 - Phase 8 착수 판정 가능한 gate 문서/로그 패키지 완성
@@ -268,13 +273,13 @@
 ## 10. 착수 체크리스트
 - [x] Phase 6 종료 `GO` 확인
 - [x] Phase 7 기준선 수치 실측
-- [ ] W0 착수/브랜치 셋업
-- [ ] W1 runtime 스캐폴딩
-- [ ] W2 main.cpp runtime 전환
-- [ ] W3 wasm binding 분리/경유화
-- [ ] W4 app.cpp singleton quarantine
-- [ ] W5 정적 게이트 도입
-- [ ] W6 컴파일/테스트 + 종료 판정 문서화
+- [x] W0 착수/브랜치 셋업
+- [x] W1 runtime 스캐폴딩
+- [x] W2 main.cpp runtime 전환
+- [x] W3 wasm binding 분리/경유화
+- [x] W4 app.cpp singleton quarantine
+- [x] W5 정적 게이트 도입
+- [x] W6 컴파일/테스트 + 종료 판정 문서화
 
 ## 11. Phase 7 함수/진입점 매핑표
 > 표기  
@@ -311,4 +316,3 @@
 | `DECLARE_SINGLETON` 선언 수(매크로 제외) | 11 | <=11 | 정적 게이트 |
 | Phase 7 전용 게이트 스크립트 | 0 | 1 | `check_phase7_runtime_composition.ps1` |
 | 컴파일/테스트 로그 패키지 | 0 | 3종 이상 | `docs/refactoring/phase7/logs/*` |
-

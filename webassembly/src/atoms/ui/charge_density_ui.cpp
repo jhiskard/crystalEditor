@@ -533,8 +533,12 @@ void ChargeDensityUI::setGridDataEntries(std::vector<GridDataEntry>&& entries) {
     if (!m_gridDataEntries.empty()) {
         m_simpleGridVisibility[toLowerCopy(m_gridDataEntries.front().name)] = true;
     }
-    if (!m_gridDataEntries.empty() && (!m_fileLoaded || m_loadedFromGrid)) {
-        loadFromGridEntry(0);
+    if (!m_gridDataEntries.empty()) {
+        // Always bootstrap the first grid so structure context and renderer state
+        // switch to the newly imported XSF grid payload.
+        if (!loadFromGridEntry(0)) {
+            SPDLOG_ERROR("Failed to bootstrap first XSF grid entry after import.");
+        }
     }
 }
 

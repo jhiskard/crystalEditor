@@ -141,7 +141,7 @@ target_link_libraries(wb_ui PUBLIC wb_core wb_render wb_mesh wb_atoms wb_io)
 
 add_executable(${PROJECT_NAME}
   webassembly/src/main.cpp
-  webassembly/src/bind_function.cpp
+  webassembly/src/platform/wasm/workbench_bindings.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE wb_ui wb_io wb_atoms wb_mesh wb_render wb_core)
 target_link_options(${PROJECT_NAME} PRIVATE

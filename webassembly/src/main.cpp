@@ -1,6 +1,6 @@
 #include "app.h"
-#include "font_manager.h"
-#include "mesh_manager.h"
+#include "config/log_config.h"
+#include "shell/runtime/workbench_runtime.h"
 
 // GLFW
 #define GLFW_INCLUDE_ES3    // Include OpenGL ES 3.0 headers
@@ -60,11 +60,8 @@ void OnGlfwError(int errorCode, const char* description) {
 int main(int argc, char* argv[]) {
     SPDLOG_DEBUG("Start Vtk-Workbench");
 
-    // Initialize application
-    App& app = App::Instance();
-
-    // Initialize data managers
-    MeshManager& meshManager = MeshManager::Instance();
+    WorkbenchRuntime& runtime = GetWorkbenchRuntime();
+    runtime.PrimeLegacySingletons();
 
     // Initialize glfw
     if (!glfwInit()) {
@@ -108,14 +105,14 @@ int main(int argc, char* argv[]) {
 
     // Setup fonts
     // Initialize font manager after ImGui context is created.
-    FontManager& fontManager = FontManager::Instance();
+    runtime.FontRegistry();
 
     // Setup ImGui style
-    app.SetInitColorStyle();  // Initialize ImGui style after ImGui context is created.
-    app.SetInitFontSize();    // Initialize global font size after ImGui context is created.
-    app.SetDetailedStyle();   // Setup detailed ImGui style
+    runtime.AppController().SetInitColorStyle();  // Initialize ImGui style after ImGui context is created.
+    runtime.AppController().SetInitFontSize();    // Initialize global font size after ImGui context is created.
+    runtime.AppController().SetDetailedStyle();   // Setup detailed ImGui style
 
-    ImGui::GetStyle().ScaleAllSizes(app.DevicePixelRatio());
+    ImGui::GetStyle().ScaleAllSizes(runtime.DevicePixelRatio());
 
     const char* glsl_version = "#version 300 es";    // OpenGL ES for WebGL
 
@@ -126,7 +123,7 @@ int main(int argc, char* argv[]) {
 
     // Initialize ImGui-based windows
     // They should be initialized after ImGui context is created.
-    app.InitImGuiWindows();
+    runtime.AppController().InitImGuiWindows();
 
     // Main loop
     SPDLOG_DEBUG("Start main loop");
@@ -145,7 +142,7 @@ int main(int argc, char* argv[]) {
         ImGui::NewFrame();
 
         // Render all ImGui-based windows
-        app.Render();
+        runtime.RenderAppFrame();
 
         ImGui::Render();
         

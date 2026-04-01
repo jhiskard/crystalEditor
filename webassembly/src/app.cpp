@@ -1,4 +1,5 @@
-#include "app.h"
+﻿#include "app.h"
+#include "shell/runtime/workbench_runtime.h"
 #include "font_manager.h"
 #include "file_loader.h"
 #include "vtk_viewer.h"
@@ -418,7 +419,7 @@ void App::Render() {
 
 void App::renderDockSpaceAndMenu() {
     static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
-    FontManager& fontManager = FontManager::Instance();
+    FontManager& fontManager = GetWorkbenchRuntime().FontRegistry();
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
@@ -615,7 +616,7 @@ void App::renderDockSpaceAndMenu() {
 
         if (ImGui::BeginMenu("  File")) {
             if (ImGui::MenuItem("Open Structure File")) {
-                FileLoader::Instance().RequestOpenStructureImport();
+                GetWorkbenchRuntime().RequestOpenStructureImport();
             }
             AddTooltip("Open Structure File", "Import XSF, XSF(Grid), vasp CHGCAR");
 
@@ -630,19 +631,19 @@ void App::renderDockSpaceAndMenu() {
             if (ImGui::MenuItem("Atoms")) {
                 m_bShowCreatedAtomsWindow = true;
                 requestFocus(FocusTarget::CreatedAtoms);
-                AtomsTemplate::Instance().RequestEditorSection(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(
                     AtomsTemplate::EditorSectionRequest::Atoms);
             }
             if (ImGui::MenuItem("Bonds")) {
                 m_bShowBondsManagementWindow = true;
                 requestFocus(FocusTarget::BondsManagement);
-                AtomsTemplate::Instance().RequestEditorSection(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(
                     AtomsTemplate::EditorSectionRequest::Bonds);
             }
             if (ImGui::MenuItem("Cell")) {
                 m_bShowCellInformationWindow = true;
                 requestFocus(FocusTarget::CellInformation);
-                AtomsTemplate::Instance().RequestEditorSection(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(
                     AtomsTemplate::EditorSectionRequest::Cell);
             }
             ImGui::EndMenu();
@@ -652,20 +653,20 @@ void App::renderDockSpaceAndMenu() {
             if (ImGui::MenuItem("Add atoms")) {
                 m_bShowPeriodicTableWindow = true;
                 requestFocus(FocusTarget::PeriodicTable);
-                AtomsTemplate::Instance().RequestBuilderSection(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
                     AtomsTemplate::BuilderSectionRequest::AddAtoms);
             }
             if (ImGui::MenuItem("Bravais Lattice Templates")) {
                 m_bShowCrystalTemplatesWindow = true;
                 requestFocus(FocusTarget::CrystalTemplates);
-                AtomsTemplate::Instance().RequestBuilderSection(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
                     AtomsTemplate::BuilderSectionRequest::BravaisLatticeTemplates);
             }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("  Measurement")) {
-            AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+            AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
             const bool isDistanceMode =
                 atomsTemplate.GetMeasurementMode() == AtomsTemplate::MeasurementMode::Distance;
             const bool isAngleMode =
@@ -699,28 +700,28 @@ void App::renderDockSpaceAndMenu() {
                 m_bShowModelTree = true;
                 m_bShowChargeDensityViewerWindow = true;
                 requestFocus(FocusTarget::ChargeDensityViewer);
-                AtomsTemplate::Instance().RequestDataMenu(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
                     AtomsTemplate::DataMenuRequest::Isosurface);
             }
             if (ImGui::MenuItem("Surface")) {
                 m_bShowModelTree = true;
                 m_bShowChargeDensityViewerWindow = true;
                 requestFocus(FocusTarget::ChargeDensityViewer);
-                AtomsTemplate::Instance().RequestDataMenu(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
                     AtomsTemplate::DataMenuRequest::Surface);
             }
             if (ImGui::MenuItem("Volumetric")) {
                 m_bShowModelTree = true;
                 m_bShowChargeDensityViewerWindow = true;
                 requestFocus(FocusTarget::ChargeDensityViewer);
-                AtomsTemplate::Instance().RequestDataMenu(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
                     AtomsTemplate::DataMenuRequest::Volumetric);
             }
             if (ImGui::MenuItem("Plane")) {
                 m_bShowModelTree = true;
                 m_bShowSliceViewerWindow = true;
                 requestFocus(FocusTarget::SliceViewer);
-                AtomsTemplate::Instance().RequestDataMenu(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
                     AtomsTemplate::DataMenuRequest::Plane);
             }
             ImGui::EndMenu();
@@ -730,7 +731,7 @@ void App::renderDockSpaceAndMenu() {
             if (ImGui::MenuItem("Brillouin Zone")) {
                 m_bShowBrillouinZonePlotWindow = true;
                 requestFocus(FocusTarget::BrillouinZonePlot);
-                AtomsTemplate::Instance().RequestBuilderSection(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
                     AtomsTemplate::BuilderSectionRequest::BrillouinZone);
             }
             ImGui::EndMenu();
@@ -738,12 +739,12 @@ void App::renderDockSpaceAndMenu() {
 
         bool openSettings = ImGui::BeginMenu(ICON_FA6_GEAR"  Settings");
         if (openSettings) {
-            bool nodeInfoEnabled = AtomsTemplate::Instance().IsNodeInfoEnabled();
-            VtkViewer& viewer = VtkViewer::Instance();
+            bool nodeInfoEnabled = GetWorkbenchRuntime().AtomsTemplateFacade().IsNodeInfoEnabled();
+            VtkViewer& viewer = GetWorkbenchRuntime().Viewer();
             bool viewerFpsOverlayEnabled = viewer.IsPerformanceOverlayEnabled();
 
             if (ImGui::MenuItem("Node Tooltip", nullptr, &nodeInfoEnabled)) {
-                AtomsTemplate::Instance().SetNodeInfoEnabled(nodeInfoEnabled);
+                GetWorkbenchRuntime().AtomsTemplateFacade().SetNodeInfoEnabled(nodeInfoEnabled);
             }
             if (ImGui::MenuItem("Viewer FPS Overlay", nullptr, &viewerFpsOverlayEnabled)) {
                 viewer.SetPerformanceOverlayEnabled(viewerFpsOverlayEnabled);
@@ -837,15 +838,15 @@ void App::renderDockSpaceAndMenu() {
 
 void App::InitImGuiWindows() {
     // ImGui::LoadIniSettingsFromMemory("", 0); // 저장된 레이아웃 무시
-    VtkViewer& viewer = VtkViewer::Instance();
-    // VtkViewer& viewer2 = VtkViewer::Instance();
-    TestWindow& testWindow = TestWindow::Instance();
-    ModelTree& modelTree = ModelTree::Instance();
-    MeshDetail& meshDetail = MeshDetail::Instance();
-    MeshGroupDetail& meshGroupDetail = MeshGroupDetail::Instance();
+    VtkViewer& viewer = GetWorkbenchRuntime().Viewer();
+    // VtkViewer& viewer2 = GetWorkbenchRuntime().Viewer();
+    TestWindow& testWindow = GetWorkbenchRuntime().TestWindowPanel();
+    ModelTree& modelTree = GetWorkbenchRuntime().ModelTreePanel();
+    MeshDetail& meshDetail = GetWorkbenchRuntime().MeshDetailPanel();
+    MeshGroupDetail& meshGroupDetail = GetWorkbenchRuntime().MeshGroupDetailPanel();
 
     // Add AtomsTemplate
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
 }
 
 void App::renderAboutPopup() {
@@ -932,9 +933,9 @@ void App::renderImGuiWindows() {
             resetLayout = buildResetWindowLayout(viewport);
             hasResetLayout = true;
 
-            VtkViewer::Instance().RequestForcedWindowLayout(resetLayout.viewerPos, resetLayout.viewerSize);
+            GetWorkbenchRuntime().Viewer().RequestForcedWindowLayout(resetLayout.viewerPos, resetLayout.viewerSize);
 
-            AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+            AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
             atomsTemplate.RequestForcedBuilderWindowLayout(resetLayout.crystalBuilderPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedEditorWindowLayout(resetLayout.crystalEditorPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedAdvancedWindowLayout(resetLayout.advancedViewPos, resetLayout.panelSize);
@@ -942,10 +943,10 @@ void App::renderImGuiWindows() {
     }
 
     if (m_bShowVtkViewer) {
-        VtkViewer::Instance().Render();
+        GetWorkbenchRuntime().Viewer().Render();
     }
     // if (m_bShowVtkViewer2) {
-    //     VtkViewer::Instance().Render();
+    //     GetWorkbenchRuntime().Viewer().Render();
     // }
 
     const bool requestModelTreeFocus = m_RequestModelTreeFocus;
@@ -959,10 +960,10 @@ void App::renderImGuiWindows() {
         if (requestModelTreeFocus) {
             ImGui::SetNextWindowFocus();
         }
-        ModelTree::Instance().Render(&m_bShowModelTree);
+        GetWorkbenchRuntime().ModelTreePanel().Render(&m_bShowModelTree);
     }
 
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
     if (m_bShowPeriodicTableWindow) {
         atomsTemplate.RenderPeriodicTableWindow(&m_bShowPeriodicTableWindow);
     }
@@ -988,18 +989,18 @@ void App::renderImGuiWindows() {
         atomsTemplate.RenderSliceViewerWindow(&m_bShowSliceViewerWindow);
     }
 
-    const int32_t selectedMeshId = ModelTree::Instance().GetSelectedMeshId();
+    const int32_t selectedMeshId = GetWorkbenchRuntime().ModelTreePanel().GetSelectedMeshId();
     if (selectedMeshId != -1 && m_bShowMeshDetail) {
-        MeshDetail::Instance().Render(selectedMeshId, &m_bShowMeshDetail);
+        GetWorkbenchRuntime().MeshDetailPanel().Render(selectedMeshId, &m_bShowMeshDetail);
     }
-    const Mesh* mesh = MeshManager::Instance().GetMeshById(selectedMeshId);
+    const Mesh* mesh = GetWorkbenchRuntime().MeshRepository().GetMeshById(selectedMeshId);
     if (mesh != nullptr) {
         if (mesh->GetMeshGroupCount() > 0) {
-            MeshGroupDetail::Instance().Render(selectedMeshId);
+            GetWorkbenchRuntime().MeshGroupDetailPanel().Render(selectedMeshId);
         }
     }
     // if (m_bShowTestWindow) {
-    //     TestWindow::Instance().Render(&m_bShowTestWindow);
+    //     GetWorkbenchRuntime().TestWindowPanel().Render(&m_bShowTestWindow);
     // }
 #ifdef SHOW_IMGUI_DEMO
     if (m_bShowDemoWindow) {
@@ -1008,16 +1009,16 @@ void App::renderImGuiWindows() {
 #endif
 #ifdef SHOW_FONT_ICONS
     if (m_bShowFontIcons) {
-        FontManager::Instance().Render();
+        GetWorkbenchRuntime().FontRegistry().Render();
     }
 #endif
     if (m_bShowBgColorPopup) {
-        VtkViewer::Instance().RenderBgColorPopup(&m_bShowBgColorPopup);
+        GetWorkbenchRuntime().Viewer().RenderBgColorPopup(&m_bShowBgColorPopup);
     }
     if (m_bShowProgressPopup) {
         renderProgressPopup();
     }
-    FileLoader::Instance().RenderXsfGridImportPopups();
+    GetWorkbenchRuntime().RenderXsfGridImportPopups();
 
     if (hasResetLayout) {
         ImGui::MarkIniSettingsDirty();
@@ -1153,7 +1154,7 @@ void App::renderProgressPopup() {
 
 void App::showProgressPopup(bool show) {
     m_bShowProgressPopup = show;
-    VtkViewer::Instance().SetRenderPaused(show);
+    GetWorkbenchRuntime().Viewer().SetRenderPaused(show);
     if (show) {
         m_Progress = 0.0f;  // Reset progress when showing the popup
     }
@@ -1179,3 +1180,4 @@ void App::setProgressPopupText(const std::string& title, const std::string& text
     m_PopupTitle = title;
     m_PopupText = text;
 }
+
