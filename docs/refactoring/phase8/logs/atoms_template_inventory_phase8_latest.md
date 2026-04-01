@@ -63,3 +63,16 @@
 
 - Phase 8에서는 위 기준선을 기반으로 `AtomsTemplate`를 compatibility facade 수준으로 축소한다.
 - Phase 7 회귀 수정(폰트/아이콘 초기화 순서, VASP->XSF grid bootstrap)은 Phase 8 전 구간에서 보호 규칙으로 유지한다.
+
+## 8) W5 반영 스냅샷 (2026-04-01)
+
+| 항목 | 현재값 | 기준선 대비 |
+|---|---:|---:|
+| `webassembly/src/atoms/atoms_template.cpp` 라인 수 | 5213 | +52 |
+| `webassembly/src/atoms/atoms_template.h` 라인 수 | 1339 | +54 |
+| `atoms_template.cpp` 전체 `::Instance()` | 72 | -31 |
+| `atoms_template.cpp`의 `VtkViewer::Instance()` | 46 | -29 |
+| `atoms_template.h`의 `friend class` | 0 | -9 |
+| `createdAtoms` 참조 수 | 117 | 0 |
+| `createdBonds` 참조 수 | 47 | 0 |
+| `cellInfo` 참조 수 | 250 | 0 |
