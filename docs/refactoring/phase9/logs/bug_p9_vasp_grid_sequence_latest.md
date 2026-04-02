@@ -23,11 +23,12 @@
   - 특정 순서에서 기존 grid 표시/상태가 남아 후속 표시와 중첩된다.
 
 ## 4. 현재 상태
-- 상태: `Open`
+- 상태: `Deferred`
 - 우선순위: `Medium`
 - 비고:
   - 기존 수정 시도 2건 롤백됨.
-  - Phase 9 W4에서 원인 귀속 및 수정 반영.
+  - Phase 9 W4에서 원인 귀속 및 수정 반영 완료.
+  - Phase 9 W6에서 자동 게이트는 통과했으나, 동일 재현 순서의 전용 자동 시나리오는 아직 부재.
 
 ## 5. Phase 9 처리 규칙
 1. W0에서 재현 절차와 관찰 포인트를 고정한다.
@@ -55,4 +56,15 @@
     2. `clear()`에서 `m_gridDataEntries.clear()` 및 인덱스 초기화
     3. `loadFromParseResultInternal(..., loadedFromGrid=false)` 경로에서 `m_gridDataEntries.clear()` 및 인덱스 초기화
 - 판정:
-  - 상태: `Open` (코드 수정 반영 완료, W6 수동 재현 시나리오로 최종 확인 예정)
+  - 상태: `Deferred` (코드 수정 반영 완료, Phase 10에서 재현 자동화/수동 시나리오로 최종 검증 이관)
+
+## 8. W6 최종 판정 (2026-04-02 KST)
+- W6 게이트 결과:
+  1. 정적 게이트 PASS (`check_phase9_render_boundary_complete_latest.txt`)
+  2. build PASS (`build_phase9_latest.txt`)
+  3. C++ 테스트 PASS (`unit_test_phase9_latest.txt`)
+  4. smoke PASS (`smoke_phase9_latest.txt`)
+- 최종 판정: `Deferred`
+  - 이유: 현재 smoke는 `구조(XSF) + CHGCAR` 1회 시나리오 중심이며,
+    `XSF(Grid) -> VASP -> XSF(Grid) -> VASP` 반복 전환 시퀀스를 직접 검증하지 않는다.
+  - 이관: Phase 10에서 전용 회귀 시나리오(자동/수동)로 상태를 확정한다.

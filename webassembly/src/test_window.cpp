@@ -6,6 +6,7 @@
 // VTK
 #include <vtkConeSource.h>
 #include <vtkSphereSource.h>
+#include <vtkActor.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>

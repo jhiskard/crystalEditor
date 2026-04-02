@@ -11,6 +11,7 @@
 #include <vtkActor.h>
 #include <vtkActor2D.h>
 #include <vtkScalarBarActor.h>
+#include <vtkVolume.h>
 
 
 MeshManager::MeshManager() {

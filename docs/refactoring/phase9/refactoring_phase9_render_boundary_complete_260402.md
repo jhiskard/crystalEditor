@@ -1,11 +1,11 @@
 ﻿# Phase 9 세부 작업계획서(재착수): `VtkViewer` 해체 + render 포트 완성
 
 작성일: `2026-04-02 (KST)`  
-최종 업데이트: `2026-04-02 (KST, W5 정적 게이트 도입 완료)`  
+최종 업데이트: `2026-04-02 (KST, W6 빌드/테스트/종료 판정 완료)`  
 기준 계획: `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md` (Phase 9 절)  
 선행 판정: **GO** (`docs/refactoring/phase8/go_no_go_phase9.md`)  
 대상 범위: `webassembly/src/render/*`, `webassembly/src/vtk_viewer.*`, `webassembly/src/atoms/*`, `webassembly/src/mesh*`, `webassembly/src/toolbar.cpp`, `webassembly/src/file_loader.cpp`, `webassembly/src/shell/runtime/*`, `scripts/refactoring/*`, `docs/refactoring/phase9/*`  
-진행 상태: `W0~W5 완료, W6 착수 대기`
+진행 상태: `W0~W6 완료`
 
 ## 0. 재착수 배경과 운영 원칙
 
@@ -249,7 +249,7 @@
 - [x] W3 feature 호출 경로 전환
 - [x] W4 `P9-BUG-01` 처리 + runtime 경계 정리
 - [x] W5 정적 게이트 도입
-- [ ] W6 빌드/테스트 + 종료 판정 문서화
+- [x] W6 빌드/테스트 + 종료 판정 문서화
 
 ## 10. Execution Update (2026-04-02 KST, W0~W3)
 - [x] W0 기준선/재현 로그 고정
@@ -292,5 +292,21 @@
     3. render public API Doxygen 계약 존재
     4. 폰트 초기화/XSF bootstrap 보호 규칙 유지
     5. `P9-BUG-01` 로그 파일 존재 + 상태 태그 확인
+
+## 12. Execution Update (2026-04-02 KST, W6)
+- [x] W6 실행 게이트 완료
+  - `powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase9_render_boundary_complete.ps1` -> PASS
+  - `npm run build-wasm:release` -> PASS
+  - `npm run test:cpp` -> PASS (`1/1` test passed)
+  - `npm run test:smoke` -> PASS (`1 passed`)
+- [x] W6 중 확인된 컴파일 이슈 보정
+  - `webassembly/src/test_window.cpp`: `#include <vtkActor.h>` 추가
+  - `webassembly/src/mesh_manager.cpp`: `#include <vtkVolume.h>` 추가
+- [x] 종료 문서 작성
+  - `docs/refactoring/phase9/dependency_gate_report.md`
+  - `docs/refactoring/phase9/go_no_go_phase10.md`
+- [x] `P9-BUG-01` 최종 상태 반영
+  - 상태: `Deferred`
+  - 근거: W4 코드 수정 반영 완료, 반복 시퀀스 전용 자동 검증은 Phase 10으로 이관
 
 
