@@ -1,11 +1,11 @@
 ﻿# Phase 9 세부 작업계획서(재착수): `VtkViewer` 해체 + render 포트 완성
 
 작성일: `2026-04-02 (KST)`  
-최종 업데이트: `2026-04-02 (KST, W1 render 포트 계약 확장)`  
+최종 업데이트: `2026-04-02 (KST, W2 render adapter 재편)`  
 기준 계획: `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md` (Phase 9 절)  
 선행 판정: **GO** (`docs/refactoring/phase8/go_no_go_phase9.md`)  
 대상 범위: `webassembly/src/render/*`, `webassembly/src/vtk_viewer.*`, `webassembly/src/atoms/*`, `webassembly/src/mesh*`, `webassembly/src/toolbar.cpp`, `webassembly/src/file_loader.cpp`, `webassembly/src/shell/runtime/*`, `scripts/refactoring/*`, `docs/refactoring/phase9/*`  
-진행 상태: `W0~W1 완료, W2 착수 대기`
+진행 상태: `W0~W2 완료, W3 착수 대기`
 
 ## 0. 재착수 배경과 운영 원칙
 
@@ -245,7 +245,7 @@
 ## 9. 진행 체크리스트
 - [x] W0 기준선/재현 로그 고정
 - [x] W1 render 포트 계약 확장
-- [ ] W2 render adapter 재편
+- [x] W2 render adapter 재편
 - [ ] W3 feature 호출 경로 전환
 - [ ] W4 `P9-BUG-01` 처리 + runtime 경계 정리
 - [ ] W5 정적 게이트 도입

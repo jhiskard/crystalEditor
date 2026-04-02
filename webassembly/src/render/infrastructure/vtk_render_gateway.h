@@ -2,6 +2,8 @@
 
 #include "../application/render_gateway.h"
 
+class VtkViewer;
+
 namespace render {
 namespace infrastructure {
 
@@ -9,9 +11,14 @@ class VtkRenderGateway final : public application::RenderGateway {
 public:
     void RequestRender() override;
     void FitViewToVisibleProps() override;
+    void ResetView() override;
 
     void AddActor(vtkSmartPointer<vtkActor> actor, bool resetCamera = true) override;
+    void AddMeasurementOverlayActor(
+        vtkSmartPointer<vtkActor> actor,
+        bool resetCamera = true) override;
     void RemoveActor(vtkSmartPointer<vtkActor> actor) override;
+    void RemoveMeasurementOverlayActor(vtkSmartPointer<vtkActor> actor) override;
 
     void AddActor2D(
         vtkSmartPointer<vtkActor2D> actor2D,
@@ -21,6 +28,11 @@ public:
 
     void AddVolume(vtkSmartPointer<vtkVolume> volume, bool resetCamera = true) override;
     void RemoveVolume(vtkSmartPointer<vtkVolume> volume) override;
+    void SetProjectionMode(ProjectionMode mode) override;
+    void AlignCameraToCellAxis(int axisIndex) override;
+    void AlignCameraToIcellAxis(int axisIndex) override;
+    void SetArrowRotateStepDeg(float stepDeg) override;
+    float GetArrowRotateStepDeg() const override;
 
     bool CaptureActorImage(
         vtkActor* actor,
@@ -34,6 +46,13 @@ public:
 
     vtkCamera* GetActiveCamera() override;
 };
+
+/**
+ * @brief Returns legacy viewer facade through render infrastructure boundary.
+ * @details Runtime/shell code should access the viewer via this adapter helper
+ *          instead of calling `VtkViewer::Instance()` directly.
+ */
+VtkViewer& GetLegacyViewerFacade();
 
 } // namespace infrastructure
 } // namespace render
