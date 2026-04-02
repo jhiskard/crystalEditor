@@ -1,7 +1,6 @@
 ﻿#include "../../model_tree.h"
 #include "../../app.h"
 #include "../../font_manager.h"
-#include "../../mesh_manager.h"
 #include "../../lcrs_tree.h"
 #include "../../mesh_detail.h"
 #include "../../atoms/atoms_template.h"
@@ -9,6 +8,8 @@
 #include "../../atoms/application/structure_read_model.h"
 #include "../../structure/application/structure_service.h"
 #include "../../density/application/density_service.h"
+#include "../application/mesh_command_service.h"
+#include "../application/mesh_query_service.h"
 
 #include <imgui.h>
 
@@ -48,6 +49,8 @@ void TextCenteredSizeT(size_t value) {
 
 void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
     AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
+    mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
     structure::application::StructureService& structureService = atomsTemplate.structureService();
     density::application::DensityService& densityService = atomsTemplate.densityService();
     auto structures = structureService.GetStructures();
@@ -140,7 +143,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                     structureService.SetStructureVisible(entry.id, false);
-                    MeshManager::Instance().HideMesh(entry.id);
+                    meshCommand.HideMesh(entry.id);
                     if (densityService.HasChargeDensity() &&
                         densityService.GetChargeDensityStructureId() == entry.id) {
                         hasChargeDensityVisibilityChange = true;
@@ -151,7 +154,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                     structureService.SetStructureVisible(entry.id, true);
                     MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
-                    MeshManager::Instance().ShowMesh(entry.id);
+                    meshCommand.ShowMesh(entry.id);
                     densityService.ApplyAdvancedGridVisibilityForStructure(entry.id);
                     if (densityService.HasChargeDensity() &&
                         densityService.GetChargeDensityStructureId() == entry.id) {
@@ -1046,13 +1049,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     ? chargeDensityUI->getSliceGridEntries()
                     : std::vector<atoms::ui::ChargeDensityUI::SliceGridEntry>{};
 
-                MeshManager& meshManager = MeshManager::Instance();
                 std::vector<const TreeNode*> gridNodes;
-                const TreeNode* structureNode = meshManager.GetMeshTree()->GetTreeNodeById(entry.id);
+                const TreeNode* structureNode = meshQuery.MeshTree()->GetTreeNodeById(entry.id);
                 if (structureNode) {
                     const TreeNode* child = structureNode->GetLeftChild();
                     while (child) {
-                        const Mesh* childMesh = meshManager.GetMeshById(child->GetId());
+                        const Mesh* childMesh = meshQuery.FindMeshById(child->GetId());
                         if (childMesh && !childMesh->IsXsfStructure()) {
                             gridNodes.push_back(child);
                         }
@@ -1391,7 +1393,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 }
 
                                 for (const TreeNode* gridNode : gridNodes) {
-                                    const Mesh* gridMesh = meshManager.GetMeshById(gridNode->GetId());
+                                    const Mesh* gridMesh = meshQuery.FindMeshById(gridNode->GetId());
                                     const char* gridName = gridMesh ? gridMesh->GetName() : "Grid";
 
                                     ImGui::TableNextRow();

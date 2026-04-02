@@ -232,10 +232,22 @@ W0 산출 로그:
 - `docs/refactoring/phase9/go_no_go_phase10.md`
 
 ## 10. 진행 체크리스트
-- [ ] W0 기준선/버그 로그 고정
-- [ ] W1 workspace 저장소/계약 정립
-- [ ] W2 MeshManager 해체
+- [x] W0 기준선/버그 로그 고정
+- [x] W1 workspace 저장소/계약 정립
+- [x] W2 MeshManager 해체
 - [ ] W3 FileLoader 축소 + import workflow 집중
 - [ ] W4 panel read-model 전환 + `P9-BUG-01` 추적
 - [ ] W5 정적 게이트 도입
 - [ ] W6 빌드/테스트 + 종료 판정 문서화
+
+## 11. Execution Update (2026-04-02 KST, W0~W2)
+
+- [x] W0 기준선/버그 로그 고정
+  - `workspace_mesh_io_inventory_phase10_latest.md` 갱신
+  - `bug_p10_vasp_grid_sequence_latest.md` 갱신 (`Deferred`)
+- [x] W1 workspace 저장소/계약 정립
+  - `workspace_store`, `workspace_query_service`, `workspace_command_service` 추가
+  - `WorkbenchRuntime`에 workspace query/command 접근자 추가
+- [x] W2 MeshManager 해체(1차)
+  - `mesh_repository`, `mesh_query_service`, `mesh_command_service` 추가
+  - `import_orchestrator` + `mesh/presentation/model_tree_*` 경로를 mesh service 경유로 전환

@@ -1,6 +1,7 @@
 #include "../../model_tree.h"
-#include "../../mesh_manager.h"
 #include "../../atoms/atoms_template.h"
+#include "../application/mesh_command_service.h"
+#include "../application/mesh_query_service.h"
 
 #include <imgui.h>
 
@@ -16,7 +17,7 @@ void ModelTree::renderDeleteConfirmPopup() {
         std::string meshName = "Unknown";
         bool isXsfStructure = false;
         if (s_PendingDeleteMeshId != -1) {
-            const Mesh* mesh = MeshManager::Instance().GetMeshById(s_PendingDeleteMeshId);
+            const Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshById(s_PendingDeleteMeshId);
             if (mesh) {
                 meshName = mesh->GetName();
                 isXsfStructure = mesh->IsXsfStructure();
@@ -41,12 +42,12 @@ void ModelTree::renderDeleteConfirmPopup() {
                         s_SelectedMeshId = -1;
                     }
                     AtomsTemplate::Instance().RemoveStructure(s_PendingDeleteMeshId);
-                    MeshManager::Instance().DeleteXsfStructure(s_PendingDeleteMeshId);
+                    mesh::application::GetMeshCommandService().DeleteXsfStructure(s_PendingDeleteMeshId);
                 } else {
                     if (s_SelectedMeshId == s_PendingDeleteMeshId) {
                         s_SelectedMeshId = -1;
                     }
-                    MeshManager::Instance().DeleteMesh(s_PendingDeleteMeshId);
+                    mesh::application::GetMeshCommandService().DeleteMesh(s_PendingDeleteMeshId);
                 }
                 s_PendingDeleteMeshId = -1;
             }
