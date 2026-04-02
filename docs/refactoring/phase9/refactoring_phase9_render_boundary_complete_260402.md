@@ -1,11 +1,11 @@
 ﻿# Phase 9 세부 작업계획서(재착수): `VtkViewer` 해체 + render 포트 완성
 
 작성일: `2026-04-02 (KST)`  
-최종 업데이트: `2026-04-02 (KST, W3 feature 호출 경로 전환 완료)`  
+최종 업데이트: `2026-04-02 (KST, W5 정적 게이트 도입 완료)`  
 기준 계획: `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md` (Phase 9 절)  
 선행 판정: **GO** (`docs/refactoring/phase8/go_no_go_phase9.md`)  
 대상 범위: `webassembly/src/render/*`, `webassembly/src/vtk_viewer.*`, `webassembly/src/atoms/*`, `webassembly/src/mesh*`, `webassembly/src/toolbar.cpp`, `webassembly/src/file_loader.cpp`, `webassembly/src/shell/runtime/*`, `scripts/refactoring/*`, `docs/refactoring/phase9/*`  
-진행 상태: `W0~W3 완료, W4 착수 대기`
+진행 상태: `W0~W5 완료, W6 착수 대기`
 
 ## 0. 재착수 배경과 운영 원칙
 
@@ -247,8 +247,8 @@
 - [x] W1 render 포트 계약 확장
 - [x] W2 render adapter 재편
 - [x] W3 feature 호출 경로 전환
-- [ ] W4 `P9-BUG-01` 처리 + runtime 경계 정리
-- [ ] W5 정적 게이트 도입
+- [x] W4 `P9-BUG-01` 처리 + runtime 경계 정리
+- [x] W5 정적 게이트 도입
 - [ ] W6 빌드/테스트 + 종료 판정 문서화
 
 ## 10. Execution Update (2026-04-02 KST, W0~W3)
@@ -270,5 +270,27 @@
     - `file_loader.cpp`
     - `shell/runtime/workbench_runtime.cpp`
   - 결과: 위 파일의 `VtkViewer::Instance()` 직접 호출 0건
+
+## 11. Execution Update (2026-04-02 KST, W4~W5)
+- [x] W4 `P9-BUG-01` 원인 귀속 및 코드 수정
+  - 원인: `ChargeDensityUI` 비-grid 로드/clear 경로에서 `m_gridDataEntries` 정리 누락으로 이전 XSF grid 엔트리 잔존
+  - 조치 파일:
+    - `webassembly/src/atoms/ui/charge_density_ui.cpp`
+      - `loadFile()`/`clear()`/`loadFromParseResultInternal(..., loadedFromGrid=false)`에서 grid 엔트리 초기화
+  - runtime/render 경계 정리:
+    - `webassembly/src/mouse_interactor_style.cpp`를 `RenderGateway` 기반으로 전환
+    - `webassembly/src/test_window.cpp` actor 추가 경로를 `RenderGateway`로 전환
+    - `render` 외부 `VtkViewer::Instance()` 호출 0건 달성
+- [x] W5 정적 게이트 스크립트 도입
+  - 신규 스크립트:
+    - `scripts/refactoring/check_phase9_render_boundary_complete.ps1`
+  - 실행 로그:
+    - `docs/refactoring/phase9/logs/check_phase9_render_boundary_complete_latest.txt`
+  - 점검 항목(PASS):
+    1. `render` 외부 `VtkViewer::Instance()` 0건
+    2. render gateway/adapter 핵심 파일 존재
+    3. render public API Doxygen 계약 존재
+    4. 폰트 초기화/XSF bootstrap 보호 규칙 유지
+    5. `P9-BUG-01` 로그 파일 존재 + 상태 태그 확인
 
 
