@@ -60,6 +60,11 @@ interface WindowWithVtk {
 }
 
 export default function Workbench() {
+  const wasmAssetVersion = process.env.NEXT_PUBLIC_WASM_VERSION;
+  const wasmVersionSuffix = wasmAssetVersion
+    ? `?v=${encodeURIComponent(wasmAssetVersion)}`
+    : "";
+
   const vtkCanvasRef = useRef<HTMLCanvasElement>(null);
   const pendingImportRef = useRef<PendingImport | null>(null);
   const vtkModuleRef = useRef<VtkWasmModule | null>(null);
@@ -347,10 +352,7 @@ export default function Workbench() {
         canvas.addEventListener("click", () => canvas.focus());
       },
       locateFile: function (path: string) {
-        if (path.endsWith(".wasm")) {
-          return `/wasm/${path}?v=${new Date().getTime()}`;
-        }
-        return `/wasm/${path}`;
+        return `/wasm/${path}${wasmVersionSuffix}`;
       },
     };
 
@@ -482,7 +484,7 @@ export default function Workbench() {
         }}
       ></canvas>
       <Script
-        src={`/wasm/VTK-Workbench.js?v=${new Date().getTime()}`}
+        src={`/wasm/VTK-Workbench.js${wasmVersionSuffix}`}
         strategy="afterInteractive"
         onLoad={handleLoad}
         onError={(e) => {
