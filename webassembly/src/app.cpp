@@ -8,6 +8,7 @@
 #include "mesh_detail.h"
 #include "mesh_manager.h"
 #include "mesh_group_detail.h"
+#include "measurement/application/measurement_service.h"
 
 // Add AtomsTemplate
 // #include "atoms_template.h"
@@ -666,31 +667,32 @@ void App::renderDockSpaceAndMenu() {
         }
 
         if (ImGui::BeginMenu("  Measurement")) {
-            AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+            measurement::application::MeasurementService& measurementService =
+                GetWorkbenchRuntime().MeasurementFeature();
             const bool isDistanceMode =
-                atomsTemplate.GetMeasurementMode() == AtomsTemplate::MeasurementMode::Distance;
+                measurementService.GetMode() == measurement::application::MeasurementMode::Distance;
             const bool isAngleMode =
-                atomsTemplate.GetMeasurementMode() == AtomsTemplate::MeasurementMode::Angle;
+                measurementService.GetMode() == measurement::application::MeasurementMode::Angle;
             const bool isDihedralMode =
-                atomsTemplate.GetMeasurementMode() == AtomsTemplate::MeasurementMode::Dihedral;
+                measurementService.GetMode() == measurement::application::MeasurementMode::Dihedral;
             const bool isGeometricCenterMode =
-                atomsTemplate.GetMeasurementMode() == AtomsTemplate::MeasurementMode::GeometricCenter;
+                measurementService.GetMode() == measurement::application::MeasurementMode::GeometricCenter;
             const bool isCenterOfMassMode =
-                atomsTemplate.GetMeasurementMode() == AtomsTemplate::MeasurementMode::CenterOfMass;
+                measurementService.GetMode() == measurement::application::MeasurementMode::CenterOfMass;
             if (ImGui::MenuItem("Distance", nullptr, isDistanceMode)) {
-                atomsTemplate.EnterMeasurementMode(AtomsTemplate::MeasurementMode::Distance);
+                measurementService.EnterMode(measurement::application::MeasurementMode::Distance);
             }
             if (ImGui::MenuItem("Angle", nullptr, isAngleMode)) {
-                atomsTemplate.EnterMeasurementMode(AtomsTemplate::MeasurementMode::Angle);
+                measurementService.EnterMode(measurement::application::MeasurementMode::Angle);
             }
             if (ImGui::MenuItem("Dihedral", nullptr, isDihedralMode)) {
-                atomsTemplate.EnterMeasurementMode(AtomsTemplate::MeasurementMode::Dihedral);
+                measurementService.EnterMode(measurement::application::MeasurementMode::Dihedral);
             }
             if (ImGui::MenuItem("Geometric Center", nullptr, isGeometricCenterMode)) {
-                atomsTemplate.EnterMeasurementMode(AtomsTemplate::MeasurementMode::GeometricCenter);
+                measurementService.EnterMode(measurement::application::MeasurementMode::GeometricCenter);
             }
             if (ImGui::MenuItem("Center of Mass", nullptr, isCenterOfMassMode)) {
-                atomsTemplate.EnterMeasurementMode(AtomsTemplate::MeasurementMode::CenterOfMass);
+                measurementService.EnterMode(measurement::application::MeasurementMode::CenterOfMass);
             }
             ImGui::EndMenu();
         }

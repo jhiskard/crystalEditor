@@ -1,4 +1,4 @@
-#include "../../model_tree.h"
+﻿#include "../../model_tree.h"
 #include "../../app.h"
 #include "../../font_manager.h"
 #include "../../mesh_manager.h"
@@ -7,6 +7,8 @@
 #include "../../atoms/atoms_template.h"
 #include "../../atoms/ui/charge_density_ui.h"
 #include "../../atoms/application/structure_read_model.h"
+#include "../../structure/application/structure_service.h"
+#include "../../density/application/density_service.h"
 
 #include <imgui.h>
 
@@ -46,14 +48,16 @@ void TextCenteredSizeT(size_t value) {
 
 void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
     AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
-    auto structures = atomsTemplate.GetStructures();
+    structure::application::StructureService& structureService = atomsTemplate.structureService();
+    density::application::DensityService& densityService = atomsTemplate.densityService();
+    auto structures = structureService.GetStructures();
     const auto& createdAtoms = atoms::application::StructureReadModel::GetCreatedAtoms();
     const auto& surroundingAtoms = atoms::application::StructureReadModel::GetSurroundingAtoms();
     const auto& createdBonds = atoms::application::StructureReadModel::GetCreatedBonds();
     const auto& surroundingBonds = atoms::application::StructureReadModel::GetSurroundingBonds();
     const auto& bondGroups = atoms::application::StructureReadModel::GetBondGroups();
 
-    if (structures.empty() && !atomsTemplate.HasChargeDensity()) {
+    if (structures.empty() && !densityService.HasChargeDensity()) {
         return;
     }
     
@@ -69,8 +73,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
     const ImGuiTableFlags xsfTableFlags = tableFlags | ImGuiTableFlags_SizingFixedFit;
     bool hasChargeDensityVisibilityChange = false;
     auto setChargeDensityContext = [&](int32_t structureId) {
-        atomsTemplate.SetCurrentStructureId(structureId);
-        atomsTemplate.SetChargeDensityStructureId(structureId);
+        structureService.SetCurrentStructureId(structureId);
+        densityService.SetChargeDensityStructureId(structureId);
     };
     auto openChargeDensityViewer = [&](int32_t structureId, AtomsTemplate::DataMenuRequest request) {
         setChargeDensityContext(structureId);
@@ -121,7 +125,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
             ImGui::TableNextRow();
 
             ImGui::TableSetColumnIndex(0);
-            bool structureVisible = atomsTemplate.IsStructureVisible(entry.id);
+            bool structureVisible = structureService.IsStructureVisible(entry.id);
             ImGuiTreeNodeFlags rootFlags = ImGuiTreeNodeFlags_OpenOnArrow |
                                            ImGuiTreeNodeFlags_OpenOnDoubleClick |
                                            ImGuiTreeNodeFlags_DefaultOpen |
@@ -135,22 +139,22 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
             if (structureVisible) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                    atomsTemplate.SetStructureVisible(entry.id, false);
+                    structureService.SetStructureVisible(entry.id, false);
                     MeshManager::Instance().HideMesh(entry.id);
-                    if (atomsTemplate.HasChargeDensity() &&
-                        atomsTemplate.GetChargeDensityStructureId() == entry.id) {
+                    if (densityService.HasChargeDensity() &&
+                        densityService.GetChargeDensityStructureId() == entry.id) {
                         hasChargeDensityVisibilityChange = true;
                     }
                 }
             } else {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                    atomsTemplate.SetStructureVisible(entry.id, true);
+                    structureService.SetStructureVisible(entry.id, true);
                     MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
                     MeshManager::Instance().ShowMesh(entry.id);
-                    atomsTemplate.ApplyChargeDensityAdvancedGridVisibilityForStructure(entry.id);
-                    if (atomsTemplate.HasChargeDensity() &&
-                        atomsTemplate.GetChargeDensityStructureId() == entry.id) {
+                    densityService.ApplyAdvancedGridVisibilityForStructure(entry.id);
+                    if (densityService.HasChargeDensity() &&
+                        densityService.GetChargeDensityStructureId() == entry.id) {
                         hasChargeDensityVisibilityChange = true;
                     }
                 }
@@ -160,7 +164,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
             ImGui::TextDisabled("--");
 
             ImGui::TableSetColumnIndex(3);
-            size_t totalAtoms = atomsTemplate.GetAtomCountForStructure(entry.id);
+            size_t totalAtoms = structureService.GetAtomCountForStructure(entry.id);
             TextCenteredSizeT(totalAtoms);
 
             ImGui::TableSetColumnIndex(4);
@@ -1033,8 +1037,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
 
                 auto* chargeDensityUI = atomsTemplate.chargeDensityUI();
                 const bool hasChargeDensityForEntry =
-                    atomsTemplate.HasChargeDensity() &&
-                    atomsTemplate.GetChargeDensityStructureId() == entry.id;
+                    densityService.HasChargeDensity() &&
+                    densityService.GetChargeDensityStructureId() == entry.id;
                 const auto simpleGridEntries = chargeDensityUI
                     ? chargeDensityUI->getSimpleGridEntries()
                     : std::vector<atoms::ui::ChargeDensityUI::SimpleGridEntry>{};
@@ -1078,12 +1082,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     bool anyVolumeVisible = false;
                     bool allVolumeVisible = !gridNodes.empty();
                     for (const TreeNode* gridNode : gridNodes) {
-                        const bool surfaceVisible = atomsTemplate.IsChargeDensityAdvancedGridVisible(
+                        const bool surfaceVisible = densityService.IsAdvancedGridVisible(
                             gridNode->GetId(), false);
                         anySurfaceVisible = anySurfaceVisible || surfaceVisible;
                         allSurfaceVisible = allSurfaceVisible && surfaceVisible;
 
-                        const bool volumeVisible = atomsTemplate.IsChargeDensityAdvancedGridVisible(
+                        const bool volumeVisible = densityService.IsAdvancedGridVisible(
                             gridNode->GetId(), true);
                         anyVolumeVisible = anyVolumeVisible || volumeVisible;
                         allVolumeVisible = allVolumeVisible && volumeVisible;
@@ -1156,8 +1160,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 }
                             }
                             if (!gridNodes.empty()) {
-                                atomsTemplate.SetAllChargeDensityAdvancedGridVisible(entry.id, false, false);
-                                atomsTemplate.SetAllChargeDensityAdvancedGridVisible(entry.id, true, false);
+                                densityService.SetAllAdvancedGridVisible(entry.id, false, false);
+                                densityService.SetAllAdvancedGridVisible(entry.id, true, false);
                             }
                             hasChargeDensityVisibilityChange = true;
                         }
@@ -1176,8 +1180,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 }
                             }
                             if (!gridNodes.empty()) {
-                                atomsTemplate.SetAllChargeDensityAdvancedGridVisible(entry.id, false, true);
-                                atomsTemplate.SetAllChargeDensityAdvancedGridVisible(entry.id, true, true);
+                                densityService.SetAllAdvancedGridVisible(entry.id, false, true);
+                                densityService.SetAllAdvancedGridVisible(entry.id, true, true);
                             }
                             hasChargeDensityVisibilityChange = true;
                         }
@@ -1196,8 +1200,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 }
                             }
                             if (!gridNodes.empty()) {
-                                atomsTemplate.SetAllChargeDensityAdvancedGridVisible(entry.id, false, true);
-                                atomsTemplate.SetAllChargeDensityAdvancedGridVisible(entry.id, true, true);
+                                densityService.SetAllAdvancedGridVisible(entry.id, false, true);
+                                densityService.SetAllAdvancedGridVisible(entry.id, true, true);
                             }
                             hasChargeDensityVisibilityChange = true;
                         }
@@ -1351,7 +1355,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                                     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                         setChargeDensityContext(entry.id);
-                                        atomsTemplate.SetAllChargeDensityAdvancedGridVisible(
+                                        densityService.SetAllAdvancedGridVisible(
                                             entry.id, volumeMode, false);
                                         hasChargeDensityVisibilityChange = true;
                                     }
@@ -1359,7 +1363,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                                     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                         setChargeDensityContext(entry.id);
-                                        atomsTemplate.SetAllChargeDensityAdvancedGridVisible(
+                                        densityService.SetAllAdvancedGridVisible(
                                             entry.id, volumeMode, true);
                                         hasChargeDensityVisibilityChange = true;
                                     }
@@ -1367,7 +1371,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                                     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                         setChargeDensityContext(entry.id);
-                                        atomsTemplate.SetAllChargeDensityAdvancedGridVisible(
+                                        densityService.SetAllAdvancedGridVisible(
                                             entry.id, volumeMode, true);
                                         hasChargeDensityVisibilityChange = true;
                                     }
@@ -1403,19 +1407,19 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                         ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                                         s_SelectedMeshId = gridNode->GetId();
                                         openChargeDensityViewer(entry.id, request);
-                                        atomsTemplate.SetChargeDensityAdvancedGridVisible(
+                                        densityService.SetAdvancedGridVisible(
                                             gridNode->GetId(), volumeMode, true);
                                         hasChargeDensityVisibilityChange = true;
                                     }
 
                                     ImGui::TableSetColumnIndex(1);
-                                    const bool visible = atomsTemplate.IsChargeDensityAdvancedGridVisible(
+                                    const bool visible = densityService.IsAdvancedGridVisible(
                                         gridNode->GetId(), volumeMode);
                                     if (visible) {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                             setChargeDensityContext(entry.id);
-                                            atomsTemplate.SetChargeDensityAdvancedGridVisible(
+                                            densityService.SetAdvancedGridVisible(
                                                 gridNode->GetId(), volumeMode, false);
                                             hasChargeDensityVisibilityChange = true;
                                         }
@@ -1424,7 +1428,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                                             ICON_FA6_EYE_SLASH);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                             setChargeDensityContext(entry.id);
-                                            atomsTemplate.SetChargeDensityAdvancedGridVisible(
+                                            densityService.SetAdvancedGridVisible(
                                                 gridNode->GetId(), volumeMode, true);
                                             hasChargeDensityVisibilityChange = true;
                                         }
@@ -1568,8 +1572,9 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
 
         ImGui::EndTable();
         if (hasChargeDensityVisibilityChange) {
-            atomsTemplate.SyncChargeDensityViewTypeState();
+            densityService.SyncChargeDensityViewTypeState();
         }
     }
 }
+
 

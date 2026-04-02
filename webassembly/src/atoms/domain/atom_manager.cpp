@@ -3,7 +3,7 @@
 #include "bond_manager.h"
 #include "element_database.h"
 #include "cell_manager.h"
-#include "structure_state_store.h"
+#include "../../structure/domain/structure_repository.h"
 
 #include <algorithm>
 #include <cmath>
@@ -14,27 +14,27 @@ namespace domain {
 
 // 전역 원자 벡터 정의 (실제 메모리 할당)
 std::vector<atoms::domain::AtomInfo>& GetCreatedAtoms() {
-    return StructureStateStore::Instance().CreatedAtoms();
+    return structure::domain::GetStructureRepository().CreatedAtoms();
 }
 
 std::vector<atoms::domain::AtomInfo>& GetSurroundingAtoms() {
-    return StructureStateStore::Instance().SurroundingAtoms();
+    return structure::domain::GetStructureRepository().SurroundingAtoms();
 }
 
 std::map<std::string, atoms::domain::AtomGroupInfo>& GetAtomGroups() {
-    return StructureStateStore::Instance().AtomGroups();
+    return structure::domain::GetStructureRepository().AtomGroups();
 }
 
 bool isSurroundingsVisible() {
-    return StructureStateStore::Instance().SurroundingsVisible();
+    return structure::domain::GetStructureRepository().SurroundingsVisible();
 }
 
 void setSurroundingsVisible(bool visible) {
-    StructureStateStore::Instance().SurroundingsVisible() = visible;
+    structure::domain::GetStructureRepository().SurroundingsVisible() = visible;
 }
 
 uint32_t generateUniqueAtomId() {
-    return StructureStateStore::Instance().GenerateAtomId();
+    return structure::domain::GetStructureRepository().GenerateAtomId();
 }
 
 void applyAtomChanges(::AtomsTemplate* parent,

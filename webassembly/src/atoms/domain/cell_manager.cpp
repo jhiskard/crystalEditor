@@ -3,18 +3,18 @@
 #include "../../config/log_config.h"
 #include "../atoms_template.h"
 #include "atom_manager.h"
-#include "structure_state_store.h"
+#include "../../structure/domain/structure_repository.h"
 
 CellInfo& GetCellInfo() {
-    return atoms::domain::StructureStateStore::Instance().Cell();
+    return structure::domain::GetStructureRepository().Cell();
 }
 
 std::vector<vtkSmartPointer<vtkActor>>& GetCellEdgeActors() {
-    return atoms::domain::StructureStateStore::Instance().CellEdgeActors();
+    return structure::domain::GetStructureRepository().CellEdgeActors();
 }
 
 bool& GetCellVisible() {
-    return atoms::domain::StructureStateStore::Instance().CellVisible();
+    return structure::domain::GetStructureRepository().CellVisible();
 }
 
 namespace atoms::domain {

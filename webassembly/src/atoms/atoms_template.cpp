@@ -1,10 +1,14 @@
-#include "atoms_template.h"
+﻿#include "atoms_template.h"
 #include "../app.h"
 #include "../vtk_viewer.h"
 #include "../model_tree.h"
 #include "../mesh_detail.h"
 #include "../mesh_manager.h"
 #include "../config/log_config.h" // spdlog ?ㅻ뜑 寃쎈줈 ?섏젙 - 濡쒓퉭 ?ㅼ젙 ?뚯씪 ?ъ슜
+#include "../structure/application/structure_service.h"
+#include "../measurement/application/measurement_service.h"
+#include "../density/application/density_service.h"
+#include "../render/application/render_gateway.h"
 
 #include "infrastructure/bond_renderer.h"
 #include "ui/atom_editor_ui.h"
@@ -50,7 +54,7 @@
 #include "ui/charge_density_ui.h"
 #include "infrastructure/chgcar_parser.h"
 #include "domain/measurement_geometry.h"
-#include "domain/structure_state_store.h"
+#include "../structure/domain/structure_repository.h"
 
 
 // ============================================================================
@@ -101,6 +105,10 @@ std::array<double, 3> toDoubleColor(const std::array<float, 3>& color) {
         static_cast<double>(color[1]),
         static_cast<double>(color[2])
     };
+}
+
+void requestViewerRender() {
+    render::application::GetRenderGateway().RequestRender();
 }
 
 int scaledFontSize(int baseFontSize, float scale) {
@@ -1039,6 +1047,12 @@ AtomsTemplate::AtomsTemplate() {
 
     // ChargeDensityUI 초기화
     m_chargeDensityUI = std::make_unique<atoms::ui::ChargeDensityUI>(this);
+
+    // Phase 8 service facades (compatibility delegation layer)
+    m_structureService = std::make_unique<structure::application::StructureService>(this);
+    m_measurementService = std::make_unique<measurement::application::MeasurementService>(this);
+    m_densityService = std::make_unique<density::application::DensityService>(this);
+
     SPDLOG_DEBUG("AtomsTemplate initialized with ChargeDensityUI");    
 }
 
@@ -1078,6 +1092,58 @@ AtomsTemplate::~AtomsTemplate() {
     }
 }
 
+structure::application::StructureService& AtomsTemplate::structureService() noexcept {
+    return *m_structureService;
+}
+
+const structure::application::StructureService& AtomsTemplate::structureService() const noexcept {
+    return *m_structureService;
+}
+
+measurement::application::MeasurementService& AtomsTemplate::measurementService() noexcept {
+    return *m_measurementService;
+}
+
+const measurement::application::MeasurementService& AtomsTemplate::measurementService() const noexcept {
+    return *m_measurementService;
+}
+
+density::application::DensityService& AtomsTemplate::densityService() noexcept {
+    return *m_densityService;
+}
+
+const density::application::DensityService& AtomsTemplate::densityService() const noexcept {
+    return *m_densityService;
+}
+
+void AtomsTemplate::ApplyAtomChangesFromEditor() {
+    applyAtomChanges();
+}
+
+void AtomsTemplate::ApplyCellChangesFromEditor() {
+    applyCellChanges();
+}
+
+bool AtomsTemplate::EnterBZPlotMode(
+    const std::string& path,
+    int npoints,
+    bool showVectors,
+    bool showLabels,
+    std::string& outErrorMessage) {
+    return enterBZPlotMode(path, npoints, showVectors, showLabels, outErrorMessage);
+}
+
+void AtomsTemplate::ExitBZPlotMode() {
+    exitBZPlotMode();
+}
+
+void AtomsTemplate::UpdateBatchPerformanceStats(
+    float duration,
+    size_t atomGroupCount,
+    size_t bondGroupCount) {
+    updatePerformanceStatsInternal(duration, atomGroupCount, bondGroupCount);
+}
+
 void AtomsTemplate::setCellVisible(bool visible) {
     for (auto& [id, entry] : m_UnitCells) {
         (void)id;
@@ -1087,7 +1153,7 @@ void AtomsTemplate::setCellVisible(bool visible) {
         m_vtkRenderer->setUnitCellVisible(visible);
     }
     atoms::domain::setCellVisible(visible);
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::SetAtomGroupVisible(const std::string& symbol, bool visible) {
@@ -1096,7 +1162,7 @@ void AtomsTemplate::SetAtomGroupVisible(const std::string& symbol, bool visible)
     if (m_vtkRenderer) {
         m_vtkRenderer->setAtomGroupVisible(symbol, visible);
     }
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 
@@ -1133,7 +1199,7 @@ void AtomsTemplate::SetAtomVisibilityForIds(const std::vector<uint32_t>& atomIds
         return;
     }
     refreshRenderedGroups();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 bool AtomsTemplate::IsAtomLabelVisibleById(uint32_t atomId) const {
@@ -1160,7 +1226,7 @@ void AtomsTemplate::SetAtomLabelVisibilityForIds(const std::vector<uint32_t>& at
         return;
     }
     refreshLabelActors();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::SetBondsVisible(bool visible) {
@@ -1170,7 +1236,7 @@ void AtomsTemplate::SetBondsVisible(bool visible) {
         m_StructureBondsVisible[id] = visible;
     }
     refreshRenderedGroups();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::SetBondsVisible(int32_t id, bool visible) {
@@ -1180,7 +1246,7 @@ void AtomsTemplate::SetBondsVisible(int32_t id, bool visible) {
     }
     m_StructureBondsVisible[id] = visible;
     refreshRenderedGroups();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 bool AtomsTemplate::IsBondsVisible(int32_t id) const {
@@ -1218,7 +1284,7 @@ void AtomsTemplate::SetBondVisibilityForIds(const std::vector<uint32_t>& bondIds
         return;
     }
     refreshRenderedGroups();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 bool AtomsTemplate::IsBondLabelVisibleById(uint32_t bondId) const {
@@ -1245,7 +1311,7 @@ void AtomsTemplate::SetBondLabelVisibilityForIds(const std::vector<uint32_t>& bo
         return;
     }
     refreshLabelActors();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 std::vector<std::pair<std::string, size_t>> AtomsTemplate::GetAtomGroupSummary() const {
@@ -2207,7 +2273,7 @@ void AtomsTemplate::SetBoundaryAtomsEnabled(bool enabled) {
         hideSurroundingAtoms();
     }
     setSurroundingsVisible(enabled);
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 bool AtomsTemplate::IsBZPlotMode() const {
@@ -2562,11 +2628,11 @@ void AtomsTemplate::createBond(
 
 // createBond
 uint32_t AtomsTemplate::generateUniqueBondId() {
-    return atoms::domain::StructureStateStore::Instance().GenerateBondId();
+    return structure::domain::GetStructureRepository().GenerateBondId();
 }
 
 void AtomsTemplate::resetBondIdCounter(uint32_t startId) {
-    atoms::domain::StructureStateStore::Instance().ResetBondIdCounter(startId);
+    structure::domain::GetStructureRepository().ResetBondIdCounter(startId);
 }
 
 // updatePerformanceStatsInternal
@@ -3250,7 +3316,7 @@ void AtomsTemplate::SelectAtomByPicker(vtkActor* actor, double pickPos[3]) {
     m_SelectedActor = nullptr;
 
     syncCreatedAtomSelectionVisuals();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::SelectSameElementAtomsByPicker(vtkActor* actor, double pickPos[3]) {
@@ -3303,7 +3369,7 @@ void AtomsTemplate::SelectSameElementAtomsByPicker(vtkActor* actor, double pickP
     m_SelectedActor = nullptr;
 
     syncCreatedAtomSelectionVisuals();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::ClearCreatedAtomSelection() {
@@ -3319,13 +3385,13 @@ void AtomsTemplate::ClearCreatedAtomSelection() {
     ClearSelection();
     if (changed || !m_CreatedAtomSelectionVisuals.empty()) {
         syncCreatedAtomSelectionVisuals();
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
     }
 }
 
 void AtomsTemplate::SyncCreatedAtomSelectionVisualsFromState() {
     syncCreatedAtomSelectionVisuals();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 bool AtomsTemplate::isCenterMeasurementMode() const {
@@ -3361,7 +3427,7 @@ void AtomsTemplate::HandleMeasurementEmptyClick() {
     if (!m_MeasurementPickedAtomIds.empty()) {
         m_MeasurementPickedAtomIds.clear();
         clearMeasurementPickVisuals();
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
     }
 }
 
@@ -3531,7 +3597,7 @@ void AtomsTemplate::applyDragSelectionToMeasurement(const std::vector<uint32_t>&
     if (!centerMode && m_MeasurementPickedAtomIds.size() == targetPickCount) {
         createMeasurementFromPickedAtoms();
     }
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::applyDragSelectionToCreatedAtoms(const std::vector<uint32_t>& atomIds, bool additive) {
@@ -3560,7 +3626,7 @@ void AtomsTemplate::applyDragSelectionToCreatedAtoms(const std::vector<uint32_t>
 
     if (changed) {
         syncCreatedAtomSelectionVisuals();
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
     }
 }
 
@@ -4186,7 +4252,7 @@ void AtomsTemplate::renderMeasurementStyleOptionsOverlay() {
     default:
         break;
     }
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 std::string AtomsTemplate::buildMeasurementAtomLabel(const atoms::domain::AtomInfo* atom) const {
@@ -4460,7 +4526,7 @@ bool AtomsTemplate::commitCenterMeasurementFromPickedAtoms() {
     if (atomIds.size() < 2) {
         m_MeasurementPickedAtomIds = std::move(atomIds);
         syncMeasurementPickVisuals();
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
         return false;
     }
 
@@ -4476,7 +4542,7 @@ bool AtomsTemplate::commitCenterMeasurementFromPickedAtoms() {
 
     m_MeasurementPickedAtomIds.clear();
     clearMeasurementPickVisuals();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
     return true;
 }
 
@@ -4779,7 +4845,7 @@ void AtomsTemplate::setMeasurementVisibilitySuppressedByBZ(bool suppressed) {
         applyCenterMeasurementVisibility(measurement);
     }
     syncMeasurementPickVisuals();
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::removeDistanceMeasurementActors(DistanceMeasurement& measurement) {
@@ -5180,7 +5246,7 @@ void AtomsTemplate::SetMeasurementVisible(uint32_t measurementId, bool visible) 
         }
         measurement.visible = visible;
         applyDistanceMeasurementVisibility(measurement);
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
         return;
     }
     for (auto& measurement : m_AngleMeasurements) {
@@ -5189,7 +5255,7 @@ void AtomsTemplate::SetMeasurementVisible(uint32_t measurementId, bool visible) 
         }
         measurement.visible = visible;
         applyAngleMeasurementVisibility(measurement);
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
         return;
     }
     for (auto& measurement : m_DihedralMeasurements) {
@@ -5198,7 +5264,7 @@ void AtomsTemplate::SetMeasurementVisible(uint32_t measurementId, bool visible) 
         }
         measurement.visible = visible;
         applyDihedralMeasurementVisibility(measurement);
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
         return;
     }
     for (auto& measurement : m_CenterMeasurements) {
@@ -5207,7 +5273,7 @@ void AtomsTemplate::SetMeasurementVisible(uint32_t measurementId, bool visible) 
         }
         measurement.visible = visible;
         applyCenterMeasurementVisibility(measurement);
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
         return;
     }
 }
@@ -5222,7 +5288,7 @@ void AtomsTemplate::RemoveMeasurement(uint32_t measurementId) {
     if (distanceIt != m_DistanceMeasurements.end()) {
         removeDistanceMeasurementActors(*distanceIt);
         m_DistanceMeasurements.erase(distanceIt);
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
         return;
     }
 
@@ -5242,7 +5308,7 @@ void AtomsTemplate::RemoveMeasurement(uint32_t measurementId) {
         if (dihedralIt != m_DihedralMeasurements.end()) {
             removeDihedralMeasurementActors(*dihedralIt);
             m_DihedralMeasurements.erase(dihedralIt);
-            VtkViewer::Instance().RequestRender();
+            requestViewerRender();
             return;
         }
 
@@ -5257,12 +5323,12 @@ void AtomsTemplate::RemoveMeasurement(uint32_t measurementId) {
         }
         removeCenterMeasurementActors(*centerIt);
         m_CenterMeasurements.erase(centerIt);
-        VtkViewer::Instance().RequestRender();
+        requestViewerRender();
         return;
     }
     removeAngleMeasurementActors(*angleIt);
     m_AngleMeasurements.erase(angleIt);
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 void AtomsTemplate::RemoveMeasurementsByStructure(int32_t structureId) {
@@ -5281,7 +5347,7 @@ void AtomsTemplate::RemoveMeasurementsByStructure(int32_t structureId) {
         m_NextMeasurementId = 1;
         m_NextCenterMarkerStyleIndex = 0;
     }
-    VtkViewer::Instance().RequestRender();
+    requestViewerRender();
 }
 
 std::vector<AtomsTemplate::DistanceMeasurementListItem>
@@ -5735,3 +5801,4 @@ bool AtomsTemplate::getBondStructureId(uint32_t bondId, int32_t& structureId) {
     }
     return false;
 }
+

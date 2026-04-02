@@ -124,9 +124,9 @@ void BatchUpdateSystem::scheduleBondGroupUpdate(const std::string& bondKey) {
 void BatchUpdateSystem::updatePerformanceStats(float duration) {
     // AtomsTemplate의 updatePerformanceStats 호출
     // parent가 실제 통계 업데이트를 수행
-    parent->updatePerformanceStatsInternal(duration, 
-                                           pendingAtomGroups.size(), 
-                                           pendingBondGroups.size());
+    parent->UpdateBatchPerformanceStats(duration,
+                                        pendingAtomGroups.size(),
+                                        pendingBondGroups.size());
 }
 
 // ============================================================================

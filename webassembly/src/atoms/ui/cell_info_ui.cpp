@@ -20,7 +20,7 @@ void CellInfoUI::applyCellChangesOnEditEnd() {
     }
 
     // 실제 셀 변경 적용은 도메인 계층(AtomsTemplate)에게 위임
-    m_parent->applyCellChanges();
+    m_parent->ApplyCellChangesFromEditor();
 }
 
 void CellInfoUI::render() {

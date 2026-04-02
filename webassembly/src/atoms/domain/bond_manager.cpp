@@ -1,7 +1,7 @@
 ﻿#include "bond_manager.h"
 #include "../atoms_template.h"
 #include "../../render/application/render_gateway.h"
-#include "structure_state_store.h"
+#include "../../structure/domain/structure_repository.h"
 #include <algorithm>
 #include <cmath>
 #include <cfloat>
@@ -13,15 +13,15 @@ namespace atoms {
 namespace domain {
 
 std::vector<atoms::domain::BondInfo>& GetCreatedBonds() {
-    return StructureStateStore::Instance().CreatedBonds();
+    return structure::domain::GetStructureRepository().CreatedBonds();
 }
 
 std::vector<atoms::domain::BondInfo>& GetSurroundingBonds() {
-    return StructureStateStore::Instance().SurroundingBonds();
+    return structure::domain::GetStructureRepository().SurroundingBonds();
 }
 
 std::map<std::string, atoms::domain::BondGroupInfo>& GetBondGroups() {
-    return StructureStateStore::Instance().BondGroups();
+    return structure::domain::GetStructureRepository().BondGroups();
 }
 
 namespace {

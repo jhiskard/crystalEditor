@@ -10,6 +10,9 @@
 #include "../../model_tree.h"
 #include "../../test_window.h"
 #include "../../vtk_viewer.h"
+#include "../../structure/application/structure_service.h"
+#include "../../measurement/application/measurement_service.h"
+#include "../../density/application/density_service.h"
 
 WorkbenchRuntime& WorkbenchRuntime::Instance() {
     static WorkbenchRuntime runtime;
@@ -35,6 +38,18 @@ VtkViewer& WorkbenchRuntime::Viewer() {
 
 AtomsTemplate& WorkbenchRuntime::AtomsTemplateFacade() {
     return AtomsTemplate::Instance();
+}
+
+structure::application::StructureService& WorkbenchRuntime::StructureFeature() {
+    return AtomsTemplateFacade().structureService();
+}
+
+measurement::application::MeasurementService& WorkbenchRuntime::MeasurementFeature() {
+    return AtomsTemplateFacade().measurementService();
+}
+
+density::application::DensityService& WorkbenchRuntime::DensityFeature() {
+    return AtomsTemplateFacade().densityService();
 }
 
 ModelTree& WorkbenchRuntime::ModelTreePanel() {
@@ -130,19 +145,19 @@ void WorkbenchRuntime::RenderXsfGridImportPopups() {
 }
 
 int WorkbenchRuntime::GetStructureCount() {
-    return static_cast<int>(AtomsTemplateFacade().GetStructures().size());
+    return StructureFeature().GetStructureCount();
 }
 
 int WorkbenchRuntime::GetCurrentStructureId() {
-    return AtomsTemplateFacade().GetCurrentStructureId();
+    return StructureFeature().GetCurrentStructureId();
 }
 
 bool WorkbenchRuntime::IsStructureVisible(int id) {
-    return AtomsTemplateFacade().IsStructureVisible(id);
+    return StructureFeature().IsStructureVisible(id);
 }
 
 void WorkbenchRuntime::SetStructureVisible(int id, bool visible) {
-    AtomsTemplateFacade().SetStructureVisible(id, visible);
+    StructureFeature().SetStructureVisible(id, visible);
 }
 
 int WorkbenchRuntime::GetMeshCount() {
@@ -150,7 +165,7 @@ int WorkbenchRuntime::GetMeshCount() {
 }
 
 bool WorkbenchRuntime::HasChargeDensity() {
-    return AtomsTemplateFacade().HasChargeDensity();
+    return DensityFeature().HasChargeDensity();
 }
 
 void WorkbenchRuntime::PrintMeshTree() {
