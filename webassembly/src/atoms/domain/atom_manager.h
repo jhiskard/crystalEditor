@@ -162,7 +162,7 @@ struct AtomGroupInfo {
         // appender = vtkSmartPointer<vtkAppendPolyData>::New();
         // mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
         // actor = vtkSmartPointer<vtkActor>::New();
-        // VtkViewer::Instance().AddActor(actor);
+        // Legacy viewer actor registration was removed during renderer decoupling.
         
         // [추가] 로그만 출력 (실제 VTK는 VTKRenderer가 관리)
         SPDLOG_DEBUG("AtomGroupInfo initialized for element: {} (VTK managed by VTKRenderer)", element);
@@ -172,7 +172,7 @@ struct AtomGroupInfo {
     void cleanupVTKPipeline() {
         // [삭제] 기존 VTK 정리 코드
         // if (actor) {
-        //     VtkViewer::Instance().RemoveActor(actor);
+        //     Legacy viewer actor removal was removed during renderer decoupling.
         //     actor = nullptr;
         // }
         // if (appender) {

@@ -1,5 +1,5 @@
 #include "mesh_manager.h"
-#include "vtk_viewer.h"
+#include "render/application/render_gateway.h"
 #include "mesh_detail.h"
 
 // Standard library
@@ -11,6 +11,7 @@
 #include <vtkActor.h>
 #include <vtkActor2D.h>
 #include <vtkScalarBarActor.h>
+#include <vtkVolume.h>
 
 
 MeshManager::MeshManager() {
@@ -141,14 +142,14 @@ Mesh* MeshManager::InsertMesh(const char* name, vtkSmartPointer<vtkDataSet> edge
     }
 
     // Add the mesh actor to the VtkViewer
-    VtkViewer& vtkViewer = VtkViewer::Instance();
-    vtkViewer.AddActor(newMesh->GetEdgeMeshActor(), true);
-    vtkViewer.AddActor(newMesh->GetFaceMeshActor(), true);
-    vtkViewer.AddActor(newMesh->GetVolumeMeshActor(), true);
+    auto& renderGateway = render::application::GetRenderGateway();
+    renderGateway.AddActor(newMesh->GetEdgeMeshActor(), true);
+    renderGateway.AddActor(newMesh->GetFaceMeshActor(), true);
+    renderGateway.AddActor(newMesh->GetVolumeMeshActor(), true);
     
     // ✅ 추가: Volume Render Actor 추가 (있는 경우)
     if (newMesh->GetVolumeRenderActor()) {
-        vtkViewer.AddVolume(newMesh->GetVolumeRenderActor(), true);
+        renderGateway.AddVolume(newMesh->GetVolumeRenderActor(), true);
         newMesh->MarkVolumeRenderAdded();
     }
 

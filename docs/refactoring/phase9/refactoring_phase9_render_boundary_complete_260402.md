@@ -1,11 +1,11 @@
 ﻿# Phase 9 세부 작업계획서(재착수): `VtkViewer` 해체 + render 포트 완성
 
 작성일: `2026-04-02 (KST)`  
-최종 업데이트: `2026-04-02 (KST, 재착수 버전)`  
+최종 업데이트: `2026-04-02 (KST, W6 빌드/테스트/종료 판정 완료)`  
 기준 계획: `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md` (Phase 9 절)  
 선행 판정: **GO** (`docs/refactoring/phase8/go_no_go_phase9.md`)  
 대상 범위: `webassembly/src/render/*`, `webassembly/src/vtk_viewer.*`, `webassembly/src/atoms/*`, `webassembly/src/mesh*`, `webassembly/src/toolbar.cpp`, `webassembly/src/file_loader.cpp`, `webassembly/src/shell/runtime/*`, `scripts/refactoring/*`, `docs/refactoring/phase9/*`  
-진행 상태: `W0 재착수 대기`
+진행 상태: `W0~W6 완료`
 
 ## 0. 재착수 배경과 운영 원칙
 
@@ -243,12 +243,70 @@
 - `docs/refactoring/phase8/refactoring_phase8_atoms_template_dismantle_260401.md`
 
 ## 9. 진행 체크리스트
-- [ ] W0 기준선/재현 로그 고정
-- [ ] W1 render 포트 계약 확장
-- [ ] W2 render adapter 재편
-- [ ] W3 feature 호출 경로 전환
-- [ ] W4 `P9-BUG-01` 처리 + runtime 경계 정리
-- [ ] W5 정적 게이트 도입
-- [ ] W6 빌드/테스트 + 종료 판정 문서화
+- [x] W0 기준선/재현 로그 고정
+- [x] W1 render 포트 계약 확장
+- [x] W2 render adapter 재편
+- [x] W3 feature 호출 경로 전환
+- [x] W4 `P9-BUG-01` 처리 + runtime 경계 정리
+- [x] W5 정적 게이트 도입
+- [x] W6 빌드/테스트 + 종료 판정 문서화
+
+## 10. Execution Update (2026-04-02 KST, W0~W3)
+- [x] W0 기준선/재현 로그 고정
+  - `render_inventory_phase9_latest.md`, `bug_p9_vasp_grid_sequence_latest.md` 갱신
+- [x] W1 render 포트 계약 확장
+  - `RenderGateway`에 reset/projection/camera-align/measurement-overlay/arrow-step 계약 추가
+- [x] W2 render adapter 재편
+  - `VtkRenderGateway`에 W1 계약 구현 추가
+  - runtime용 `GetLegacyViewerFacade()` helper 도입
+- [x] W3 feature 호출 경로 전환
+  - 전환 완료 파일:
+    - `atoms/atoms_template.cpp`
+    - `atoms/application/measurement_controller.cpp`
+    - `atoms/application/visibility_service.cpp`
+    - `mesh.cpp`
+    - `mesh_manager.cpp`
+    - `toolbar.cpp`
+    - `file_loader.cpp`
+    - `shell/runtime/workbench_runtime.cpp`
+  - 결과: 위 파일의 `VtkViewer::Instance()` 직접 호출 0건
+
+## 11. Execution Update (2026-04-02 KST, W4~W5)
+- [x] W4 `P9-BUG-01` 원인 귀속 및 코드 수정
+  - 원인: `ChargeDensityUI` 비-grid 로드/clear 경로에서 `m_gridDataEntries` 정리 누락으로 이전 XSF grid 엔트리 잔존
+  - 조치 파일:
+    - `webassembly/src/atoms/ui/charge_density_ui.cpp`
+      - `loadFile()`/`clear()`/`loadFromParseResultInternal(..., loadedFromGrid=false)`에서 grid 엔트리 초기화
+  - runtime/render 경계 정리:
+    - `webassembly/src/mouse_interactor_style.cpp`를 `RenderGateway` 기반으로 전환
+    - `webassembly/src/test_window.cpp` actor 추가 경로를 `RenderGateway`로 전환
+    - `render` 외부 `VtkViewer::Instance()` 호출 0건 달성
+- [x] W5 정적 게이트 스크립트 도입
+  - 신규 스크립트:
+    - `scripts/refactoring/check_phase9_render_boundary_complete.ps1`
+  - 실행 로그:
+    - `docs/refactoring/phase9/logs/check_phase9_render_boundary_complete_latest.txt`
+  - 점검 항목(PASS):
+    1. `render` 외부 `VtkViewer::Instance()` 0건
+    2. render gateway/adapter 핵심 파일 존재
+    3. render public API Doxygen 계약 존재
+    4. 폰트 초기화/XSF bootstrap 보호 규칙 유지
+    5. `P9-BUG-01` 로그 파일 존재 + 상태 태그 확인
+
+## 12. Execution Update (2026-04-02 KST, W6)
+- [x] W6 실행 게이트 완료
+  - `powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase9_render_boundary_complete.ps1` -> PASS
+  - `npm run build-wasm:release` -> PASS
+  - `npm run test:cpp` -> PASS (`1/1` test passed)
+  - `npm run test:smoke` -> PASS (`1 passed`)
+- [x] W6 중 확인된 컴파일 이슈 보정
+  - `webassembly/src/test_window.cpp`: `#include <vtkActor.h>` 추가
+  - `webassembly/src/mesh_manager.cpp`: `#include <vtkVolume.h>` 추가
+- [x] 종료 문서 작성
+  - `docs/refactoring/phase9/dependency_gate_report.md`
+  - `docs/refactoring/phase9/go_no_go_phase10.md`
+- [x] `P9-BUG-01` 최종 상태 반영
+  - 상태: `Deferred`
+  - 근거: W4 코드 수정 반영 완료, 반복 시퀀스 전용 자동 검증은 Phase 10으로 이관
 
 

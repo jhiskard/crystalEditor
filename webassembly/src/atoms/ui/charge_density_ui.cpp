@@ -124,6 +124,8 @@ bool ChargeDensityUI::loadFile(const std::string& filePath) {
         }
     }
     m_auxRenderers.clear();
+    m_gridDataEntries.clear();
+    m_selectedGridDataIndex = 0;
     m_simpleGridVisibility.clear();
     m_sliceGridVisibility.clear();
     m_simpleGridIsoValues.clear();
@@ -176,6 +178,8 @@ void ChargeDensityUI::clear() {
         }
     }
     m_auxRenderers.clear();
+    m_gridDataEntries.clear();
+    m_selectedGridDataIndex = 0;
     m_simpleGridVisibility.clear();
     m_sliceGridVisibility.clear();
     m_simpleGridIsoValues.clear();
@@ -859,6 +863,8 @@ bool ChargeDensityUI::loadFromParseResultInternal(
             }
         }
         m_auxRenderers.clear();
+        m_gridDataEntries.clear();
+        m_selectedGridDataIndex = 0;
         m_simpleGridVisibility.clear();
         m_sliceGridVisibility.clear();
         m_simpleGridIsoValues.clear();

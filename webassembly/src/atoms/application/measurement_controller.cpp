@@ -1,7 +1,7 @@
 #include "../atoms_template.h"
 
 #include "../../app.h"
-#include "../../vtk_viewer.h"
+#include "../../render/application/render_gateway.h"
 
 #include <algorithm>
 
@@ -14,7 +14,7 @@ void AtomsTemplate::EnterMeasurementMode(MeasurementMode mode) {
         m_MeasurementPickedAtomIds.clear();
         clearMeasurementPickVisuals();
         ClearSelection();
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
         return;
     }
 
@@ -23,7 +23,7 @@ void AtomsTemplate::EnterMeasurementMode(MeasurementMode mode) {
     clearMeasurementPickVisuals();
     syncCreatedAtomSelectionVisuals();
     ClearSelection();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 
@@ -36,7 +36,7 @@ void AtomsTemplate::ExitMeasurementMode() {
     clearMeasurementPickVisuals();
     syncCreatedAtomSelectionVisuals();
     ClearSelection();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 
@@ -70,7 +70,7 @@ void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickP
     if (m_MeasurementPickedAtomIds.empty()) {
         m_MeasurementPickedAtomIds.push_back(atomId);
         syncMeasurementPickVisuals();
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
         return;
     }
 
@@ -79,7 +79,7 @@ void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickP
             m_MeasurementPickedAtomIds.end(),
             atomId) != m_MeasurementPickedAtomIds.end()) {
         syncMeasurementPickVisuals();
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
         return;
     }
 
@@ -88,7 +88,7 @@ void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickP
         m_MeasurementPickedAtomIds.clear();
         m_MeasurementPickedAtomIds.push_back(atomId);
         syncMeasurementPickVisuals();
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
         return;
     }
 
@@ -96,7 +96,7 @@ void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickP
         m_MeasurementPickedAtomIds.clear();
         m_MeasurementPickedAtomIds.push_back(atomId);
         syncMeasurementPickVisuals();
-        VtkViewer::Instance().RequestRender();
+        render::application::GetRenderGateway().RequestRender();
         return;
     }
 
@@ -105,7 +105,7 @@ void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickP
     if (!centerMode && m_MeasurementPickedAtomIds.size() == targetPickCount) {
         createMeasurementFromPickedAtoms();
     }
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 
@@ -172,7 +172,7 @@ void AtomsTemplate::RenderMeasurementModeOverlay() {
             if (ImGui::Button("Clear")) {
                 m_MeasurementPickedAtomIds.clear();
                 clearMeasurementPickVisuals();
-                VtkViewer::Instance().RequestRender();
+                render::application::GetRenderGateway().RequestRender();
             }
 
             const ImGuiIO& io = ImGui::GetIO();

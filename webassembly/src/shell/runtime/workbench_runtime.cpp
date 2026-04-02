@@ -9,7 +9,7 @@
 #include "../../mesh_manager.h"
 #include "../../model_tree.h"
 #include "../../test_window.h"
-#include "../../vtk_viewer.h"
+#include "../../render/infrastructure/vtk_render_gateway.h"
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
 #include "../../density/application/density_service.h"
@@ -33,7 +33,7 @@ FontManager& WorkbenchRuntime::FontRegistry() {
 }
 
 VtkViewer& WorkbenchRuntime::Viewer() {
-    return VtkViewer::Instance();
+    return render::infrastructure::GetLegacyViewerFacade();
 }
 
 AtomsTemplate& WorkbenchRuntime::AtomsTemplateFacade() {

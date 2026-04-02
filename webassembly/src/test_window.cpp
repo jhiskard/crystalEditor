@@ -1,11 +1,12 @@
 #include "test_window.h"
-#include "vtk_viewer.h"
 #include "font_manager.h"
 #include "config/log_config.h"
+#include "render/application/render_gateway.h"
 
 // VTK
 #include <vtkConeSource.h>
 #include <vtkSphereSource.h>
+#include <vtkActor.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
@@ -62,7 +63,7 @@ void TestWindow::Render(bool* openWindow) {
         actor->GetProperty()->SetEdgeColor(0, 0, 0);
 
         // Add the actor to the scene
-        VtkViewer::Instance().AddActor(actor);
+        render::application::GetRenderGateway().AddActor(actor);
     }
 
     if (ImGui::Button("Sphere Cone")) {
@@ -99,7 +100,7 @@ void TestWindow::Render(bool* openWindow) {
         actor->GetProperty()->SetEdgeColor(0, 0, 0);
 
         // Add the actor to the scene
-        VtkViewer::Instance().AddActor(actor);
+        render::application::GetRenderGateway().AddActor(actor);
     }
 
     if (ImGui::Button("Memory allocation test")) {
