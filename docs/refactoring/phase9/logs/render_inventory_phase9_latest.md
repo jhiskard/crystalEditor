@@ -47,3 +47,24 @@
   - 상태: `Open`
   - 연계 로그: `docs/refactoring/phase9/logs/bug_p9_vasp_grid_sequence_latest.md`
 
+## 5. W3 Update (2026-04-02 KST)
+| 항목 | 값 |
+|---|---:|
+| `VtkViewer::Instance()` 전체(`*.cpp/*.h`) | 27 |
+| `render` 내부 호출 | 21 |
+| `render` 외부 호출 | 6 |
+
+W3 전환 대상 파일 결과:
+- `atoms/atoms_template.cpp`: 0
+- `atoms/application/measurement_controller.cpp`: 0
+- `atoms/application/visibility_service.cpp`: 0
+- `mesh.cpp`: 0
+- `mesh_manager.cpp`: 0
+- `toolbar.cpp`: 0
+- `file_loader.cpp`: 0
+- `shell/runtime/workbench_runtime.cpp`: 0
+
+잔여 `render` 외부 호출(Phase 9 W4 이후 정리 대상):
+- `webassembly/src/mouse_interactor_style.cpp`: 2
+- `webassembly/src/test_window.cpp`: 2
+- `webassembly/src/atoms/domain/atom_manager.h`: 2

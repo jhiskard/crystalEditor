@@ -1,6 +1,6 @@
 #include "mesh.h"
 #include "app.h"
-#include "vtk_viewer.h"
+#include "render/application/render_gateway.h"
 #include "toolbar.h"
 
 // 표준 라이브러리
@@ -119,13 +119,13 @@ Mesh::~Mesh() {
     SPDLOG_DEBUG("Mesh ({}) destroyed.", m_Name);
 
     // Remove vtk actors from the VtkViewer
-    VtkViewer& vtkViewer = VtkViewer::Instance();   
-    vtkViewer.RemoveActor(m_EdgeMeshActor);
-    vtkViewer.RemoveActor(m_FaceMeshActor);
-    vtkViewer.RemoveActor(m_VolumeMeshActor);
-    vtkViewer.RemoveVolume(m_VolumeRenderActor);
-    vtkViewer.RemoveActor(m_StreamLineActor);
-    vtkViewer.RemoveActor2D(m_ScalarBarActor);
+    auto& renderGateway = render::application::GetRenderGateway();   
+    renderGateway.RemoveActor(m_EdgeMeshActor);
+    renderGateway.RemoveActor(m_FaceMeshActor);
+    renderGateway.RemoveActor(m_VolumeMeshActor);
+    renderGateway.RemoveVolume(m_VolumeRenderActor);
+    renderGateway.RemoveActor(m_StreamLineActor);
+    renderGateway.RemoveActor2D(m_ScalarBarActor);
 }
 
 void Mesh::createMeshMapper() {
@@ -368,7 +368,7 @@ void Mesh::SetDisplayMode(MeshDisplayMode mode) {
         }   
     }
 
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeMeshColor(double r, double g, double b) {
@@ -376,7 +376,7 @@ void Mesh::SetVolumeMeshColor(double r, double g, double b) {
         return;
     }
     m_VolumeMeshActor->GetProperty()->SetColor(r, g, b);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeMeshOpacity(double opacity) {
@@ -384,7 +384,7 @@ void Mesh::SetVolumeMeshOpacity(double opacity) {
         return;
     }
     m_VolumeMeshActor->GetProperty()->SetOpacity(opacity);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeMeshEdgeColor(double r, double g, double b) {
@@ -392,7 +392,7 @@ void Mesh::SetVolumeMeshEdgeColor(double r, double g, double b) {
         return;
     }
     m_VolumeMeshActor->GetProperty()->SetEdgeColor(r, g, b);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 const double* Mesh::GetVolumeMeshColor() const {
@@ -435,7 +435,7 @@ void Mesh::SetEdgeMeshColor(double r, double g, double b) {
         return;
     }
     m_EdgeMeshActor->GetProperty()->SetColor(r, g, b);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetEdgeMeshOpacity(double opacity) {
@@ -443,7 +443,7 @@ void Mesh::SetEdgeMeshOpacity(double opacity) {
         return;
     }
     m_EdgeMeshActor->GetProperty()->SetOpacity(opacity);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetEdgeMeshVisibility(bool visibility) {
@@ -451,7 +451,7 @@ void Mesh::SetEdgeMeshVisibility(bool visibility) {
         return;
     }
     m_EdgeMeshActor->SetVisibility(visibility);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeMeshVisibility(bool visibility) {
@@ -459,13 +459,13 @@ void Mesh::SetVolumeMeshVisibility(bool visibility) {
     updateVolumeColorTransfer();
     updateVolumeOpacityFunction();
     updateVolumeRenderVisibility();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeSurfaceVisibility(bool visibility) {
     m_VolumeSurfaceVisibility = visibility;
     updateVolumeRenderVisibility();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeRenderVisibility(bool visibility) {
@@ -479,13 +479,13 @@ void Mesh::SetVolumeRenderVisibility(bool visibility) {
 
     m_VolumeRenderVisibility = visibility;
     updateVolumeRenderVisibility();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeMeshSuppressed(bool suppressed) {
     m_VolumeMeshSuppressed = suppressed;
     updateVolumeRenderVisibility();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 const double* Mesh::GetFaceMeshColor() const {
@@ -514,7 +514,7 @@ void Mesh::SetFaceMeshColor(double r, double g, double b) {
         return;
     }
     m_FaceMeshActor->GetProperty()->SetColor(r, g, b);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetFaceMeshOpacity(double opacity) {
@@ -522,7 +522,7 @@ void Mesh::SetFaceMeshOpacity(double opacity) {
         return;
     }
     m_FaceMeshActor->GetProperty()->SetOpacity(opacity);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetFaceMeshEdgeColor(double r, double g, double b) {
@@ -530,7 +530,7 @@ void Mesh::SetFaceMeshEdgeColor(double r, double g, double b) {
         return;
     }
     m_FaceMeshActor->GetProperty()->SetEdgeColor(r, g, b);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetFaceMeshVisibility(bool visibility) {
@@ -538,7 +538,7 @@ void Mesh::SetFaceMeshVisibility(bool visibility) {
         return;
     }
     m_FaceMeshActor->SetVisibility(visibility);
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 bool Mesh::GetEdgeMeshVisibility() const {
@@ -600,13 +600,13 @@ void Mesh::SetVolumeRenderMode(VolumeRenderMode mode) {
     }
 
     updateVolumeRenderVisibility();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeColorPreset(VolumeColorPreset preset) {
     m_VolumeColorPreset = preset;
     updateVolumeColorTransfer();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeColorCurve(double midpoint, double sharpness) {
@@ -625,7 +625,7 @@ void Mesh::SetVolumeColorCurve(double midpoint, double sharpness) {
     m_VolumeColorMidpoint = midpoint;
     m_VolumeColorSharpness = sharpness;
     updateVolumeColorTransfer();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeWindowLevel(double window, double level) {
@@ -636,7 +636,7 @@ void Mesh::SetVolumeWindowLevel(double window, double level) {
     m_VolumeWindowLevelAuto = false;
     updateVolumeColorTransfer();
     updateVolumeOpacityFunction();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeRenderOpacityMin(double opacity) {
@@ -645,7 +645,7 @@ void Mesh::SetVolumeRenderOpacityMin(double opacity) {
         m_VolumeRenderOpacityMin = m_VolumeRenderOpacityMax;
     }
     updateVolumeOpacityFunction();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeRenderOpacity(double opacity) {
@@ -654,7 +654,7 @@ void Mesh::SetVolumeRenderOpacity(double opacity) {
         m_VolumeRenderOpacityMax = m_VolumeRenderOpacityMin;
     }
     updateVolumeOpacityFunction();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeSampleDistanceIndex(int index) {
@@ -668,7 +668,7 @@ void Mesh::SetVolumeSampleDistanceIndex(int index) {
     }
     m_VolumeSampleDistanceIndex = index;
     updateVolumeSampleDistance();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeSampleDistanceAutoMode(bool autoAdjust, bool interactiveAdjust) {
@@ -685,7 +685,7 @@ void Mesh::SetVolumeSampleDistanceAutoMode(bool autoAdjust, bool interactiveAdju
     if (!autoAdjust && !interactiveAdjust) {
         updateVolumeSampleDistance();
     }
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeQuality(VolumeQuality quality) {
@@ -745,7 +745,7 @@ void Mesh::SetVolumeQuality(VolumeQuality quality) {
     }
 
     updateVolumeRenderVisibility();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 void Mesh::SetVolumeQualityDataSets(vtkSmartPointer<vtkDataSet> highSurface,
@@ -771,7 +771,7 @@ void Mesh::SetMeshGroups(std::vector<MeshGroupUPtr>&& meshGroups) {
     m_MeshGroups = std::move(meshGroups);
     
     for (auto& meshGroup : m_MeshGroups) {
-        VtkViewer::Instance().AddActor(meshGroup->GetGroupActor());
+        render::application::GetRenderGateway().AddActor(meshGroup->GetGroupActor());
     }
 }
 
@@ -782,7 +782,7 @@ void Mesh::DeleteMeshGroup(int32_t groupId) {
         });
 
     if (it != m_MeshGroups.end()) {
-        VtkViewer::Instance().RemoveActor((*it)->GetGroupActor());
+        render::application::GetRenderGateway().RemoveActor((*it)->GetGroupActor());
         m_MeshGroups.erase(it, m_MeshGroups.end());
     }
 }
@@ -864,7 +864,7 @@ void Mesh::ensureVolumeRenderPipeline(vtkSmartPointer<vtkDataSet> dataSet) {
         m_VolumeRenderActor->SetProperty(m_VolumeRenderProperty);
     }
     if (!m_VolumeRenderAdded) {
-        VtkViewer::Instance().AddVolume(m_VolumeRenderActor, false);
+        render::application::GetRenderGateway().AddVolume(m_VolumeRenderActor, false);
         m_VolumeRenderAdded = true;
     }
 

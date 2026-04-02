@@ -34,3 +34,12 @@
 2. W3~W4에서 clear/apply/rollback 및 actor detach 흐름을 점검한다.
 3. W6 종료 문서(`dependency_gate_report.md`, `go_no_go_phase10.md`)에 해결/이관 상태를 명시한다.
 
+## 6. W3 점검 메모 (2026-04-02 KST)
+- W3 범위에서 `render` 경계 전환(포트/어댑터 경유화)을 우선 적용했다.
+- 현재 상태:
+  - `P9-BUG-01`: `Open` (해결 전)
+  - 원인 귀속 후보: import apply/rollback 순서 또는 workspace/grid 컨텍스트 clear 누락
+- W4에서 확인할 포인트:
+  1. VASP 로딩 직전/직후 grid actor detach 누락 여부
+  2. import 실패/재시도 경로의 rollback 이후 상태 잔존 여부
+  3. 구조 전환 시 density context reset 순서

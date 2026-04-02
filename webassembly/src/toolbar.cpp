@@ -4,7 +4,7 @@
 #include "atoms/atoms_template.h"
 #include "atoms/domain/cell_manager.h"
 #include "mesh_manager.h"
-#include "vtk_viewer.h"
+#include "render/application/render_gateway.h"
 #include "icon/FontAwesome6.h"
 
 // ImGui
@@ -152,7 +152,7 @@ void Toolbar::renderBoundaryAtomsQuickButton() {
 }
 
 void Toolbar::renderArrowRotationStepInput() {
-    int stepDeg = static_cast<int>(VtkViewer::Instance().GetArrowRotateStepDeg());
+    int stepDeg = static_cast<int>(render::application::GetRenderGateway().GetArrowRotateStepDeg());
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 6.0f));
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.2f, 0.3f, 0.2f));
@@ -171,7 +171,7 @@ void Toolbar::renderArrowRotationStepInput() {
         else if (stepDeg > 180) {
             stepDeg = 180;
         }
-        VtkViewer::Instance().SetArrowRotateStepDeg(static_cast<float>(stepDeg));
+        render::application::GetRenderGateway().SetArrowRotateStepDeg(static_cast<float>(stepDeg));
     }
     App::AddTooltip("Arrow key camera rotation step (1 - 180 degrees)");
 }
@@ -469,14 +469,14 @@ void Toolbar::renderProjectionModeButtons() {
         if (isPerspectiveClicked) {
             if (m_ProjectionMode != ProjectionMode::PERSPECTIVE) {
                 m_ProjectionMode = ProjectionMode::PERSPECTIVE;
-                VtkViewer::Instance().SetProjectionMode(ProjectionMode::PERSPECTIVE);
+                render::application::GetRenderGateway().SetProjectionMode(ProjectionMode::PERSPECTIVE);
             }
             ImGui::CloseCurrentPopup();
         }
         else if (isParallelClicked) {
             if (m_ProjectionMode != ProjectionMode::PARALLEL) {
                 m_ProjectionMode = ProjectionMode::PARALLEL;  
-                VtkViewer::Instance().SetProjectionMode(ProjectionMode::PARALLEL);
+                render::application::GetRenderGateway().SetProjectionMode(ProjectionMode::PARALLEL);
             }
             ImGui::CloseCurrentPopup();
         }
@@ -495,7 +495,7 @@ void Toolbar::renderResetViewButton() {
     App::AddTooltip("Reset View", "Reset camera to fit current view");
 
     if (clicked) {
-        VtkViewer::Instance().ResetView();
+        render::application::GetRenderGateway().ResetView();
     }
 }
 
@@ -511,10 +511,10 @@ void Toolbar::renderCellAlignButtons() {
     const ImVec2 btnSize(32.0f, 46.0f);
     if (ImGui::Button(labels[0], btnSize)) {
         if (isBzMode) {
-            VtkViewer::Instance().AlignCameraToIcellAxis(0);
+            render::application::GetRenderGateway().AlignCameraToIcellAxis(0);
         }
         else {
-            VtkViewer::Instance().AlignCameraToCellAxis(0);
+            render::application::GetRenderGateway().AlignCameraToCellAxis(0);
         }
     }
     App::AddTooltip(isBzMode ? "Align camera to icell[0] direction" : "Align camera to cell[0] direction");
@@ -522,10 +522,10 @@ void Toolbar::renderCellAlignButtons() {
     ImGui::SameLine();
     if (ImGui::Button(labels[1], btnSize)) {
         if (isBzMode) {
-            VtkViewer::Instance().AlignCameraToIcellAxis(1);
+            render::application::GetRenderGateway().AlignCameraToIcellAxis(1);
         }
         else {
-            VtkViewer::Instance().AlignCameraToCellAxis(1);
+            render::application::GetRenderGateway().AlignCameraToCellAxis(1);
         }
     }
     App::AddTooltip(isBzMode ? "Align camera to icell[1] direction" : "Align camera to cell[1] direction");
@@ -533,10 +533,10 @@ void Toolbar::renderCellAlignButtons() {
     ImGui::SameLine();
     if (ImGui::Button(labels[2], btnSize)) {
         if (isBzMode) {
-            VtkViewer::Instance().AlignCameraToIcellAxis(2);
+            render::application::GetRenderGateway().AlignCameraToIcellAxis(2);
         }
         else {
-            VtkViewer::Instance().AlignCameraToCellAxis(2);
+            render::application::GetRenderGateway().AlignCameraToCellAxis(2);
         }
     }
     App::AddTooltip(isBzMode ? "Align camera to icell[2] direction" : "Align camera to cell[2] direction");

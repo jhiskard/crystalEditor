@@ -1,6 +1,5 @@
-﻿#include "atoms_template.h"
+#include "atoms_template.h"
 #include "../app.h"
-#include "../vtk_viewer.h"
 #include "../model_tree.h"
 #include "../mesh_detail.h"
 #include "../mesh_manager.h"
@@ -3633,7 +3632,7 @@ void AtomsTemplate::applyDragSelectionToCreatedAtoms(const std::vector<uint32_t>
 void AtomsTemplate::clearCreatedAtomSelectionVisuals() {
     for (auto& visual : m_CreatedAtomSelectionVisuals) {
         if (visual.shellActor) {
-            VtkViewer::Instance().RemoveActor(visual.shellActor);
+            render::application::GetRenderGateway().RemoveActor(visual.shellActor);
             visual.shellActor = nullptr;
         }
     }
@@ -3658,7 +3657,7 @@ void AtomsTemplate::syncCreatedAtomSelectionVisuals() {
         visual.atomId = atom.id;
         visual.shellActor = createCreatedAtomSelectionShellActor(atom);
         if (visual.shellActor) {
-            VtkViewer::Instance().AddActor(visual.shellActor, false);
+            render::application::GetRenderGateway().AddActor(visual.shellActor, false);
         }
         m_CreatedAtomSelectionVisuals.push_back(std::move(visual));
     }
@@ -3667,11 +3666,11 @@ void AtomsTemplate::syncCreatedAtomSelectionVisuals() {
 void AtomsTemplate::clearMeasurementPickVisuals() {
     for (auto& visual : m_MeasurementPickVisuals) {
         if (visual.shellActor) {
-            VtkViewer::Instance().RemoveActor(visual.shellActor);
+            render::application::GetRenderGateway().RemoveActor(visual.shellActor);
             visual.shellActor = nullptr;
         }
         if (visual.orderTextActor) {
-            VtkViewer::Instance().RemoveActor2D(visual.orderTextActor);
+            render::application::GetRenderGateway().RemoveActor2D(visual.orderTextActor);
             visual.orderTextActor = nullptr;
         }
     }
@@ -3708,11 +3707,11 @@ void AtomsTemplate::syncMeasurementPickVisuals() {
             IsAtomVisibleById(atomId);
         if (visual.shellActor) {
             visual.shellActor->SetVisibility(visible ? 1 : 0);
-            VtkViewer::Instance().AddActor(visual.shellActor, false);
+            render::application::GetRenderGateway().AddActor(visual.shellActor, false);
         }
         if (visual.orderTextActor) {
             visual.orderTextActor->SetVisibility(visible ? 1 : 0);
-            VtkViewer::Instance().AddActor2D(visual.orderTextActor, false);
+            render::application::GetRenderGateway().AddActor2D(visual.orderTextActor, false);
         }
         m_MeasurementPickVisuals.push_back(std::move(visual));
     }
@@ -4000,10 +3999,10 @@ bool AtomsTemplate::rebuildAngleMeasurementGeometry(AngleMeasurement& measuremen
         createMeasurementValueTextActor(formatAngleText(angleDeg), textPos);
 
     if (measurement.arcActor) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.arcActor);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.arcActor);
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().RemoveActor2D(measurement.textActor);
+        render::application::GetRenderGateway().RemoveActor2D(measurement.textActor);
     }
 
     measurement.angleDeg = angleDeg;
@@ -4011,10 +4010,10 @@ bool AtomsTemplate::rebuildAngleMeasurementGeometry(AngleMeasurement& measuremen
     measurement.textActor = std::move(newTextActor);
 
     if (measurement.arcActor) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.arcActor, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.arcActor, false);
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().AddActor2D(measurement.textActor, false, true);
+        render::application::GetRenderGateway().AddActor2D(measurement.textActor, false, true);
     }
 
     return true;
@@ -4463,7 +4462,7 @@ bool AtomsTemplate::createCenterMeasurement(
             kSelectedCircleColor,
             kSelectedCircleOpacity);
         if (atomBackgroundCircle) {
-            VtkViewer::Instance().AddActor2D(atomBackgroundCircle, false);
+            render::application::GetRenderGateway().AddActor2D(atomBackgroundCircle, false);
             measurement.selectedAtomBackgroundCircleActors.push_back(std::move(atomBackgroundCircle));
         }
         vtkSmartPointer<vtkActor2D> atomPlusText = createPlusTextActor(
@@ -4477,18 +4476,18 @@ bool AtomsTemplate::createCenterMeasurement(
             } else {
                 measurement.selectedAtomPlusBaseFontSizes.push_back(0);
             }
-            VtkViewer::Instance().AddActor2D(atomPlusText, false);
+            render::application::GetRenderGateway().AddActor2D(atomPlusText, false);
             measurement.selectedAtomPlusTextActors.push_back(std::move(atomPlusText));
         }
     }
     if (measurement.centerBackgroundCircleActor) {
-        VtkViewer::Instance().AddActor2D(measurement.centerBackgroundCircleActor, false);
+        render::application::GetRenderGateway().AddActor2D(measurement.centerBackgroundCircleActor, false);
     }
     if (measurement.centerPlusTextActor) {
-        VtkViewer::Instance().AddActor2D(measurement.centerPlusTextActor, false);
+        render::application::GetRenderGateway().AddActor2D(measurement.centerPlusTextActor, false);
     }
     if (measurement.centerCoordinateTextActor) {
-        VtkViewer::Instance().AddActor2D(measurement.centerCoordinateTextActor, false, true);
+        render::application::GetRenderGateway().AddActor2D(measurement.centerCoordinateTextActor, false, true);
     }
     applyCenterStyleToMeasurement(measurement);
     applyCenterMeasurementVisibility(measurement);
@@ -4576,10 +4575,10 @@ void AtomsTemplate::createDistanceMeasurement(uint32_t atomId1, uint32_t atomId2
     applyDistanceStyleToMeasurement(measurement);
 
     if (measurement.lineActor) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.lineActor, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.lineActor, false);
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().AddActor2D(measurement.textActor, false, true);
+        render::application::GetRenderGateway().AddActor2D(measurement.textActor, false, true);
     }
     applyDistanceMeasurementVisibility(measurement);
     m_DistanceMeasurements.push_back(std::move(measurement));
@@ -4642,16 +4641,16 @@ void AtomsTemplate::createAngleMeasurement(uint32_t atomId1, uint32_t atomId2, u
     applyAngleStyleToMeasurement(measurement);
 
     if (measurement.lineActor12) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.lineActor12, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.lineActor12, false);
     }
     if (measurement.lineActor23) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.lineActor23, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.lineActor23, false);
     }
     if (measurement.arcActor) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.arcActor, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.arcActor, false);
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().AddActor2D(measurement.textActor, false, true);
+        render::application::GetRenderGateway().AddActor2D(measurement.textActor, false, true);
     }
     applyAngleMeasurementVisibility(measurement);
     m_AngleMeasurements.push_back(std::move(measurement));
@@ -4720,25 +4719,25 @@ void AtomsTemplate::createDihedralMeasurement(
     applyDihedralStyleToMeasurement(measurement);
 
     if (measurement.lineActor12) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.lineActor12, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.lineActor12, false);
     }
     if (measurement.lineActor23) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.lineActor23, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.lineActor23, false);
     }
     if (measurement.lineActor34) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.lineActor34, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.lineActor34, false);
     }
     if (measurement.helperPlaneActor1) {
-        VtkViewer::Instance().AddActor(measurement.helperPlaneActor1, false);
+        render::application::GetRenderGateway().AddActor(measurement.helperPlaneActor1, false);
     }
     if (measurement.helperPlaneActor2) {
-        VtkViewer::Instance().AddActor(measurement.helperPlaneActor2, false);
+        render::application::GetRenderGateway().AddActor(measurement.helperPlaneActor2, false);
     }
     if (measurement.helperArcActor) {
-        VtkViewer::Instance().AddMeasurementOverlayActor(measurement.helperArcActor, false);
+        render::application::GetRenderGateway().AddMeasurementOverlayActor(measurement.helperArcActor, false);
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().AddActor2D(measurement.textActor, false, true);
+        render::application::GetRenderGateway().AddActor2D(measurement.textActor, false, true);
     }
 
     applyDihedralMeasurementVisibility(measurement);
@@ -4850,83 +4849,83 @@ void AtomsTemplate::setMeasurementVisibilitySuppressedByBZ(bool suppressed) {
 
 void AtomsTemplate::removeDistanceMeasurementActors(DistanceMeasurement& measurement) {
     if (measurement.lineActor) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.lineActor);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.lineActor);
         measurement.lineActor = nullptr;
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().RemoveActor2D(measurement.textActor);
+        render::application::GetRenderGateway().RemoveActor2D(measurement.textActor);
         measurement.textActor = nullptr;
     }
 }
 
 void AtomsTemplate::removeAngleMeasurementActors(AngleMeasurement& measurement) {
     if (measurement.lineActor12) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.lineActor12);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.lineActor12);
         measurement.lineActor12 = nullptr;
     }
     if (measurement.lineActor23) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.lineActor23);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.lineActor23);
         measurement.lineActor23 = nullptr;
     }
     if (measurement.arcActor) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.arcActor);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.arcActor);
         measurement.arcActor = nullptr;
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().RemoveActor2D(measurement.textActor);
+        render::application::GetRenderGateway().RemoveActor2D(measurement.textActor);
         measurement.textActor = nullptr;
     }
 }
 
 void AtomsTemplate::removeDihedralMeasurementActors(DihedralMeasurement& measurement) {
     if (measurement.lineActor12) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.lineActor12);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.lineActor12);
         measurement.lineActor12 = nullptr;
     }
     if (measurement.lineActor23) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.lineActor23);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.lineActor23);
         measurement.lineActor23 = nullptr;
     }
     if (measurement.lineActor34) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.lineActor34);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.lineActor34);
         measurement.lineActor34 = nullptr;
     }
     if (measurement.helperPlaneActor1) {
-        VtkViewer::Instance().RemoveActor(measurement.helperPlaneActor1);
+        render::application::GetRenderGateway().RemoveActor(measurement.helperPlaneActor1);
         measurement.helperPlaneActor1 = nullptr;
     }
     if (measurement.helperPlaneActor2) {
-        VtkViewer::Instance().RemoveActor(measurement.helperPlaneActor2);
+        render::application::GetRenderGateway().RemoveActor(measurement.helperPlaneActor2);
         measurement.helperPlaneActor2 = nullptr;
     }
     if (measurement.helperArcActor) {
-        VtkViewer::Instance().RemoveMeasurementOverlayActor(measurement.helperArcActor);
+        render::application::GetRenderGateway().RemoveMeasurementOverlayActor(measurement.helperArcActor);
         measurement.helperArcActor = nullptr;
     }
     if (measurement.textActor) {
-        VtkViewer::Instance().RemoveActor2D(measurement.textActor);
+        render::application::GetRenderGateway().RemoveActor2D(measurement.textActor);
         measurement.textActor = nullptr;
     }
 }
 
 void AtomsTemplate::removeCenterMeasurementActors(CenterMeasurement& measurement) {
     if (measurement.centerBackgroundCircleActor) {
-        VtkViewer::Instance().RemoveActor2D(measurement.centerBackgroundCircleActor);
+        render::application::GetRenderGateway().RemoveActor2D(measurement.centerBackgroundCircleActor);
         measurement.centerBackgroundCircleActor = nullptr;
     }
     if (measurement.centerPlusTextActor) {
-        VtkViewer::Instance().RemoveActor2D(measurement.centerPlusTextActor);
+        render::application::GetRenderGateway().RemoveActor2D(measurement.centerPlusTextActor);
         measurement.centerPlusTextActor = nullptr;
     }
     if (measurement.centerCoordinateTextActor) {
-        VtkViewer::Instance().RemoveActor2D(measurement.centerCoordinateTextActor);
+        render::application::GetRenderGateway().RemoveActor2D(measurement.centerCoordinateTextActor);
         measurement.centerCoordinateTextActor = nullptr;
     }
     for (auto& actor : measurement.selectedAtomBackgroundCircleActors) {
         if (!actor) {
             continue;
         }
-        VtkViewer::Instance().RemoveActor2D(actor);
+        render::application::GetRenderGateway().RemoveActor2D(actor);
         actor = nullptr;
     }
     measurement.selectedAtomBackgroundCircleActors.clear();
@@ -4934,7 +4933,7 @@ void AtomsTemplate::removeCenterMeasurementActors(CenterMeasurement& measurement
         if (!actor) {
             continue;
         }
-        VtkViewer::Instance().RemoveActor2D(actor);
+        render::application::GetRenderGateway().RemoveActor2D(actor);
         actor = nullptr;
     }
     measurement.selectedAtomPlusTextActors.clear();

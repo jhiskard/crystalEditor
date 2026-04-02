@@ -1,6 +1,6 @@
 #include "../atoms_template.h"
 
-#include "../../vtk_viewer.h"
+#include "../../render/application/render_gateway.h"
 #include "../ui/charge_density_ui.h"
 
 void AtomsTemplate::SetStructureVisible(bool visible) {
@@ -45,7 +45,7 @@ void AtomsTemplate::SetAtomVisibleById(uint32_t atomId, bool visible) {
     }
     m_AtomVisibilityById[atomId] = visible;
     refreshRenderedGroups();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 
@@ -59,7 +59,7 @@ void AtomsTemplate::SetAtomLabelVisibleById(uint32_t atomId, bool visible) {
     }
     m_AtomLabelVisibilityById[atomId] = visible;
     refreshLabelActors();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 
@@ -69,7 +69,7 @@ void AtomsTemplate::SetBondVisibleById(uint32_t bondId, bool visible) {
     }
     m_BondVisibilityById[bondId] = visible;
     refreshRenderedGroups();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 
@@ -83,7 +83,7 @@ void AtomsTemplate::SetBondLabelVisibleById(uint32_t bondId, bool visible) {
     }
     m_BondLabelVisibilityById[bondId] = visible;
     refreshLabelActors();
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 
 
@@ -137,6 +137,6 @@ void AtomsTemplate::SetUnitCellVisible(int32_t id, bool visible) {
         bool effectiveVisible = visible && IsStructureVisible(id);
         atoms::domain::setCellVisible(effectiveVisible);
     }
-    VtkViewer::Instance().RequestRender();
+    render::application::GetRenderGateway().RequestRender();
 }
 

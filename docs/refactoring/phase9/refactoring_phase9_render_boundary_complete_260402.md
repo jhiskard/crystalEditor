@@ -1,11 +1,11 @@
 ﻿# Phase 9 세부 작업계획서(재착수): `VtkViewer` 해체 + render 포트 완성
 
 작성일: `2026-04-02 (KST)`  
-최종 업데이트: `2026-04-02 (KST, W2 render adapter 재편)`  
+최종 업데이트: `2026-04-02 (KST, W3 feature 호출 경로 전환 완료)`  
 기준 계획: `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md` (Phase 9 절)  
 선행 판정: **GO** (`docs/refactoring/phase8/go_no_go_phase9.md`)  
 대상 범위: `webassembly/src/render/*`, `webassembly/src/vtk_viewer.*`, `webassembly/src/atoms/*`, `webassembly/src/mesh*`, `webassembly/src/toolbar.cpp`, `webassembly/src/file_loader.cpp`, `webassembly/src/shell/runtime/*`, `scripts/refactoring/*`, `docs/refactoring/phase9/*`  
-진행 상태: `W0~W2 완료, W3 착수 대기`
+진행 상태: `W0~W3 완료, W4 착수 대기`
 
 ## 0. 재착수 배경과 운영 원칙
 
@@ -246,9 +246,29 @@
 - [x] W0 기준선/재현 로그 고정
 - [x] W1 render 포트 계약 확장
 - [x] W2 render adapter 재편
-- [ ] W3 feature 호출 경로 전환
+- [x] W3 feature 호출 경로 전환
 - [ ] W4 `P9-BUG-01` 처리 + runtime 경계 정리
 - [ ] W5 정적 게이트 도입
 - [ ] W6 빌드/테스트 + 종료 판정 문서화
+
+## 10. Execution Update (2026-04-02 KST, W0~W3)
+- [x] W0 기준선/재현 로그 고정
+  - `render_inventory_phase9_latest.md`, `bug_p9_vasp_grid_sequence_latest.md` 갱신
+- [x] W1 render 포트 계약 확장
+  - `RenderGateway`에 reset/projection/camera-align/measurement-overlay/arrow-step 계약 추가
+- [x] W2 render adapter 재편
+  - `VtkRenderGateway`에 W1 계약 구현 추가
+  - runtime용 `GetLegacyViewerFacade()` helper 도입
+- [x] W3 feature 호출 경로 전환
+  - 전환 완료 파일:
+    - `atoms/atoms_template.cpp`
+    - `atoms/application/measurement_controller.cpp`
+    - `atoms/application/visibility_service.cpp`
+    - `mesh.cpp`
+    - `mesh_manager.cpp`
+    - `toolbar.cpp`
+    - `file_loader.cpp`
+    - `shell/runtime/workbench_runtime.cpp`
+  - 결과: 위 파일의 `VtkViewer::Instance()` 직접 호출 0건
 
 

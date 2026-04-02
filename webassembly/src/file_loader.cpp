@@ -1,4 +1,4 @@
-﻿#include "file_loader.h"
+#include "file_loader.h"
 
 #include "app.h"
 #include "atoms/atoms_template.h"
@@ -7,7 +7,7 @@
 #include "io/platform/browser_file_picker.h"
 #include "mesh_manager.h"
 #include "unv_reader.h"
-#include "vtk_viewer.h"
+#include "render/application/render_gateway.h"
 
 // Emscripten
 #include <emscripten/threading.h>
@@ -386,7 +386,7 @@ void FileLoader::processChgcarFileInBackground(const std::string& fileName) {
 
 void FileLoader::DisplayNewMesh(int dummy, const void* mesh) {
     const Mesh* newMesh = static_cast<const Mesh*>(mesh);
-    VtkViewer::Instance().AddActor(newMesh->GetVolumeMeshActor(), true);
+    render::application::GetRenderGateway().AddActor(newMesh->GetVolumeMeshActor(), true);
 }
 
 void FileLoader::OnParserWorkerResult(int dummy, const void* data) {
@@ -430,7 +430,7 @@ void FileLoader::handleParserWorkerResult(io::application::ParserWorkerResult& r
         m_ShowXsfGridCellWarningPopup = true;
     }
 
-    VtkViewer::Instance().ResetView();
+    render::application::GetRenderGateway().ResetView();
     finishWithCleanup();
 }
 
