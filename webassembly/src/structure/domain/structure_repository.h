@@ -12,7 +12,7 @@ namespace domain {
 /**
  * @brief Repository facade that centralizes access to structure state storage.
  * @details This class wraps the legacy `atoms::domain::StructureStateStore`
- *          so callers can migrate to `structure/*` without changing runtime behavior.
+ *          so callers can migrate to the `structure` module without changing runtime behavior.
  */
 class StructureRepository {
 public:
@@ -61,4 +61,3 @@ StructureRepository& GetStructureRepository();
 
 } // namespace domain
 } // namespace structure
-
