@@ -1,7 +1,7 @@
-# Phase 9 Go/No-Go (Phase 8 종료 판정)
+﻿# Phase 9 Go/No-Go (Phase 8 종료 판정)
 
 판정일: `2026-04-01 (KST)`  
-최종 업데이트: `2026-04-02 (KST, Phase 8 종료 선언 + 추적 이슈 등록)`  
+최종 업데이트: `2026-04-02 (KST, Phase 8 종료 선언 + Phase 9 재착수 추적 이슈 확정)`  
 판정 근거:
 - 계획서: `docs/refactoring/phase8/refactoring_phase8_atoms_template_dismantle_260401.md`
 - 게이트 리포트: `docs/refactoring/phase8/dependency_gate_report.md`
@@ -24,12 +24,14 @@
   - **2026-04-02 기준으로 Phase 8 종료를 공식 선언**하고, Phase 9 계획 수립/착수 준비로 전환한다.
 
 ## 3. Phase 9 착수 메모
+0. **재착수 결정**: 리팩토링 진행 중 발생한 오류 분석을 반영해, `2026-04-02` 기준 Phase 9부터 재시작한다.
 1. Phase 9 핵심 목표는 `render` 외부의 `VtkViewer::Instance()` 호출을 0건으로 만드는 것이다.
 2. 현재 `atoms_template.cpp`의 `VtkViewer::Instance()`는 46건으로, Phase 9에서 우선 전환 대상이다.
 3. 로컬 게이트 실행 시 `emsdk`/Playwright 권한 제약이 발생할 수 있으므로 실행 절차에 권한 상승 경로를 포함한다.
-4. `Phase 1 이전부터 존재`한 VASP 로딩 관련 회귀를 Phase 9 추적 항목으로 등록한다.
+4. `Phase 1 이전부터 존재`한 VASP 파일 로딩 관련 회귀를 Phase 9 추적 항목으로 등록한다.
    - 증상: `XSF(Grid) -> VASP -> XSF(Grid) -> VASP` 순서에서 기존 grid 데이터가 잔존할 수 있음.
    - 상태: 2026-04-02 기준 미해결(시도 패치 2건 롤백 완료).
+   - 추적 ID: `P9-BUG-01`
    - 추적 규칙: Phase 9 W0에서 재현 절차/로그를 고정하고, W6 게이트 문서에서 해결/이관(Phase 10) 여부를 판정한다.
 
 ## 4. 잔여 리스크
@@ -39,3 +41,9 @@
 | R2 | legacy alias와 facade 잔존으로 책임 경계가 부분적으로 중첩 | Medium | Phase 9~10에서 호출 추적 로그 기반으로 점진 정리 |
 | R3 | 테스트가 최소 smoke 1건 중심이라 UI 회귀 포착 범위 제한 | Low | Phase 9 중 브라우저 회귀 케이스 확대 |
 | R4 | `XSF(Grid) -> VASP` 반복 전환 시 grid 잔존 가능성(미해결) | Medium | Phase 9 추적 이슈(`P9-BUG-01`)로 등록, W0 재현 로그 + W6 판정 문서로 상태 고정 |
+
+## 5. 재착수 추적 이슈 등록
+| ID | 이슈 | 재현 순서 | 현재 상태 | Phase 9 처리 기준 |
+|---|---|---|---|---|
+| P9-BUG-01 | VASP 파일 로딩 시 기존 grid 데이터가 정리되지 않고 잔존할 수 있음 | `XSF(Grid) -> VASP -> XSF(Grid) -> VASP` | Open (2026-04-02) | W0 재현 로그 고정 -> W3~W4 원인 귀속(import/workspace/render) -> W6 해결/이관 판정 |
+

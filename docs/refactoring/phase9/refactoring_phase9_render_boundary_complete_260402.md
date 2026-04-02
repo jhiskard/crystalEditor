@@ -1,63 +1,59 @@
-# Phase 9 세부 작업계획서: `VtkViewer` 해체 + render 포트 완성
+﻿# Phase 9 세부 작업계획서(재착수): `VtkViewer` 해체 + render 포트 완성
 
 작성일: `2026-04-02 (KST)`  
+최종 업데이트: `2026-04-02 (KST, 재착수 버전)`  
 기준 계획: `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md` (Phase 9 절)  
 선행 판정: **GO** (`docs/refactoring/phase8/go_no_go_phase9.md`)  
 대상 범위: `webassembly/src/render/*`, `webassembly/src/vtk_viewer.*`, `webassembly/src/atoms/*`, `webassembly/src/mesh*`, `webassembly/src/toolbar.cpp`, `webassembly/src/file_loader.cpp`, `webassembly/src/shell/runtime/*`, `scripts/refactoring/*`, `docs/refactoring/phase9/*`  
-진행 상태: `W0 착수 대기`
+진행 상태: `W0 재착수 대기`
 
-## 0. Phase 8 종료 반영사항
+## 0. 재착수 배경과 운영 원칙
 
-### 0.1 종료 선언
-- **2026-04-02 기준으로 Phase 8 종료를 선언**한다.
-- 종료 근거 문서:
-  - `docs/refactoring/phase8/dependency_gate_report.md`
-  - `docs/refactoring/phase8/go_no_go_phase9.md`
+### 0.1 재착수 배경
+- 리팩토링 진행 중 VASP 파일 로딩 관련 오류가 재발하여, Phase 9부터 다시 수행한다.
+- 추적 이슈는 `docs/refactoring/phase8/go_no_go_phase9.md`에 `P9-BUG-01`로 등록되어 있다.
 
-### 0.2 Phase 9에서 유지할 보호 규칙
-1. 폰트/아이콘 회귀 방지 규칙 유지
+### 0.2 재착수 범위 해석
+1. 이번 Phase 9는 **render boundary 완성**을 기본 목표로 유지한다.
+2. 동시에 `P9-BUG-01`을 필수 추적 항목으로 포함해 W0~W6 전 과정에서 상태를 고정한다.
+3. 해결 실패 시에도 W6에서 원인 귀속과 이관 판단 근거를 문서로 남긴다.
+
+### 0.3 보호 규칙(반드시 유지)
+1. 폰트/아이콘 회귀 방지
    - `main.cpp`에서 `ImGui::CreateContext()` 이후 `FontRegistry()` 초기화
-   - `PrimeLegacySingletons()`에서 `FontRegistry()` 재도입 금지
-2. VASP -> XSF(Grid) 회귀 방지 규칙 유지
+   - `PrimeLegacySingletons()`에 `FontRegistry()` 재도입 금지
+2. XSF bootstrap 가드 유지
    - `ChargeDensityUI::setGridDataEntries()`의 첫 grid bootstrap 유지
-3. runtime quarantine 규칙 유지
-   - Phase 7에서 정의한 runtime/binding 경계와 singleton 가드 훼손 금지
+3. runtime quarantine 유지
+   - 신규 singleton 도입 금지
+4. render 경계 규칙 유지
+   - `render` 외부 `VtkViewer::Instance()` 호출 금지
 
-### 0.3 Phase 9 추적 이슈 등록 (`P9-BUG-01`)
-- 이슈명: `XSF(Grid) -> VASP` 반복 전환 시 grid 데이터 잔존
-- 재현 시나리오: `XSF(Grid) -> VASP -> XSF(Grid) -> VASP`
-- 현재 상태(2026-04-02): 미해결, 시도 패치 2건 롤백 완료
-- 처리 원칙:
-  1. W0에서 재현 절차/로그를 고정한다.
-  2. W3~W4에서 render ownership/정리 경계를 점검한다.
-  3. W6 종료 문서에서 해결 여부를 명시하고, 미해결 시 Phase 10으로 이관한다.
+## 1. 착수 기준선 (W0에서 재실측 고정)
 
-## 1. 착수 기준선 (2026-04-02 실측)
+재착수 시점 코드 기준선은 W0에서 다시 실측해 고정한다.  
+아래 항목을 `docs/refactoring/phase9/logs/render_inventory_phase9_latest.md`에 기록한다.
 
-| 항목 | 기준값 | 비고 |
-|---|---:|---|
-| `webassembly/src/vtk_viewer.cpp` 라인 수 | 1995 | 대형 viewer 구현 |
-| `webassembly/src/vtk_viewer.h` 라인 수 | 155 | public surface 큼 |
-| `webassembly/src/render/application/render_gateway.h` 라인 수 | 38 | 포트 표면 제한적 |
-| `webassembly/src` 전체 `VtkViewer::Instance()` 호출 수 | 119 | render 경계 외 호출 다수 |
-| `render` 내부 `VtkViewer::Instance()` 호출 수 | 10 | adapter 집중 대상 |
-| `render` 외부 `VtkViewer::Instance()` 호출 수 | 109 | Phase 9 종료 목표 0 |
-| `atoms_template.cpp` `VtkViewer::Instance()` | 46 | 최우선 전환 대상 |
-| `mesh.cpp` `VtkViewer::Instance()` | 28 | scene/update 결합 높음 |
-| `toolbar.cpp` `VtkViewer::Instance()` | 11 | camera/projection 결합 |
-| `measurement_controller.cpp` `VtkViewer::Instance()` | 9 | overlay render 요청 결합 |
+| 항목 | 측정 대상 | 목표 |
+|---|---|---|
+| `VtkViewer::Instance()` 전체 호출 수 | `webassembly/src/**/*.cpp,*.h` | 변화량 추적 |
+| `render` 외부 `VtkViewer::Instance()` 호출 수 | 동일 | W6 시점 0 |
+| 상위 호출 파일 분포 | `atoms_template.cpp`, `mesh.cpp`, `toolbar.cpp`, `measurement_controller.cpp` 등 | 우선 전환 목록 고정 |
+| `vtk_viewer.cpp/.h` 라인 수 | 파일 라인 수 | 축소 추세 기록 |
+| `render_gateway`/`vtk_render_gateway` 파일 존재 및 API 상태 | 파일/심볼 검사 | 계약 완성 |
+| `P9-BUG-01` 재현 결과 | 수동/자동 체크리스트 | W6 해결 또는 이관 판정 |
 
-상세 기준선 로그:
-- `docs/refactoring/phase9/logs/render_inventory_phase9_latest.md`
+`P9-BUG-01` 재현 로그 파일:
+- `docs/refactoring/phase9/logs/bug_p9_vasp_grid_sequence_latest.md`
 
 ## 2. Phase 9 목표/비목표
 
 ### 목표
-1. `render` 외부의 `VtkViewer::Instance()` 직접 호출을 `0건`으로 만든다.
-2. viewer 책임을 `viewport/camera/picking/overlay/scene` 단위로 분리하고 포트 중심으로 재배선한다.
-3. feature 계층(`atoms/mesh/ui/shell`)에서 render infrastructure 역참조를 제거한다.
-4. 새 render port/adapter의 public API에 Doxygen 주석을 적용한다.
-5. `P9-BUG-01`을 추적 가능한 상태로 고정하고, 종료 시 해결 여부를 판정 문서에 반영한다.
+1. `render` 외부 `VtkViewer::Instance()` 호출을 `0건`으로 만든다.
+2. viewer 책임을 `viewport/camera/picking/overlay/scene` 포트 계약으로 분리한다.
+3. feature 계층(`atoms/mesh/ui/shell`)의 viewer 직접 접근을 render 포트 호출로 전환한다.
+4. 새 render public API에 Doxygen 주석을 적용한다.
+5. `P9-BUG-01`의 원인 귀속을 고정하고 해결/이관을 W6 문서에서 명시한다.
 
 ### 비목표
 1. `MeshManager`/`FileLoader` 완전 해체(Phase 10 범위)
@@ -65,32 +61,35 @@
 3. workspace 상태모델 완전 단일화(Phase 10 범위)
 
 ## 3. 설계 원칙
-1. `VtkViewer` 직접 접근은 `render/infrastructure`로만 한정한다.
-2. feature/application/domain 계층에서 `vtk*` include 확장을 금지한다.
+
+1. `VtkViewer` 접근 지점은 `render/infrastructure`로만 제한한다.
+2. feature/application/domain 계층에서 `vtk*` include 확대를 금지한다.
 3. actor/overlay/volume lifecycle은 render 포트 계약으로만 제어한다.
-4. 회귀 이슈는 문서/게이트/로그로 추적 가능한 형태로 남긴다.
-5. WBS 종료마다 로컬 커밋을 생성하고, Phase 종료 선언 후에만 원격 push를 수행한다.
+4. `P9-BUG-01`은 증상 기록이 아니라 **재현 절차 + 원인 가설 + 판정 결과**를 함께 기록한다.
+5. WBS 단위 로컬 커밋 후 Phase 종료 선언 이후에만 원격 push를 수행한다.
 
 ## 4. 작업 단위(WBS)
 
-## W0. 착수/기준선 고정 + `P9-BUG-01` 재현 로그화
+## W0. 기준선 재고정 + `P9-BUG-01` 재현 로그 확정
 ### 작업
-- `VtkViewer::Instance()` 분포 기준선 고정
-- `P9-BUG-01` 재현 절차와 관찰 결과를 로그로 고정
-- Phase 9 정적 게이트 기준치(외부 호출 0 목표) 확정
+- `VtkViewer::Instance()` 전체/외부 호출 분포 재실측
+- `P9-BUG-01` 재현 절차 고정:
+  - `XSF(Grid) -> VASP -> XSF(Grid) -> VASP`
+  - 각 단계별 기대 상태(이전 grid 정리 여부, Model Tree 반영 여부) 명시
+- 정적 게이트 기준치 확정(`render 외부 호출 0`)
 
-### 영향 파일(예상)
+### 산출물
 - `docs/refactoring/phase9/logs/render_inventory_phase9_latest.md`
 - `docs/refactoring/phase9/logs/bug_p9_vasp_grid_sequence_latest.md`
 
 ### 완료 기준
-- 기준선 수치와 재현 로그가 문서로 고정되어 이후 단계별 변화 추적 가능
+- 이후 W1~W6 결과를 비교 가능한 기준선이 문서로 고정됨
 
 ## W1. render 포트 계약 확장
 ### 작업
-- `render/application` 포트를 camera/picking/overlay/scene 단위로 명확화
-- feature 호출에서 필요한 최소 계약(API)만 노출
-- 포트 public API Doxygen 주석 적용
+- `render/application/render_gateway.h`에 camera/picking/overlay/scene 계약을 명확화
+- feature에서 필요한 최소 API만 노출
+- 신규/변경 public API Doxygen 주석 적용
 
 ### 영향 파일(예상)
 - `webassembly/src/render/application/render_gateway.h`
@@ -98,13 +97,13 @@
 - `webassembly/src/render/application/viewer_interaction_controller.cpp`
 
 ### 완료 기준
-- feature 계층이 참조할 render 계약이 포트 헤더로 명시되고 문서화 완료
+- feature 계층이 참조할 render 계약이 헤더에 명시되고 주석화됨
 
 ## W2. render infrastructure adapter 재편
 ### 작업
-- `vtk_render_gateway`를 viewer 접근 단일 어댑터로 정리
-- actor/overlay/volume/camera API의 구현 소유권을 infrastructure로 고정
-- `VtkViewer` 호출 경로를 adapter 내부로 수렴
+- `vtk_render_gateway`를 viewer 접근 단일 어댑터로 수렴
+- actor/overlay/volume/camera 구현 소유권을 infrastructure로 고정
+- `VtkViewer` 직접 호출 경로를 adapter 내부로 집중
 
 ### 영향 파일(예상)
 - `webassembly/src/render/infrastructure/vtk_render_gateway.h`
@@ -113,13 +112,13 @@
 - `webassembly/src/vtk_viewer.h`
 
 ### 완료 기준
-- viewer 접근 경로가 render infrastructure로 집중되고 중복 경로 제거
+- viewer 접근 경로가 render infrastructure 중심으로 정리됨
 
 ## W3. feature 호출 경로 전환 (atoms/mesh/ui 중심)
 ### 작업
-- `atoms/mesh/toolbar/file_loader`의 `VtkViewer::Instance()` 호출을 render 포트 호출로 전환
-- overlay/measurement 렌더 갱신 경로를 render service로 위임
-- `P9-BUG-01` 관련 actor 정리 지점 누락 여부 점검
+- `atoms/mesh/toolbar/file_loader/runtime`의 viewer 직접 접근을 render 포트 호출로 전환
+- overlay 갱신, camera 조정, render 요청 경로를 render service로 위임
+- `P9-BUG-01` 관련 clear/갱신 누락 지점 1차 점검
 
 ### 영향 파일(예상)
 - `webassembly/src/atoms/atoms_template.cpp`
@@ -129,36 +128,41 @@
 - `webassembly/src/mesh_manager.cpp`
 - `webassembly/src/toolbar.cpp`
 - `webassembly/src/file_loader.cpp`
+- `webassembly/src/shell/runtime/workbench_runtime.cpp`
 
 ### 완료 기준
-- 상기 파일의 `VtkViewer::Instance()` 직접 호출 제거 또는 render 경유화 완료
+- 전환 대상 파일의 `VtkViewer::Instance()` 직접 호출 제거/경유화 완료
 
-## W4. runtime/shell 경계 정리 + viewer interaction 정돈
+## W4. `P9-BUG-01` 원인 귀속/수정 + 런타임 경계 정리
 ### 작업
-- `workbench_runtime`가 render 포트만 통해 viewer 제어하도록 정리
-- mouse interaction/controller 경계 정리
-- `vtk_viewer.cpp`를 infrastructure 구현체 성격으로 축소
+- `P9-BUG-01` 분석:
+  - import apply/rollback 순서
+  - grid 컨텍스트 clear 타이밍
+  - render actor detach/attach 누락 여부
+- 수정 적용 또는 원인 귀속 고정
+- runtime/shell에서 viewer 제어는 render 포트만 사용하도록 최종 정리
 
 ### 영향 파일(예상)
+- `webassembly/src/io/application/import_apply_service.cpp`
+- `webassembly/src/io/application/import_orchestrator.cpp`
+- `webassembly/src/atoms/ui/charge_density_ui.cpp`
 - `webassembly/src/shell/runtime/workbench_runtime.cpp`
-- `webassembly/src/mouse_interactor_style.cpp`
-- `webassembly/src/render/*`
-- `webassembly/src/vtk_viewer.*`
+- `docs/refactoring/phase9/logs/bug_p9_vasp_grid_sequence_latest.md`
 
 ### 완료 기준
-- `render` 외부 viewer 직접 호출 0 목표에 근접/달성
+- `P9-BUG-01`에 대한 수정 또는 이관 근거가 재현 로그와 함께 고정됨
 
 ## W5. 정적 게이트 스크립트 도입
 ### 작업
-- `scripts/refactoring/check_phase9_render_boundary_complete.ps1` 작성
+- `scripts/refactoring/check_phase9_render_boundary_complete.ps1` 작성/갱신
 - 필수 점검 항목:
-  - `render` 외부 `VtkViewer::Instance()` 호출 0건
-  - render 포트/adapter 핵심 파일 존재
-  - 새 public API Doxygen 주석 존재
-  - Phase 7/8 보호 규칙 훼손 여부
-  - `P9-BUG-01` 추적 로그 존재 여부
+  1. `render` 외부 `VtkViewer::Instance()` 호출 0건
+  2. render 포트/adapter 핵심 파일 존재
+  3. render public API Doxygen 주석 존재
+  4. 폰트 초기화/XSF bootstrap 보호 규칙 유지
+  5. `P9-BUG-01` 추적 로그 존재 + 상태 태그(`Open/Resolved/Deferred`) 명시
 
-### 영향 파일(예상)
+### 산출물
 - `scripts/refactoring/check_phase9_render_boundary_complete.ps1`
 - `docs/refactoring/phase9/logs/check_phase9_render_boundary_complete_latest.txt`
 
@@ -172,10 +176,12 @@
   - `npm run build-wasm:release`
   - `npm run test:cpp`
   - `npm run test:smoke`
-- `P9-BUG-01` 재검증 결과를 종료 문서에 반영
 - 종료 문서 작성:
   - `docs/refactoring/phase9/dependency_gate_report.md`
   - `docs/refactoring/phase9/go_no_go_phase10.md`
+- `P9-BUG-01` 최종 판정 반영:
+  - 해결: 재현 절차 PASS 결과 첨부
+  - 미해결: 원인 가설/재현 로그/차기 이관 경로 명시
 
 ### 로그 산출 경로
 - `docs/refactoring/phase9/logs/check_phase9_render_boundary_complete_latest.txt`
@@ -185,63 +191,64 @@
 - `docs/refactoring/phase9/logs/bug_p9_vasp_grid_sequence_latest.md`
 
 ### 완료 기준
-- Phase 10 착수 판정 가능한 정적/동적 게이트 + 문서 패키지 확보
+- Phase 10 착수 판정 가능한 정적/동적 게이트 + 추적 문서 패키지 확보
 
 ## 5. 완료 기준(DoD)
 
 1. `render` 외부 `VtkViewer::Instance()` 호출 수가 0건이다.
-2. `vtk_viewer.cpp`는 render infrastructure 구현체 역할로만 남는다.
-3. structure/measurement/density/mesh/UI 경로의 viewer 직접 접근이 render 포트 호출로 치환된다.
-4. 새 render public API에 Doxygen 주석이 적용된다.
-5. `P9-BUG-01` 상태가 종료 문서에 해결 또는 이관으로 명시된다.
-6. 정적 게이트 + 빌드 + C++ 테스트 + smoke 테스트가 모두 PASS 한다.
-7. `dependency_gate_report.md`와 `go_no_go_phase10.md`가 작성된다.
+2. `vtk_viewer.cpp`는 render infrastructure 구현체 역할로 제한된다.
+3. feature 경로의 viewer 직접 접근이 render 포트 호출로 치환된다.
+4. render public API에 Doxygen 주석이 적용된다.
+5. `P9-BUG-01` 상태가 종료 문서에 해결/이관 중 하나로 명시된다.
+6. 정적 게이트 + 빌드 + C++ 테스트 + smoke 테스트가 모두 PASS한다.
+7. `dependency_gate_report.md`, `go_no_go_phase10.md`가 작성된다.
 
 ## 6. 일정/커밋 전략
 
 권장 일정(5~7일):
 - Day 1: W0~W1
 - Day 2: W2
-- Day 3~4: W3
-- Day 5: W4
-- Day 6: W5
-- Day 7: W6
+- Day 3~4: W3~W4
+- Day 5: W5
+- Day 6~7: W6
 
-커밋 단위(권장):
-1. W0 기준선/이슈 로그 고정
+권장 커밋 단위:
+1. W0 기준선/재현 로그 고정
 2. W1 render 포트 계약 확장
 3. W2 adapter 재편
 4. W3 feature 호출 전환
-5. W4 runtime/viewer 경계 정리
+5. W4 `P9-BUG-01` 처리 + runtime 경계 정리
 6. W5 정적 게이트 스크립트 + 로그
 7. W6 빌드/테스트 로그 + 종료 문서
 
 동기화 규칙:
-- WBS 종료마다 로컬 커밋 생성
+- WBS 종료마다 로컬 커밋
 - Phase 9 종료 선언 직후 원격 push 수행
 
 ## 7. 리스크 및 대응
 
-1. 리스크: render 경계 전환 중 카메라/오버레이 상호작용 회귀
-   - 대응: W2~W4 단계마다 smoke 시나리오로 즉시 확인
-2. 리스크: `mesh.cpp`/`atoms_template.cpp` 대량 호출 전환 중 누락
-   - 대응: 파일별 호출 목록 기반 체크리스트로 전환 누락 점검
-3. 리스크: `P9-BUG-01`이 render 이슈가 아닌 import/workspace 이슈일 가능성
-   - 대응: W6에서 원인 귀속을 명시하고 Phase 10 이관 항목으로 승격
-4. 리스크: sandbox 권한 제약으로 게이트 실행 실패
-   - 대응: 권한 상승 실행 경로를 표준화하고 로그 문서에 실행 경로 기록
+1. 리스크: render 경계 전환 중 camera/overlay 상호작용 회귀
+   - 대응: W2~W4 단계별 smoke + 수동 시나리오 확인
+2. 리스크: 대량 호출 전환 중 누락
+   - 대응: 파일별 호출 목록 기반 체크리스트 운용
+3. 리스크: `P9-BUG-01`이 render 이슈가 아니라 import/workspace 이슈일 가능성
+   - 대응: W4에서 귀속을 문서화하고 W6에 최종 판정
+4. 리스크: sandbox 권한 제약으로 테스트 실패
+   - 대응: 권한 상승 실행 경로를 문서/로그에 명시
 
 ## 8. 참조 문서
 - `docs/refactoring/refactoring_plan_full_modular_architecture_260331.md`
-- `docs/refactoring/phase8/refactoring_phase8_atoms_template_dismantle_260401.md`
-- `docs/refactoring/phase8/dependency_gate_report.md`
 - `docs/refactoring/phase8/go_no_go_phase9.md`
+- `docs/refactoring/phase8/dependency_gate_report.md`
+- `docs/refactoring/phase8/refactoring_phase8_atoms_template_dismantle_260401.md`
 
 ## 9. 진행 체크리스트
 - [ ] W0 기준선/재현 로그 고정
 - [ ] W1 render 포트 계약 확장
 - [ ] W2 render adapter 재편
 - [ ] W3 feature 호출 경로 전환
-- [ ] W4 runtime/viewer 경계 정리
+- [ ] W4 `P9-BUG-01` 처리 + runtime 경계 정리
 - [ ] W5 정적 게이트 도입
 - [ ] W6 빌드/테스트 + 종료 판정 문서화
+
+
