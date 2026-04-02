@@ -59,6 +59,21 @@ public:
         const double* backgroundColorRgb = nullptr) = 0;
 
     virtual vtkCamera* GetActiveCamera() = 0;
+
+    /**
+     * @brief Returns whether interaction-time LOD is active.
+     */
+    virtual bool IsInteractionLodActive() const = 0;
+
+    /**
+     * @brief Activates interaction-time LOD rendering.
+     */
+    virtual void BeginInteractionLod() = 0;
+
+    /**
+     * @brief Restores normal rendering after interaction-time LOD.
+     */
+    virtual void EndInteractionLod() = 0;
 };
 
 RenderGateway& GetRenderGateway();

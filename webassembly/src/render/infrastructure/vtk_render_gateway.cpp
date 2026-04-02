@@ -98,6 +98,18 @@ vtkCamera* VtkRenderGateway::GetActiveCamera() {
     return VtkViewer::Instance().GetActiveCamera();
 }
 
+bool VtkRenderGateway::IsInteractionLodActive() const {
+    return VtkViewer::Instance().IsInteractionLodActive();
+}
+
+void VtkRenderGateway::BeginInteractionLod() {
+    VtkViewer::Instance().BeginInteractionLod();
+}
+
+void VtkRenderGateway::EndInteractionLod() {
+    VtkViewer::Instance().EndInteractionLod();
+}
+
 VtkViewer& GetLegacyViewerFacade() {
     return VtkViewer::Instance();
 }

@@ -1,6 +1,6 @@
 #include "mouse_interactor_style.h"
 #include "config/log_config.h"
-#include "vtk_viewer.h"
+#include "render/application/render_gateway.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkRenderWindowInteractor.h>
@@ -88,33 +88,33 @@ void MouseInteractorStyle::OnLeftButtonDown() {
 }
 
 void MouseInteractorStyle::OnMouseWheelForward() {
-    VtkViewer& viewer = VtkViewer::Instance();
-    bool applyLod = !viewer.IsInteractionLodActive();
+    auto& renderGateway = render::application::GetRenderGateway();
+    bool applyLod = !renderGateway.IsInteractionLodActive();
     if (applyLod) {
-        viewer.BeginInteractionLod();
-        applyLod = viewer.IsInteractionLodActive();
+        renderGateway.BeginInteractionLod();
+        applyLod = renderGateway.IsInteractionLodActive();
     }
 
     this->Dolly(0.95);
-    viewer.RequestRender();
+    renderGateway.RequestRender();
 
     if (applyLod) {
-        viewer.EndInteractionLod();
+        renderGateway.EndInteractionLod();
     }
 }
 
 void MouseInteractorStyle::OnMouseWheelBackward() {
-    VtkViewer& viewer = VtkViewer::Instance();
-    bool applyLod = !viewer.IsInteractionLodActive();
+    auto& renderGateway = render::application::GetRenderGateway();
+    bool applyLod = !renderGateway.IsInteractionLodActive();
     if (applyLod) {
-        viewer.BeginInteractionLod();
-        applyLod = viewer.IsInteractionLodActive();
+        renderGateway.BeginInteractionLod();
+        applyLod = renderGateway.IsInteractionLodActive();
     }
 
     this->Dolly(1.05);
-    viewer.RequestRender();
+    renderGateway.RequestRender();
 
     if (applyLod) {
-        viewer.EndInteractionLod();
+        renderGateway.EndInteractionLod();
     }
 }

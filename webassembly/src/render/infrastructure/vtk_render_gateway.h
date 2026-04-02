@@ -45,6 +45,9 @@ public:
         const double* backgroundColorRgb = nullptr) override;
 
     vtkCamera* GetActiveCamera() override;
+    bool IsInteractionLodActive() const override;
+    void BeginInteractionLod() override;
+    void EndInteractionLod() override;
 };
 
 /**
