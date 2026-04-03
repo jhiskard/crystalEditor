@@ -238,7 +238,7 @@ W0 산출 로그:
 - [x] W3 FileLoader 축소 + import workflow 집중
 - [x] W4 panel read-model 전환 + `P9-BUG-01` 추적
 - [x] W5 정적 게이트 도입
-- [ ] W6 빌드/테스트 + 종료 판정 문서화
+- [x] W6 빌드/테스트 + 종료 판정 문서화
 
 ## 11. Execution Update (2026-04-03 KST, W0~W5)
 
@@ -261,3 +261,6 @@ W0 산출 로그:
 - [x] W5 정적 게이트 도입
   - `check_phase10_workspace_mesh_io_decouple.ps1` 추가
   - `check_phase10_workspace_mesh_io_decouple_latest.txt` PASS 로그 확보
+- [x] W6 빌드/테스트 + 종료 판정 문서화
+  - `build_phase10_latest.txt`, `unit_test_phase10_latest.txt`, `smoke_phase10_latest.txt` 갱신
+  - `dependency_gate_report.md`, `go_no_go_phase11.md` 작성
