@@ -2,7 +2,7 @@
 #include "mesh.h"
 #include "app.h"
 #include "font_manager.h"
-#include "mesh_manager.h"
+#include "mesh/application/mesh_query_service.h"
 
 // ImGui
 #include <imgui.h>
@@ -24,7 +24,7 @@ void MeshGroupDetail::Render(int32_t meshId) {
         return;
     }
 
-    Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+    Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshByIdMutable(meshId);
     if (mesh == nullptr) {
         return;
     }

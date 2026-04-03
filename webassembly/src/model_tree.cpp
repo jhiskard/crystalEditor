@@ -1,5 +1,6 @@
 #include "model_tree.h"
 #include "font_manager.h"
+#include "workspace/application/workspace_command_service.h"
 
 // ImGui
 #include <imgui.h>
@@ -36,6 +37,7 @@ void ModelTree::Render(bool* openWindow) {
     // 삭제 확인 팝업 렌더링
     renderDeleteConfirmPopup();
     renderClearMeasurementsConfirmPopup();
+    workspace::application::GetWorkspaceCommandService().SetSelectedMeshId(s_SelectedMeshId);
 
     ImGui::End();
 }
