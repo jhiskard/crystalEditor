@@ -231,10 +231,10 @@ W0 산출 로그:
 - `docs/refactoring/phase10/logs/bug_p10_vasp_grid_sequence_latest.md`
 
 ## 10. 진행 체크리스트
-- [ ] W0 기준선/버그 로그 고정
-- [ ] W1 shell 상태 저장소/계약 정립
-- [ ] W2 workbench controller 도입
-- [ ] W3 panel singleton 해체 1차
-- [ ] W4 panel singleton 해체 2차 + app 축소
-- [ ] W5 정적 게이트 도입
-- [ ] W6 빌드/테스트 + 종료 판정 문서화
+- [x] W0 기준선/버그 로그 고정
+- [x] W1 shell 상태 저장소/계약 정립
+- [x] W2 workbench controller 도입
+- [x] W3 panel singleton 해체 1차
+- [x] W4 panel singleton 해체 2차 + app 축소
+- [x] W5 정적 게이트 도입
+- [x] W6 빌드/테스트 + 종료 판정 문서화

@@ -39,6 +39,14 @@ class WorkspaceCommandService;
 } // namespace application
 } // namespace workspace
 
+namespace shell {
+namespace application {
+class ShellStateQueryService;
+class ShellStateCommandService;
+class WorkbenchController;
+} // namespace application
+} // namespace shell
+
 /**
  * @brief Runtime composition root facade for legacy singleton graph.
  * @details Phase 7에서는 singleton 제거 대신 접근 경계를 runtime으로 제한한다.
@@ -127,6 +135,21 @@ public:
      * @brief Returns workspace context command facade.
      */
     workspace::application::WorkspaceCommandService& WorkspaceCommand();
+
+    /**
+     * @brief Returns shell state query facade.
+     */
+    shell::application::ShellStateQueryService& ShellStateQuery();
+
+    /**
+     * @brief Returns shell state command facade.
+     */
+    shell::application::ShellStateCommandService& ShellStateCommand();
+
+    /**
+     * @brief Returns shell workbench controller.
+     */
+    shell::application::WorkbenchController& ShellController();
 
     /**
      * @brief Returns test/debug panel facade.

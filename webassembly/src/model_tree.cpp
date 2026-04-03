@@ -1,16 +1,14 @@
-#include "model_tree.h"
+﻿#include "model_tree.h"
+#include "shell/runtime/workbench_runtime.h"
 #include "font_manager.h"
 #include "workspace/application/workspace_command_service.h"
 
 // ImGui
 #include <imgui.h>
 
-int32_t ModelTree::s_DeleteMeshId = -1;
-int32_t ModelTree::s_SelectedMeshId = -1;
-int32_t ModelTree::s_PendingDeleteMeshId = -1;
-bool ModelTree::s_ShowDeleteConfirmPopup = false;
-int32_t ModelTree::s_PendingClearMeasurementsStructureId = -1;
-bool ModelTree::s_ShowClearMeasurementsConfirmPopup = false;
+ModelTree& ModelTree::Instance() {
+    return GetWorkbenchRuntime().ModelTreePanel();
+}
 
 ModelTree::ModelTree() {
 }
@@ -37,8 +35,9 @@ void ModelTree::Render(bool* openWindow) {
     // 삭제 확인 팝업 렌더링
     renderDeleteConfirmPopup();
     renderClearMeasurementsConfirmPopup();
-    workspace::application::GetWorkspaceCommandService().SetSelectedMeshId(s_SelectedMeshId);
+    workspace::application::GetWorkspaceCommandService().SetSelectedMeshId(m_SelectedMeshId);
 
     ImGui::End();
 }
+
 

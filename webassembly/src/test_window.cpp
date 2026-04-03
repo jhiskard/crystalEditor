@@ -1,4 +1,5 @@
 #include "test_window.h"
+#include "shell/runtime/workbench_runtime.h"
 #include "font_manager.h"
 #include "config/log_config.h"
 #include "render/application/render_gateway.h"
@@ -17,6 +18,10 @@ TestWindow::TestWindow() {
 }
 
 TestWindow::~TestWindow() {
+}
+
+TestWindow& TestWindow::Instance() {
+    return GetWorkbenchRuntime().TestWindowPanel();
 }
 
 void TestWindow::Render(bool* openWindow) {

@@ -15,6 +15,31 @@
 #include "../../density/application/density_service.h"
 #include "../../workspace/application/workspace_query_service.h"
 #include "../../workspace/application/workspace_command_service.h"
+#include "../application/shell_state_query_service.h"
+#include "../application/shell_state_command_service.h"
+#include "../application/workbench_controller.h"
+
+namespace {
+ModelTree& runtimeModelTreePanel() {
+    static ModelTree panel;
+    return panel;
+}
+
+MeshDetail& runtimeMeshDetailPanel() {
+    static MeshDetail panel;
+    return panel;
+}
+
+MeshGroupDetail& runtimeMeshGroupDetailPanel() {
+    static MeshGroupDetail panel;
+    return panel;
+}
+
+TestWindow& runtimeTestWindowPanel() {
+    static TestWindow panel;
+    return panel;
+}
+} // namespace
 
 WorkbenchRuntime& WorkbenchRuntime::Instance() {
     static WorkbenchRuntime runtime;
@@ -55,15 +80,15 @@ density::application::DensityService& WorkbenchRuntime::DensityFeature() {
 }
 
 ModelTree& WorkbenchRuntime::ModelTreePanel() {
-    return ModelTree::Instance();
+    return runtimeModelTreePanel();
 }
 
 MeshDetail& WorkbenchRuntime::MeshDetailPanel() {
-    return MeshDetail::Instance();
+    return runtimeMeshDetailPanel();
 }
 
 MeshGroupDetail& WorkbenchRuntime::MeshGroupDetailPanel() {
-    return MeshGroupDetail::Instance();
+    return runtimeMeshGroupDetailPanel();
 }
 
 MeshManager& WorkbenchRuntime::MeshRepository() {
@@ -82,8 +107,20 @@ workspace::application::WorkspaceCommandService& WorkbenchRuntime::WorkspaceComm
     return workspace::application::GetWorkspaceCommandService();
 }
 
+shell::application::ShellStateQueryService& WorkbenchRuntime::ShellStateQuery() {
+    return shell::application::GetShellStateQueryService();
+}
+
+shell::application::ShellStateCommandService& WorkbenchRuntime::ShellStateCommand() {
+    return shell::application::GetShellStateCommandService();
+}
+
+shell::application::WorkbenchController& WorkbenchRuntime::ShellController() {
+    return shell::application::GetWorkbenchController();
+}
+
 TestWindow& WorkbenchRuntime::TestWindowPanel() {
-    return TestWindow::Instance();
+    return runtimeTestWindowPanel();
 }
 
 void WorkbenchRuntime::RenderAppFrame() {

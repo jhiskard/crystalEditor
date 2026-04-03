@@ -1,7 +1,9 @@
-#include "mesh_detail.h"
+﻿#include "mesh_detail.h"
 #include "app.h"
+#include "shell/runtime/workbench_runtime.h"
 #include "font_manager.h"
 #include "mesh_manager.h"
+#include "mesh/application/mesh_query_service.h"
 
 // ImGui
 #include <imgui.h>
@@ -37,10 +39,18 @@ bool MeshDetail::s_HasVolumeSampleDistanceChanged = false;
 // ✅ 추가: Helper Function for Volume Mesh Iteration
 // ============================================================================
 namespace {
+MeshManager& legacyMeshManager() {
+    return MeshManager::Instance();
+}
+
+Mesh* findMeshByIdMutable(int32_t meshId) {
+    return mesh::application::GetMeshQueryService().FindMeshByIdMutable(meshId);
+}
+
 void forEachVolumeMesh(const std::function<void(Mesh*)>& func) {
-    MeshManager& meshManager = MeshManager::Instance();
+    MeshManager& meshManager = legacyMeshManager();
     meshManager.GetMeshTree()->TraverseTree([&](const TreeNode* node, void*) {
-        Mesh* mesh = meshManager.GetMeshByIdMutable(node->GetId());
+        Mesh* mesh = findMeshByIdMutable(node->GetId());
         if (!mesh || !mesh->GetVolumeMeshActor()) {
             return;
         }
@@ -68,6 +78,10 @@ ImVec2 calcVolumeActionButtonPadding() {
 // ============================================================================
 // Constructor / Destructor
 // ============================================================================
+MeshDetail& MeshDetail::Instance() {
+    return GetWorkbenchRuntime().MeshDetailPanel();
+}
+
 MeshDetail::MeshDetail() {
 }
 
@@ -84,7 +98,7 @@ void MeshDetail::Render(int32_t meshId, bool* openWindow) {
 
     ImGui::Begin(ICON_FA6_FOLDER_OPEN"  Mesh Detail", openWindow);
 
-    MeshManager& meshManager = MeshManager::Instance();
+    MeshManager& meshManager = legacyMeshManager();
     const Mesh* mesh = meshManager.GetMeshById(meshId);
     if (mesh == nullptr) {
         ImGui::End();
@@ -199,7 +213,7 @@ void MeshDetail::RenderVolumeControls(int32_t meshId, const char* tableId, bool 
         return;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
+    MeshManager& meshManager = legacyMeshManager();
     const Mesh* mesh = meshManager.GetMeshById(meshId);
     if (mesh == nullptr || !mesh->GetVolumeMeshActor()) {
         ImGui::TextDisabled("No volume mesh available");
@@ -263,7 +277,7 @@ void MeshDetail::forEachTargetVolumeMesh(int32_t meshId, const std::function<voi
         forEachVolumeMesh(func);
         return;
     }
-    Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+    Mesh* mesh = findMeshByIdMutable(meshId);
     if (!mesh || !mesh->GetVolumeMeshActor()) {
         return;
     }
@@ -375,7 +389,7 @@ void MeshDetail::renderTableRowEdgeMeshVisibility(int32_t meshId, bool visibilit
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
     bool isClicked = ImGui::Checkbox("##EdgeMeshVisibility", &m_UiEdgeMeshVisibility);
     if (isClicked) {
-        Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+        Mesh* mesh = findMeshByIdMutable(meshId);
         mesh->SetEdgeMeshVisibility(m_UiEdgeMeshVisibility);
     }
     ImGui::PopStyleVar();
@@ -393,7 +407,7 @@ void MeshDetail::renderTableRowEdgeMeshColor(int32_t meshId, const double* color
     if (s_HasEdgeMeshColorChanged) {
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
-            Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+            Mesh* mesh = findMeshByIdMutable(meshId);
             mesh->SetEdgeMeshColor(m_UiEdgeMeshColor[0], m_UiEdgeMeshColor[1], m_UiEdgeMeshColor[2]);
             s_HasEdgeMeshColorChanged = false;
         }
@@ -413,7 +427,7 @@ void MeshDetail::renderTableRowEdgeMeshOpacity(int32_t meshId, double opacity) {
     if (s_HasEdgeMeshOpacityChanged) {
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
-            Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+            Mesh* mesh = findMeshByIdMutable(meshId);
             mesh->SetEdgeMeshOpacity(m_UiEdgeMeshOpacity);
             s_HasEdgeMeshOpacityChanged = false;
         }
@@ -431,7 +445,7 @@ void MeshDetail::renderTableRowFaceMeshVisibility(int32_t meshId, bool visibilit
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
     bool isClicked = ImGui::Checkbox("##FaceMeshVisibility", &m_UiFaceMeshVisibility);
     if (isClicked) {
-        Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+        Mesh* mesh = findMeshByIdMutable(meshId);
         mesh->SetFaceMeshVisibility(m_UiFaceMeshVisibility);
     }
     ImGui::PopStyleVar();
@@ -449,7 +463,7 @@ void MeshDetail::renderTableRowFaceMeshColor(int32_t meshId, const double* color
     if (s_HasFaceMeshColorChanged) {
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
-            Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+            Mesh* mesh = findMeshByIdMutable(meshId);
             mesh->SetFaceMeshColor(m_UiFaceMeshColor[0], m_UiFaceMeshColor[1], m_UiFaceMeshColor[2]);
             s_HasFaceMeshColorChanged = false;
         }
@@ -469,7 +483,7 @@ void MeshDetail::renderTableRowFaceMeshOpacity(int32_t meshId, double opacity) {
     if (s_HasFaceMeshOpacityChanged) {
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
-            Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+            Mesh* mesh = findMeshByIdMutable(meshId);
             mesh->SetFaceMeshOpacity(m_UiFaceMeshOpacity);
             s_HasFaceMeshOpacityChanged = false;
         }
@@ -489,7 +503,7 @@ void MeshDetail::renderTableRowFaceMeshEdgeColor(int32_t meshId, const double* c
     if (s_HasFaceMeshEdgeColorChanged) {
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
-            Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+            Mesh* mesh = findMeshByIdMutable(meshId);
             mesh->SetFaceMeshEdgeColor(m_UiFaceMeshEdgeColor[0], m_UiFaceMeshEdgeColor[1], m_UiFaceMeshEdgeColor[2]);
             s_HasFaceMeshEdgeColorChanged = false;
         }
@@ -508,7 +522,7 @@ void MeshDetail::renderTableRowVolumeMeshVisibility(int32_t meshId, bool visibil
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
     bool isClicked = ImGui::Checkbox("##VolumeMeshVisibility", &m_UiVolumeMeshVisibility);
     if (isClicked) {
-        MeshManager& meshManager = MeshManager::Instance();
+        MeshManager& meshManager = legacyMeshManager();
         if (linkToTree) {
             if (m_UiVolumeMeshVisibility) {
                 meshManager.ShowMesh(meshId);
@@ -558,7 +572,7 @@ void MeshDetail::renderTableRowVolumeMeshColor(int32_t meshId, const double* col
     if (isChanged) {
         if (m_UiVolumeDirectApply) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.meshColor[0] = m_UiVolumeMeshColor[0];
                 settings.meshColor[1] = m_UiVolumeMeshColor[1];
@@ -577,7 +591,7 @@ void MeshDetail::renderTableRowVolumeMeshColor(int32_t meshId, const double* col
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.meshColor[0] = m_UiVolumeMeshColor[0];
                 settings.meshColor[1] = m_UiVolumeMeshColor[1];
@@ -602,7 +616,7 @@ void MeshDetail::renderTableRowVolumeMeshOpacity(int32_t meshId, double opacity)
     if (isChanged) {
         if (m_UiVolumeDirectApply) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.meshOpacity = m_UiVolumeMeshOpacity;
                 meshManager.SetSharedVolumeDisplaySettings(settings);
@@ -619,7 +633,7 @@ void MeshDetail::renderTableRowVolumeMeshOpacity(int32_t meshId, double opacity)
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.meshOpacity = m_UiVolumeMeshOpacity;
                 meshManager.SetSharedVolumeDisplaySettings(settings);
@@ -642,7 +656,7 @@ void MeshDetail::renderTableRowVolumeMeshEdgeColor(int32_t meshId, const double*
     if (isChanged) {
         if (m_UiVolumeDirectApply) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.meshEdgeColor[0] = m_UiVolumeMeshEdgeColor[0];
                 settings.meshEdgeColor[1] = m_UiVolumeMeshEdgeColor[1];
@@ -661,7 +675,7 @@ void MeshDetail::renderTableRowVolumeMeshEdgeColor(int32_t meshId, const double*
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.meshEdgeColor[0] = m_UiVolumeMeshEdgeColor[0];
                 settings.meshEdgeColor[1] = m_UiVolumeMeshEdgeColor[1];
@@ -701,7 +715,7 @@ void MeshDetail::renderTableRowVolumeRenderMode(int32_t meshId, bool volumeAvail
             ? Mesh::VolumeRenderMode::Volume
             : Mesh::VolumeRenderMode::Surface;
         if (m_VolumeUseSharedSettings) {
-            MeshManager& meshManager = MeshManager::Instance();
+            MeshManager& meshManager = legacyMeshManager();
             MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
             settings.renderMode = mode;
             meshManager.SetSharedVolumeDisplaySettings(settings);
@@ -743,7 +757,7 @@ void MeshDetail::renderTableRowVolumeColorPreset(int32_t meshId, bool volumeAvai
             presetIndex,
             Mesh::VolumeColorPreset::Grayscale);
         if (m_VolumeUseSharedSettings) {
-            MeshManager& meshManager = MeshManager::Instance();
+            MeshManager& meshManager = legacyMeshManager();
             MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
             settings.colorPreset = preset;
             meshManager.SetSharedVolumeDisplaySettings(settings);
@@ -767,7 +781,7 @@ void MeshDetail::renderTableRowVolumeColorCurve(int32_t meshId) {
     if (midpointChanged || sharpnessChanged) {
         if (m_UiVolumeDirectApply) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.colorMidpoint = m_UiVolumeColorMidpoint;
                 settings.colorSharpness = m_UiVolumeColorSharpness;
@@ -796,7 +810,7 @@ void MeshDetail::renderTableRowVolumeColorCurve(int32_t meshId) {
     if (showApplyButton) {
         if (ImGui::Button("Apply##ColorCurve", ImVec2(actionButtonWidth, actionButtonHeight))) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.colorMidpoint = m_UiVolumeColorMidpoint;
                 settings.colorSharpness = m_UiVolumeColorSharpness;
@@ -814,7 +828,7 @@ void MeshDetail::renderTableRowVolumeColorCurve(int32_t meshId) {
     
     if (ImGui::Button("Reset##ColorCurve", ImVec2(actionButtonWidth, actionButtonHeight))) {
         if (m_VolumeUseSharedSettings) {
-            MeshManager& meshManager = MeshManager::Instance();
+            MeshManager& meshManager = legacyMeshManager();
             MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
             settings.colorMidpoint = 0.5;
             settings.colorSharpness = 0.0;
@@ -843,7 +857,7 @@ void MeshDetail::renderTableRowVolumeWindowLevel(int32_t meshId) {
     const ImVec2 actionButtonPadding = calcVolumeActionButtonPadding();
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
     
-    MeshManager& meshManager = MeshManager::Instance();
+    MeshManager& meshManager = legacyMeshManager();
     Mesh* mesh = meshManager.GetMeshByIdMutable(meshId);
     
     double rangeMin = 0.0;
@@ -959,7 +973,7 @@ void MeshDetail::renderTableRowVolumeQuality(int32_t meshId) {
         m_UiVolumeQuality = qualityIndex;
         Mesh::VolumeQuality quality = static_cast<Mesh::VolumeQuality>(qualityIndex);
         if (m_VolumeUseSharedSettings) {
-            MeshManager& meshManager = MeshManager::Instance();
+            MeshManager& meshManager = legacyMeshManager();
             MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
             settings.quality = quality;
             meshManager.SetSharedVolumeDisplaySettings(settings);
@@ -992,7 +1006,7 @@ void MeshDetail::renderTableRowVolumeSampleDistance(int32_t meshId) {
         m_UiVolumeSampleDistanceIndex = index;
         if (m_UiVolumeDirectApply) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.sampleDistanceIndex = m_UiVolumeSampleDistanceIndex;
                 meshManager.SetSharedVolumeDisplaySettings(settings);
@@ -1011,7 +1025,7 @@ void MeshDetail::renderTableRowVolumeSampleDistance(int32_t meshId) {
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, App::TextBaseHeight() * 0.2f));
         if (ImGui::Button("Apply##SampleDistance", ImVec2(App::TextBaseWidth() * 6.0f, buttonHeight))) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.sampleDistanceIndex = m_UiVolumeSampleDistanceIndex;
                 meshManager.SetSharedVolumeDisplaySettings(settings);
@@ -1035,7 +1049,7 @@ void MeshDetail::renderTableRowVolumeRenderOpacityMin(int32_t meshId, double opa
     if (isChanged) {
         if (m_UiVolumeDirectApply) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.opacityMin = m_UiVolumeRenderOpacityMin;
                 if (settings.opacityMin > settings.opacityMax) {
@@ -1058,7 +1072,7 @@ void MeshDetail::renderTableRowVolumeRenderOpacityMin(int32_t meshId, double opa
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.opacityMin = m_UiVolumeRenderOpacityMin;
                 if (settings.opacityMin > settings.opacityMax) {
@@ -1088,7 +1102,7 @@ void MeshDetail::renderTableRowVolumeRenderOpacity(int32_t meshId, double opacit
     if (isChanged) {
         if (m_UiVolumeDirectApply) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.opacityMax = m_UiVolumeRenderOpacity;
                 if (settings.opacityMax < settings.opacityMin) {
@@ -1111,7 +1125,7 @@ void MeshDetail::renderTableRowVolumeRenderOpacity(int32_t meshId, double opacit
         ImGui::SameLine();
         if (ImGui::Button("Apply", ImVec2(App::TextBaseWidth() * 6.0f, App::TextBaseHeight()))) {
             if (m_VolumeUseSharedSettings) {
-                MeshManager& meshManager = MeshManager::Instance();
+                MeshManager& meshManager = legacyMeshManager();
                 MeshManager::VolumeDisplaySettings settings = meshManager.GetSharedVolumeDisplaySettings();
                 settings.opacityMax = m_UiVolumeRenderOpacity;
                 if (settings.opacityMax < settings.opacityMin) {
@@ -1147,7 +1161,7 @@ void MeshDetail::syncSharedVolumeUiFromSettings(const MeshManager::VolumeDisplay
     if (!s_HasVolumeWindowLevelChanged) {
         double rangeMin = 0.0;
         double rangeMax = 1.0;
-        MeshManager::Instance().GetGlobalVolumeDataRange(rangeMin, rangeMax);
+        mesh::application::GetMeshQueryService().GetGlobalVolumeDataRange(rangeMin, rangeMax);
         if (rangeMin == rangeMax) {
             rangeMax = rangeMin + 1.0;
         }
@@ -1258,3 +1272,5 @@ void MeshDetail::SetUiVolumeColorCurve(double midpoint, double sharpness) {
     m_UiVolumeColorMidpoint = static_cast<float>(midpoint);
     m_UiVolumeColorSharpness = static_cast<float>(sharpness);
 }
+
+

@@ -52,12 +52,12 @@ public:
     static void SetProgressPopupText(const std::string& title, const std::string& text);
 
     // Helpers to show/hide split windows mapped from old grouped names.
-    static void ShowCrystalBuilderWindow(bool show = true) { Instance().m_bShowPeriodicTableWindow = show; }
-    static void ShowCrystalEditorWindow(bool show = true) { Instance().m_bShowCreatedAtomsWindow = show; }
-    static void ShowAdvancedViewWindow(bool show = true) { Instance().m_bShowChargeDensityViewerWindow = show; }
-    static void ShowSliceViewerWindow(bool show = true) { Instance().m_bShowSliceViewerWindow = show; }
+    static void ShowCrystalBuilderWindow(bool show = true);
+    static void ShowCrystalEditorWindow(bool show = true);
+    static void ShowAdvancedViewWindow(bool show = true);
+    static void ShowSliceViewerWindow(bool show = true);
     // Backward-compatible wrapper for the old Atomistic Model Builder name.
-    static void ShowAtomsTemplateWindow(bool show = true) { Instance().m_bShowPeriodicTableWindow = show; }
+    static void ShowAtomsTemplateWindow(bool show = true);
     static void RequestLayout1();
 
 private:
@@ -147,5 +147,7 @@ private:
     void showProgressPopup(bool show);
     void setProgressPopupText(const std::string& title, const std::string& text);
     void renderAboutPopup();
+    void syncShellStateFromStore();
+    void syncShellStateToStore();
 
 };
