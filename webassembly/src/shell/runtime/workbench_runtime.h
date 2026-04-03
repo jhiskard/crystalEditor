@@ -32,6 +32,13 @@ class DensityService;
 } // namespace application
 } // namespace density
 
+namespace workspace {
+namespace application {
+class WorkspaceQueryService;
+class WorkspaceCommandService;
+} // namespace application
+} // namespace workspace
+
 /**
  * @brief Runtime composition root facade for legacy singleton graph.
  * @details Phase 7에서는 singleton 제거 대신 접근 경계를 runtime으로 제한한다.
@@ -110,6 +117,16 @@ public:
      * @brief Returns import/file-loading service facade.
      */
     FileLoader& FileLoaderService();
+
+    /**
+     * @brief Returns workspace context query facade.
+     */
+    workspace::application::WorkspaceQueryService& WorkspaceQuery();
+
+    /**
+     * @brief Returns workspace context command facade.
+     */
+    workspace::application::WorkspaceCommandService& WorkspaceCommand();
 
     /**
      * @brief Returns test/debug panel facade.

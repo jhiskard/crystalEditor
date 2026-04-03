@@ -2,7 +2,8 @@
 
 #include "../../atoms/atoms_template.h"
 #include "../../atoms/domain/atom_manager.h"
-#include "../../mesh_manager.h"
+#include "../../mesh/application/mesh_command_service.h"
+#include "../../mesh/application/mesh_query_service.h"
 
 namespace io::application {
 
@@ -37,8 +38,9 @@ bool ImportOrchestrator::HasSceneDataForStructureImport() const {
 
 std::vector<int32_t> ImportOrchestrator::CollectRootMeshIds() const {
     std::vector<int32_t> rootMeshIds;
+    const mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
 
-    const LcrsTreeUPtr& meshTree = MeshManager::Instance().GetMeshTree();
+    const LcrsTreeUPtr& meshTree = meshQuery.MeshTree();
     if (!meshTree) {
         return rootMeshIds;
     }
@@ -69,7 +71,8 @@ ReplaceSceneImportSnapshot ImportOrchestrator::BeginReplaceSceneImportTransactio
 void ImportOrchestrator::FinalizeReplaceSceneImportSuccess(
     const ReplaceSceneImportSnapshot& snapshot,
     int32_t importedStructureId) const {
-    MeshManager& meshManager = MeshManager::Instance();
+    mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
+    mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
     AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
 
     for (int32_t rootMeshId : snapshot.rootMeshIds) {
@@ -77,21 +80,21 @@ void ImportOrchestrator::FinalizeReplaceSceneImportSuccess(
             continue;
         }
 
-        const Mesh* mesh = meshManager.GetMeshById(rootMeshId);
+        const Mesh* mesh = meshQuery.FindMeshById(rootMeshId);
         if (!mesh) {
             continue;
         }
 
         if (mesh->IsXsfStructure()) {
             atomsTemplate.RemoveStructure(rootMeshId);
-            meshManager.DeleteXsfStructure(rootMeshId);
+            meshCommand.DeleteXsfStructure(rootMeshId);
         } else {
-            meshManager.DeleteMesh(rootMeshId);
+            meshCommand.DeleteMesh(rootMeshId);
         }
     }
 
     atomsTemplate.RemoveUnassignedData();
-    if (importedStructureId >= 0 && meshManager.GetMeshById(importedStructureId) != nullptr) {
+    if (importedStructureId >= 0 && meshQuery.FindMeshById(importedStructureId) != nullptr) {
         atomsTemplate.SetCurrentStructureId(importedStructureId);
     }
 }
@@ -99,28 +102,29 @@ void ImportOrchestrator::FinalizeReplaceSceneImportSuccess(
 void ImportOrchestrator::RollbackFailedStructureImport(
     const ReplaceSceneImportSnapshot& snapshot,
     int32_t importedStructureId) const {
-    MeshManager& meshManager = MeshManager::Instance();
+    mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
+    mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
     AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
 
     if (importedStructureId >= 0) {
-        const Mesh* importedMesh = meshManager.GetMeshById(importedStructureId);
+        const Mesh* importedMesh = meshQuery.FindMeshById(importedStructureId);
         if (importedMesh != nullptr) {
             if (importedMesh->IsXsfStructure()) {
                 atomsTemplate.RemoveStructure(importedStructureId);
-                meshManager.DeleteXsfStructure(importedStructureId);
+                meshCommand.DeleteXsfStructure(importedStructureId);
             } else {
-                meshManager.DeleteMesh(importedStructureId);
+                meshCommand.DeleteMesh(importedStructureId);
             }
         }
     }
 
     atomsTemplate.SetLoadedFileName(snapshot.loadedFileName);
 
-    const auto isValidStructureId = [&meshManager](int32_t structureId) {
+    const auto isValidStructureId = [&meshQuery](int32_t structureId) {
         if (structureId < 0) {
             return false;
         }
-        const Mesh* mesh = meshManager.GetMeshById(structureId);
+        const Mesh* mesh = meshQuery.FindMeshById(structureId);
         return mesh != nullptr && mesh->IsXsfStructure();
     };
 

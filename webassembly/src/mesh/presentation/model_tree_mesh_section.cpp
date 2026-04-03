@@ -1,11 +1,12 @@
 #include "../../model_tree.h"
 #include "../../app.h"
 #include "../../font_manager.h"
-#include "../../mesh_manager.h"
 #include "../../mesh_detail.h"
 #include "../../lcrs_tree.h"
 #include "../../config/log_config.h"
 #include "../../atoms/atoms_template.h"
+#include "../application/mesh_command_service.h"
+#include "../application/mesh_query_service.h"
 
 #include <imgui.h>
 
@@ -58,8 +59,8 @@ void ModelTree::renderMeshTable(ImGuiTableFlags tableFlags) {
             ImGui::PopID();
         }
 
-        MeshManager& meshManager = MeshManager::Instance();
-        TreeNode* rootNode = meshManager.GetMeshTree()->GetRootMutable();
+        mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
+        TreeNode* rootNode = meshQuery.MeshTree()->GetRootMutable();
         renderMeshTree(rootNode);
 
         ImGui::EndTable();
@@ -69,7 +70,7 @@ void ModelTree::renderMeshTable(ImGuiTableFlags tableFlags) {
     MeshDetail& meshDetail = MeshDetail::Instance();
     if (s_DeleteMeshId != -1) {
         if (s_DeleteMeshId != 0) {
-            MeshManager::Instance().DeleteMesh(s_DeleteMeshId);
+            mesh::application::GetMeshCommandService().DeleteMesh(s_DeleteMeshId);
         } else {
             SPDLOG_ERROR("Cannot delete the root node.");
         }
@@ -103,13 +104,14 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         return;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
-    Mesh* mesh = meshManager.GetMeshByIdMutable(node->GetId());
+    mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
+    mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
+    Mesh* mesh = meshQuery.FindMeshByIdMutable(node->GetId());
     if (mesh == nullptr) {
         return;
     }
     if (node->GetParent() && node->GetParent()->GetId() != 0) {
-        Mesh* parentMesh = meshManager.GetMeshByIdMutable(node->GetParent()->GetId());
+        Mesh* parentMesh = meshQuery.FindMeshByIdMutable(node->GetParent()->GetId());
         if (parentMesh && parentMesh->IsXsfStructure() && !mesh->IsXsfStructure()) {
             if (node->GetRightSibling()) {
                 renderMeshTree(node->GetRightSiblingMutable());
@@ -219,31 +221,31 @@ void ModelTree::renderMeshTree(TreeNode* node) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                     atomsTemplate.SetStructureVisible(node->GetId(), false);
-                    meshManager.HideMesh(node->GetId());
+                    meshCommand.HideMesh(node->GetId());
                 }
             } else {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                     atomsTemplate.SetStructureVisible(node->GetId(), true);
                     MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
-                    meshManager.ShowMesh(node->GetId());
+                    meshCommand.ShowMesh(node->GetId());
                 }
             }
         } else {
             if (node->GetIconState() == IconState::VISIBLE) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                    meshManager.HideMesh(node->GetId());
+                    meshCommand.HideMesh(node->GetId());
                 }
             } else if (node->GetIconState() == IconState::PARTIAL) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                    meshManager.ShowMesh(node->GetId());
+                    meshCommand.ShowMesh(node->GetId());
                 }
             } else if (node->GetIconState() == IconState::HIDDEN) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                    meshManager.ShowMesh(node->GetId());
+                    meshCommand.ShowMesh(node->GetId());
                 }
             }
         }

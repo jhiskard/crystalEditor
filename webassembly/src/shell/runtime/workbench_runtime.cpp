@@ -13,6 +13,8 @@
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
 #include "../../density/application/density_service.h"
+#include "../../workspace/application/workspace_query_service.h"
+#include "../../workspace/application/workspace_command_service.h"
 
 WorkbenchRuntime& WorkbenchRuntime::Instance() {
     static WorkbenchRuntime runtime;
@@ -70,6 +72,14 @@ MeshManager& WorkbenchRuntime::MeshRepository() {
 
 FileLoader& WorkbenchRuntime::FileLoaderService() {
     return FileLoader::Instance();
+}
+
+workspace::application::WorkspaceQueryService& WorkbenchRuntime::WorkspaceQuery() {
+    return workspace::application::GetWorkspaceQueryService();
+}
+
+workspace::application::WorkspaceCommandService& WorkbenchRuntime::WorkspaceCommand() {
+    return workspace::application::GetWorkspaceCommandService();
 }
 
 TestWindow& WorkbenchRuntime::TestWindowPanel() {

@@ -1,11 +1,10 @@
 #include "file_loader.h"
 
 #include "app.h"
-#include "atoms/atoms_template.h"
 #include "common/string_utils.h"
 #include "config/log_config.h"
 #include "io/platform/browser_file_picker.h"
-#include "mesh_manager.h"
+#include "mesh/application/mesh_command_service.h"
 #include "unv_reader.h"
 #include "render/application/render_gateway.h"
 
@@ -58,55 +57,33 @@ void FileLoader::RequestOpenStructureImport() {
 }
 
 bool FileLoader::hasSceneDataForStructureImport() const {
-    return m_ImportOrchestrator.HasSceneDataForStructureImport();
+    return m_ImportWorkflowService.HasSceneDataForStructureImport();
 }
 
 void FileLoader::clearReplaceSceneImportTransaction() {
     m_ReplaceSceneOnNextStructureImport = false;
-    m_ReplaceSceneImportTransactionActive = false;
     m_DeferredStructureFileName.clear();
-    m_ReplaceSceneImportSnapshot.Clear();
+    m_ImportWorkflowService.ClearReplaceSceneImportTransaction();
 }
 
 void FileLoader::finalizeImportOnSuccess(int32_t importedStructureId) {
-    if (!m_ReplaceSceneImportTransactionActive) {
+    if (!m_ImportWorkflowService.IsReplaceSceneImportTransactionActive()) {
         return;
     }
-    m_ImportOrchestrator.FinalizeReplaceSceneImportSuccess(
-        m_ReplaceSceneImportSnapshot,
-        importedStructureId);
+    m_ImportWorkflowService.FinalizeImportOnSuccess(importedStructureId);
     clearReplaceSceneImportTransaction();
 }
 
 void FileLoader::rollbackImportOnFailure(int32_t importedStructureId) {
-    if (!m_ReplaceSceneImportTransactionActive) {
+    if (!m_ImportWorkflowService.IsReplaceSceneImportTransactionActive()) {
         return;
     }
-    m_ImportOrchestrator.RollbackFailedStructureImport(
-        m_ReplaceSceneImportSnapshot,
-        importedStructureId);
+    m_ImportWorkflowService.RollbackImportOnFailure(importedStructureId);
     clearReplaceSceneImportTransaction();
 }
 
 void FileLoader::cleanupImportedStructure(int32_t importedStructureId) {
-    if (importedStructureId < 0) {
-        return;
-    }
-
-    MeshManager& meshManager = MeshManager::Instance();
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
-
-    const Mesh* importedMesh = meshManager.GetMeshById(importedStructureId);
-    if (importedMesh == nullptr) {
-        return;
-    }
-
-    if (importedMesh->IsXsfStructure()) {
-        atomsTemplate.RemoveStructure(importedStructureId);
-        meshManager.DeleteXsfStructure(importedStructureId);
-    } else {
-        meshManager.DeleteMesh(importedStructureId);
-    }
+    m_ImportWorkflowService.CleanupImportedStructure(importedStructureId);
 }
 
 void FileLoader::showStructureImportErrorPopup(const std::string& title, const std::string& message) {
@@ -160,9 +137,7 @@ void FileLoader::handleStructureFile(const std::string& fileName) {
     }
 
     if (m_ReplaceSceneOnNextStructureImport) {
-        m_ReplaceSceneImportSnapshot =
-            m_ImportOrchestrator.BeginReplaceSceneImportTransaction();
-        m_ReplaceSceneImportTransactionActive = true;
+        m_ImportWorkflowService.BeginReplaceSceneImportTransaction();
         m_ReplaceSceneOnNextStructureImport = false;
     }
 
@@ -255,7 +230,8 @@ Mesh* FileLoader::readVtkFile(const std::string& fileName) {
     }
 
     const std::string fileNameOnly = fileName.substr(0, fileName.rfind('.'));
-    Mesh* newMesh = MeshManager::Instance().InsertMesh(fileNameOnly.c_str(), nullptr, nullptr, volumeDataSet);
+    Mesh* newMesh = mesh::application::GetMeshCommandService().InsertMesh(
+        fileNameOnly.c_str(), nullptr, nullptr, volumeDataSet);
     return newMesh;
 }
 
@@ -272,7 +248,8 @@ Mesh* FileLoader::readVtuFile(const std::string& fileName) {
     }
 
     const std::string fileNameOnly = fileName.substr(0, fileName.rfind('.'));
-    Mesh* newMesh = MeshManager::Instance().InsertMesh(fileNameOnly.c_str(), nullptr, nullptr, volumeDataSet);
+    Mesh* newMesh = mesh::application::GetMeshCommandService().InsertMesh(
+        fileNameOnly.c_str(), nullptr, nullptr, volumeDataSet);
     return newMesh;
 }
 
@@ -289,7 +266,7 @@ Mesh* FileLoader::readUnvFile(const std::string& fileName) {
     }
 
     const std::string fileNameOnly = fileName.substr(0, fileName.rfind('.'));
-    Mesh* newMesh = MeshManager::Instance().InsertMesh(
+    Mesh* newMesh = mesh::application::GetMeshCommandService().InsertMesh(
         fileNameOnly.c_str(),
         unvReader->GetEdgeMesh(),
         unvReader->GetFaceMesh(),
@@ -412,7 +389,7 @@ void FileLoader::handleParserWorkerResult(io::application::ParserWorkerResult& r
     if (!applyResult.success) {
         SPDLOG_ERROR("Failed to apply import parse result: {}", applyResult.errorMessage);
         showStructureImportErrorPopup("Import Structure Failed", applyResult.errorMessage);
-        if (m_ReplaceSceneImportTransactionActive) {
+        if (m_ImportWorkflowService.IsReplaceSceneImportTransactionActive()) {
             rollbackImportOnFailure(applyResult.importedStructureId);
         } else {
             cleanupImportedStructure(applyResult.importedStructureId);
@@ -421,7 +398,7 @@ void FileLoader::handleParserWorkerResult(io::application::ParserWorkerResult& r
         return;
     }
 
-    if (m_ReplaceSceneImportTransactionActive) {
+    if (m_ImportWorkflowService.IsReplaceSceneImportTransactionActive()) {
         finalizeImportOnSuccess(applyResult.importedStructureId);
     }
 
