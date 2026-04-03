@@ -30,3 +30,9 @@
 1. W1/W2 changed shell state and command routing layers only.
 2. Import transaction logic was not modified in this step.
 3. Bug status remains `Deferred` and is still a required W6 verification item.
+
+## 5) W3~W5 Update
+
+1. W3/W4 changed shell-panel runtime ownership and menu/toolbar routing boundaries.
+2. Import transaction/data-clear sequence logic was not directly changed in W3~W5 scope.
+3. Status remains `Deferred` and is carried forward to W6 smoke/manual verification.

@@ -62,3 +62,32 @@
 3. Build/Test verification:
    - `npm run build-wasm:release`: `PASS`
    - `npm run test:cpp`: `PASS` (`1/1`)
+
+## 6) Execution Update (W3~W5)
+
+1. W3 completed (panel singleton replacement stage 1):
+   - Removed `DECLARE_SINGLETON` from:
+     - `webassembly/src/model_tree.h`
+     - `webassembly/src/mesh_group_detail.h`
+     - `webassembly/src/test_window.h`
+   - Converted panel mutable static state to instance state:
+     - `ModelTree` selection/delete/confirm-popup state
+     - `MeshGroupDetail` selection/delete/change-flag state
+   - Added compatibility `Instance()` runtime shim wrappers in panel classes (`@note` Phase 12 removal target).
+
+2. W4 completed (panel singleton replacement stage 2 + app shrink):
+   - Removed `DECLARE_SINGLETON` from `webassembly/src/mesh_detail.h`.
+   - Added compatibility `MeshDetail::Instance()` runtime shim.
+   - Switched `WorkbenchRuntime` panel accessors to runtime-owned static panel objects (no direct panel `::Instance()` in runtime accessors).
+   - Reduced direct `MeshManager::Instance()` usage in `mesh_detail.cpp` to central helper path.
+   - Further reduced `app.cpp` feature direct-control path by routing settings toggles (`Node Tooltip` / `Viewer FPS Overlay`) through `WorkbenchController`.
+
+3. W5 completed (static gate script):
+   - Added `scripts/refactoring/check_phase11_shell_panel_objectization.ps1`.
+   - Generated gate log: `docs/refactoring/phase11/logs/check_phase11_shell_panel_objectization_latest.txt` (`PASS`).
+
+4. Verification snapshot (W3~W5):
+   - `DECLARE_SINGLETON` count in `App/Toolbar/ModelTree/MeshDetail/MeshGroupDetail/TestWindow`: `2` (`App`, `Toolbar` only)
+   - `MeshManager::Instance()` count in `mesh_detail.cpp`: `1`
+   - `npm run build-wasm:release`: `PASS`
+   - `npm run test:cpp`: `PASS` (`1/1`)
