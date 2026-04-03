@@ -15,6 +15,9 @@
 #include "../../density/application/density_service.h"
 #include "../../workspace/application/workspace_query_service.h"
 #include "../../workspace/application/workspace_command_service.h"
+#include "../application/shell_state_query_service.h"
+#include "../application/shell_state_command_service.h"
+#include "../application/workbench_controller.h"
 
 WorkbenchRuntime& WorkbenchRuntime::Instance() {
     static WorkbenchRuntime runtime;
@@ -80,6 +83,18 @@ workspace::application::WorkspaceQueryService& WorkbenchRuntime::WorkspaceQuery(
 
 workspace::application::WorkspaceCommandService& WorkbenchRuntime::WorkspaceCommand() {
     return workspace::application::GetWorkspaceCommandService();
+}
+
+shell::application::ShellStateQueryService& WorkbenchRuntime::ShellStateQuery() {
+    return shell::application::GetShellStateQueryService();
+}
+
+shell::application::ShellStateCommandService& WorkbenchRuntime::ShellStateCommand() {
+    return shell::application::GetShellStateCommandService();
+}
+
+shell::application::WorkbenchController& WorkbenchRuntime::ShellController() {
+    return shell::application::GetWorkbenchController();
 }
 
 TestWindow& WorkbenchRuntime::TestWindowPanel() {

@@ -1,10 +1,10 @@
 #include "toolbar.h"
 #include "config/log_config.h"
 #include "app.h"
+#include "shell/runtime/workbench_runtime.h"
+#include "shell/application/workbench_controller.h"
 #include "atoms/atoms_template.h"
 #include "atoms/domain/cell_manager.h"
-#include "mesh_manager.h"
-#include "render/application/render_gateway.h"
 #include "icon/FontAwesome6.h"
 
 // ImGui
@@ -120,8 +120,8 @@ void Toolbar::Render(const ImVec2& viewerContentSize) {
 }
 
 void Toolbar::renderBoundaryAtomsQuickButton() {
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
-    const bool boundaryAtomsEnabled = atomsTemplate.isSurroundingsVisible();
+    shell::application::WorkbenchController& controller = GetWorkbenchRuntime().ShellController();
+    const bool boundaryAtomsEnabled = controller.IsBoundaryAtomsEnabled();
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 6.0f));
     if (boundaryAtomsEnabled) {
@@ -136,7 +136,7 @@ void Toolbar::renderBoundaryAtomsQuickButton() {
         ? ICON_FA6_BORDER_ALL
         : ICON_FA6_BORDER_NONE;
     if (ImGui::Button(iconLabel, ImVec2(46.0f, 46.0f))) {
-        atomsTemplate.SetBoundaryAtomsEnabled(!boundaryAtomsEnabled);
+        controller.ToggleBoundaryAtoms();
     }
 
     if (boundaryAtomsEnabled) {
@@ -152,7 +152,8 @@ void Toolbar::renderBoundaryAtomsQuickButton() {
 }
 
 void Toolbar::renderArrowRotationStepInput() {
-    int stepDeg = static_cast<int>(render::application::GetRenderGateway().GetArrowRotateStepDeg());
+    shell::application::WorkbenchController& controller = GetWorkbenchRuntime().ShellController();
+    int stepDeg = controller.GetArrowRotateStepDeg();
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 6.0f));
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.2f, 0.3f, 0.2f));
@@ -165,13 +166,7 @@ void Toolbar::renderArrowRotationStepInput() {
     ImGui::SameLine();
     ImGui::SetNextItemWidth(160.0f * App::UiScale());
     if (ImGui::InputInt("##ArrowRotationStepDegree", &stepDeg, 1, 1)) {
-        if (stepDeg < 1) {
-            stepDeg = 1;
-        }
-        else if (stepDeg > 180) {
-            stepDeg = 180;
-        }
-        render::application::GetRenderGateway().SetArrowRotateStepDeg(static_cast<float>(stepDeg));
+        controller.SetArrowRotateStepDeg(stepDeg);
     }
     App::AddTooltip("Arrow key camera rotation step (1 - 180 degrees)");
 }
@@ -374,26 +369,26 @@ void Toolbar::renderMeshDisplayModeButtons() {
         ImGui::PopStyleColor();  // ImGuiCol_Button
         ImGui::PopStyleVar();  // ImGuiStyleVar_FramePadding
 
-        MeshManager& meshManager = MeshManager::Instance();
+        shell::application::WorkbenchController& controller = GetWorkbenchRuntime().ShellController();
 
         if (isWireframeClicked) {
             if (m_MeshDisplayMode != MeshDisplayMode::WIREFRAME) {
                 m_MeshDisplayMode = MeshDisplayMode::WIREFRAME;
-                meshManager.SetAllDisplayMode(MeshDisplayMode::WIREFRAME);
+                controller.SetMeshDisplayMode(MeshDisplayMode::WIREFRAME);
             }
             ImGui::CloseCurrentPopup();
         }
         else if (isShadedClicked) {
             if (m_MeshDisplayMode != MeshDisplayMode::SHADED) {  
                 m_MeshDisplayMode = MeshDisplayMode::SHADED;
-                meshManager.SetAllDisplayMode(MeshDisplayMode::SHADED);
+                controller.SetMeshDisplayMode(MeshDisplayMode::SHADED);
             }
             ImGui::CloseCurrentPopup();
         }
         else if (isWireShadedClicked) {
             if (m_MeshDisplayMode != MeshDisplayMode::WIRESHADED) {
                 m_MeshDisplayMode = MeshDisplayMode::WIRESHADED;
-                meshManager.SetAllDisplayMode(MeshDisplayMode::WIRESHADED);
+                controller.SetMeshDisplayMode(MeshDisplayMode::WIRESHADED);
             }
             ImGui::CloseCurrentPopup();
         }
@@ -469,14 +464,14 @@ void Toolbar::renderProjectionModeButtons() {
         if (isPerspectiveClicked) {
             if (m_ProjectionMode != ProjectionMode::PERSPECTIVE) {
                 m_ProjectionMode = ProjectionMode::PERSPECTIVE;
-                render::application::GetRenderGateway().SetProjectionMode(ProjectionMode::PERSPECTIVE);
+                GetWorkbenchRuntime().ShellController().SetProjectionMode(ProjectionMode::PERSPECTIVE);
             }
             ImGui::CloseCurrentPopup();
         }
         else if (isParallelClicked) {
             if (m_ProjectionMode != ProjectionMode::PARALLEL) {
                 m_ProjectionMode = ProjectionMode::PARALLEL;  
-                render::application::GetRenderGateway().SetProjectionMode(ProjectionMode::PARALLEL);
+                GetWorkbenchRuntime().ShellController().SetProjectionMode(ProjectionMode::PARALLEL);
             }
             ImGui::CloseCurrentPopup();
         }
@@ -495,7 +490,7 @@ void Toolbar::renderResetViewButton() {
     App::AddTooltip("Reset View", "Reset camera to fit current view");
 
     if (clicked) {
-        render::application::GetRenderGateway().ResetView();
+        GetWorkbenchRuntime().ShellController().ResetView();
     }
 }
 
@@ -510,34 +505,19 @@ void Toolbar::renderCellAlignButtons() {
 
     const ImVec2 btnSize(32.0f, 46.0f);
     if (ImGui::Button(labels[0], btnSize)) {
-        if (isBzMode) {
-            render::application::GetRenderGateway().AlignCameraToIcellAxis(0);
-        }
-        else {
-            render::application::GetRenderGateway().AlignCameraToCellAxis(0);
-        }
+        GetWorkbenchRuntime().ShellController().AlignCameraToActiveCellAxis(0);
     }
     App::AddTooltip(isBzMode ? "Align camera to icell[0] direction" : "Align camera to cell[0] direction");
 
     ImGui::SameLine();
     if (ImGui::Button(labels[1], btnSize)) {
-        if (isBzMode) {
-            render::application::GetRenderGateway().AlignCameraToIcellAxis(1);
-        }
-        else {
-            render::application::GetRenderGateway().AlignCameraToCellAxis(1);
-        }
+        GetWorkbenchRuntime().ShellController().AlignCameraToActiveCellAxis(1);
     }
     App::AddTooltip(isBzMode ? "Align camera to icell[1] direction" : "Align camera to cell[1] direction");
 
     ImGui::SameLine();
     if (ImGui::Button(labels[2], btnSize)) {
-        if (isBzMode) {
-            render::application::GetRenderGateway().AlignCameraToIcellAxis(2);
-        }
-        else {
-            render::application::GetRenderGateway().AlignCameraToCellAxis(2);
-        }
+        GetWorkbenchRuntime().ShellController().AlignCameraToActiveCellAxis(2);
     }
     App::AddTooltip(isBzMode ? "Align camera to icell[2] direction" : "Align camera to cell[2] direction");
 

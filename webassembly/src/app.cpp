@@ -1,7 +1,9 @@
 ﻿#include "app.h"
 #include "shell/runtime/workbench_runtime.h"
+#include "shell/application/workbench_controller.h"
+#include "shell/application/shell_state_query_service.h"
+#include "shell/application/shell_state_command_service.h"
 #include "font_manager.h"
-#include "file_loader.h"
 #include "vtk_viewer.h"
 #include "test_window.h"
 #include "model_tree.h"
@@ -152,6 +154,164 @@ void App::shutdownLogger() {
     SPDLOG_DEBUG("Logger shutdown");
 }
 
+void App::syncShellStateFromStore() {
+    const shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateQuery().State();
+
+    m_bFullDockSpace = shellState.fullDockSpace;
+#ifdef SHOW_IMGUI_DEMO
+    m_bShowDemoWindow = shellState.showDemoWindow;
+#endif
+#ifdef SHOW_FONT_ICONS
+    m_bShowFontIcons = shellState.showFontIcons;
+#endif
+    m_bShowVtkViewer = shellState.showVtkViewer;
+    m_bShowModelTree = shellState.showModelTree;
+    m_bShowTestWindow = shellState.showTestWindow;
+    m_bShowMeshDetail = shellState.showMeshDetail;
+    m_bShowPeriodicTableWindow = shellState.showPeriodicTableWindow;
+    m_bShowCrystalTemplatesWindow = shellState.showCrystalTemplatesWindow;
+    m_bShowBrillouinZonePlotWindow = shellState.showBrillouinZonePlotWindow;
+    m_bShowCreatedAtomsWindow = shellState.showCreatedAtomsWindow;
+    m_bShowBondsManagementWindow = shellState.showBondsManagementWindow;
+    m_bShowCellInformationWindow = shellState.showCellInformationWindow;
+    m_bShowChargeDensityViewerWindow = shellState.showChargeDensityViewerWindow;
+    m_bShowSliceViewerWindow = shellState.showSliceViewerWindow;
+    m_RequestModelTreeFocus = shellState.requestModelTreeFocus;
+    m_PendingFocusPassesRemaining = shellState.pendingFocusPassesRemaining;
+    m_ResetWindowGeometryPassesRemaining = shellState.resetWindowGeometryPassesRemaining;
+    m_ShouldApplyInitialLayout = shellState.shouldApplyInitialLayout;
+
+    switch (shellState.pendingFocusTarget) {
+    case shell::domain::ShellFocusTarget::None:
+        m_PendingFocusTarget = FocusTarget::None;
+        break;
+    case shell::domain::ShellFocusTarget::ModelTree:
+        m_PendingFocusTarget = FocusTarget::ModelTree;
+        break;
+    case shell::domain::ShellFocusTarget::PeriodicTable:
+        m_PendingFocusTarget = FocusTarget::PeriodicTable;
+        break;
+    case shell::domain::ShellFocusTarget::CrystalTemplates:
+        m_PendingFocusTarget = FocusTarget::CrystalTemplates;
+        break;
+    case shell::domain::ShellFocusTarget::BrillouinZonePlot:
+        m_PendingFocusTarget = FocusTarget::BrillouinZonePlot;
+        break;
+    case shell::domain::ShellFocusTarget::CreatedAtoms:
+        m_PendingFocusTarget = FocusTarget::CreatedAtoms;
+        break;
+    case shell::domain::ShellFocusTarget::BondsManagement:
+        m_PendingFocusTarget = FocusTarget::BondsManagement;
+        break;
+    case shell::domain::ShellFocusTarget::CellInformation:
+        m_PendingFocusTarget = FocusTarget::CellInformation;
+        break;
+    case shell::domain::ShellFocusTarget::ChargeDensityViewer:
+        m_PendingFocusTarget = FocusTarget::ChargeDensityViewer;
+        break;
+    case shell::domain::ShellFocusTarget::SliceViewer:
+        m_PendingFocusTarget = FocusTarget::SliceViewer;
+        break;
+    }
+
+    switch (shellState.pendingLayoutPreset) {
+    case shell::domain::ShellLayoutPreset::None:
+        m_PendingLayoutPreset = LayoutPreset::None;
+        break;
+    case shell::domain::ShellLayoutPreset::DefaultFloating:
+        m_PendingLayoutPreset = LayoutPreset::DefaultFloating;
+        break;
+    case shell::domain::ShellLayoutPreset::DockRight:
+        m_PendingLayoutPreset = LayoutPreset::DockRight;
+        break;
+    case shell::domain::ShellLayoutPreset::DockBottom:
+        m_PendingLayoutPreset = LayoutPreset::DockBottom;
+        break;
+    case shell::domain::ShellLayoutPreset::ResetDocking:
+        m_PendingLayoutPreset = LayoutPreset::ResetDocking;
+        break;
+    }
+}
+
+void App::syncShellStateToStore() {
+    shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateCommand().MutableState();
+
+    shellState.fullDockSpace = m_bFullDockSpace;
+#ifdef SHOW_IMGUI_DEMO
+    shellState.showDemoWindow = m_bShowDemoWindow;
+#endif
+#ifdef SHOW_FONT_ICONS
+    shellState.showFontIcons = m_bShowFontIcons;
+#endif
+    shellState.showVtkViewer = m_bShowVtkViewer;
+    shellState.showModelTree = m_bShowModelTree;
+    shellState.showTestWindow = m_bShowTestWindow;
+    shellState.showMeshDetail = m_bShowMeshDetail;
+    shellState.showPeriodicTableWindow = m_bShowPeriodicTableWindow;
+    shellState.showCrystalTemplatesWindow = m_bShowCrystalTemplatesWindow;
+    shellState.showBrillouinZonePlotWindow = m_bShowBrillouinZonePlotWindow;
+    shellState.showCreatedAtomsWindow = m_bShowCreatedAtomsWindow;
+    shellState.showBondsManagementWindow = m_bShowBondsManagementWindow;
+    shellState.showCellInformationWindow = m_bShowCellInformationWindow;
+    shellState.showChargeDensityViewerWindow = m_bShowChargeDensityViewerWindow;
+    shellState.showSliceViewerWindow = m_bShowSliceViewerWindow;
+    shellState.requestModelTreeFocus = m_RequestModelTreeFocus;
+    shellState.pendingFocusPassesRemaining = m_PendingFocusPassesRemaining;
+    shellState.resetWindowGeometryPassesRemaining = m_ResetWindowGeometryPassesRemaining;
+    shellState.shouldApplyInitialLayout = m_ShouldApplyInitialLayout;
+
+    switch (m_PendingFocusTarget) {
+    case FocusTarget::None:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::None;
+        break;
+    case FocusTarget::ModelTree:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::ModelTree;
+        break;
+    case FocusTarget::PeriodicTable:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::PeriodicTable;
+        break;
+    case FocusTarget::CrystalTemplates:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::CrystalTemplates;
+        break;
+    case FocusTarget::BrillouinZonePlot:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::BrillouinZonePlot;
+        break;
+    case FocusTarget::CreatedAtoms:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::CreatedAtoms;
+        break;
+    case FocusTarget::BondsManagement:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::BondsManagement;
+        break;
+    case FocusTarget::CellInformation:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::CellInformation;
+        break;
+    case FocusTarget::ChargeDensityViewer:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::ChargeDensityViewer;
+        break;
+    case FocusTarget::SliceViewer:
+        shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::SliceViewer;
+        break;
+    }
+
+    switch (m_PendingLayoutPreset) {
+    case LayoutPreset::None:
+        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::None;
+        break;
+    case LayoutPreset::DefaultFloating:
+        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::DefaultFloating;
+        break;
+    case LayoutPreset::DockRight:
+        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::DockRight;
+        break;
+    case LayoutPreset::DockBottom:
+        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::DockBottom;
+        break;
+    case LayoutPreset::ResetDocking:
+        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::ResetDocking;
+        break;
+    }
+}
+
 void App::InitIdbfs() {
     EM_ASM({
         const path = UTF8ToString($0);
@@ -162,6 +322,8 @@ void App::InitIdbfs() {
 }
 
 void App::SaveImGuiIniFile() {
+    Instance().syncShellStateFromStore();
+
     // Get ImGui setting data
     size_t dataSize = 0;
     const char* data = ImGui::SaveIniSettingsToMemory(&dataSize);
@@ -241,6 +403,7 @@ void App::LoadImGuiIniFile() {
         Instance().m_bShowCellInformationWindow = false;
         Instance().m_bShowChargeDensityViewerWindow = false;
         Instance().m_bShowSliceViewerWindow = false;
+        Instance().syncShellStateToStore();
         return;
     }
     Instance().m_ShouldApplyInitialLayout = false;
@@ -308,6 +471,8 @@ void App::LoadImGuiIniFile() {
     if (!Instance().m_bShowModelTree) {
         Instance().m_RequestModelTreeFocus = false;
     }
+
+    Instance().syncShellStateToStore();
 }
 
 void App::setColorStyle(ColorStyle style) {
@@ -419,6 +584,8 @@ void App::Render() {
 }
 
 void App::renderDockSpaceAndMenu() {
+    syncShellStateFromStore();
+
     static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
     FontManager& fontManager = GetWorkbenchRuntime().FontRegistry();
 
@@ -604,20 +771,18 @@ void App::renderDockSpaceAndMenu() {
     }
 
     if (ImGui::BeginMenuBar()) {
+        shell::application::WorkbenchController& controller = GetWorkbenchRuntime().ShellController();
+
         if (ImGui::BeginMenu("  Crystal Viewer")) {
             if (ImGui::MenuItem(ICON_FA6_CIRCLE_INFO "  About")) {
                 m_bShowAboutPopup = true;
             }
             ImGui::EndMenu();
         }
-        auto requestFocus = [&](FocusTarget target) {
-            m_PendingFocusTarget = target;
-            m_PendingFocusPassesRemaining = 2;
-        };
 
         if (ImGui::BeginMenu("  File")) {
             if (ImGui::MenuItem("Open Structure File")) {
-                GetWorkbenchRuntime().RequestOpenStructureImport();
+                controller.RequestOpenStructureImport();
             }
             AddTooltip("Open Structure File", "Import XSF, XSF(Grid), vasp CHGCAR");
 
@@ -630,111 +795,78 @@ void App::renderDockSpaceAndMenu() {
 
         if (ImGui::BeginMenu("  Edit")) {
             if (ImGui::MenuItem("Atoms")) {
-                m_bShowCreatedAtomsWindow = true;
-                requestFocus(FocusTarget::CreatedAtoms);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(
-                    AtomsTemplate::EditorSectionRequest::Atoms);
+                controller.OpenEditorPanel(shell::application::EditorPanelAction::Atoms);
             }
             if (ImGui::MenuItem("Bonds")) {
-                m_bShowBondsManagementWindow = true;
-                requestFocus(FocusTarget::BondsManagement);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(
-                    AtomsTemplate::EditorSectionRequest::Bonds);
+                controller.OpenEditorPanel(shell::application::EditorPanelAction::Bonds);
             }
             if (ImGui::MenuItem("Cell")) {
-                m_bShowCellInformationWindow = true;
-                requestFocus(FocusTarget::CellInformation);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(
-                    AtomsTemplate::EditorSectionRequest::Cell);
+                controller.OpenEditorPanel(shell::application::EditorPanelAction::Cell);
             }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("  Build")) {
             if (ImGui::MenuItem("Add atoms")) {
-                m_bShowPeriodicTableWindow = true;
-                requestFocus(FocusTarget::PeriodicTable);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
-                    AtomsTemplate::BuilderSectionRequest::AddAtoms);
+                controller.OpenBuilderPanel(shell::application::BuilderPanelAction::AddAtoms);
             }
             if (ImGui::MenuItem("Bravais Lattice Templates")) {
-                m_bShowCrystalTemplatesWindow = true;
-                requestFocus(FocusTarget::CrystalTemplates);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
-                    AtomsTemplate::BuilderSectionRequest::BravaisLatticeTemplates);
+                controller.OpenBuilderPanel(
+                    shell::application::BuilderPanelAction::BravaisLatticeTemplates);
             }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("  Measurement")) {
-            measurement::application::MeasurementService& measurementService =
-                GetWorkbenchRuntime().MeasurementFeature();
-            const bool isDistanceMode =
-                measurementService.GetMode() == measurement::application::MeasurementMode::Distance;
-            const bool isAngleMode =
-                measurementService.GetMode() == measurement::application::MeasurementMode::Angle;
-            const bool isDihedralMode =
-                measurementService.GetMode() == measurement::application::MeasurementMode::Dihedral;
-            const bool isGeometricCenterMode =
-                measurementService.GetMode() == measurement::application::MeasurementMode::GeometricCenter;
-            const bool isCenterOfMassMode =
-                measurementService.GetMode() == measurement::application::MeasurementMode::CenterOfMass;
+            const bool isDistanceMode = controller.IsMeasurementModeActive(
+                measurement::application::MeasurementMode::Distance);
+            const bool isAngleMode = controller.IsMeasurementModeActive(
+                measurement::application::MeasurementMode::Angle);
+            const bool isDihedralMode = controller.IsMeasurementModeActive(
+                measurement::application::MeasurementMode::Dihedral);
+            const bool isGeometricCenterMode = controller.IsMeasurementModeActive(
+                measurement::application::MeasurementMode::GeometricCenter);
+            const bool isCenterOfMassMode = controller.IsMeasurementModeActive(
+                measurement::application::MeasurementMode::CenterOfMass);
             if (ImGui::MenuItem("Distance", nullptr, isDistanceMode)) {
-                measurementService.EnterMode(measurement::application::MeasurementMode::Distance);
+                controller.EnterMeasurementMode(measurement::application::MeasurementMode::Distance);
             }
             if (ImGui::MenuItem("Angle", nullptr, isAngleMode)) {
-                measurementService.EnterMode(measurement::application::MeasurementMode::Angle);
+                controller.EnterMeasurementMode(measurement::application::MeasurementMode::Angle);
             }
             if (ImGui::MenuItem("Dihedral", nullptr, isDihedralMode)) {
-                measurementService.EnterMode(measurement::application::MeasurementMode::Dihedral);
+                controller.EnterMeasurementMode(measurement::application::MeasurementMode::Dihedral);
             }
             if (ImGui::MenuItem("Geometric Center", nullptr, isGeometricCenterMode)) {
-                measurementService.EnterMode(measurement::application::MeasurementMode::GeometricCenter);
+                controller.EnterMeasurementMode(
+                    measurement::application::MeasurementMode::GeometricCenter);
             }
             if (ImGui::MenuItem("Center of Mass", nullptr, isCenterOfMassMode)) {
-                measurementService.EnterMode(measurement::application::MeasurementMode::CenterOfMass);
+                controller.EnterMeasurementMode(
+                    measurement::application::MeasurementMode::CenterOfMass);
             }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("  Data")) {
             if (ImGui::MenuItem("Isosurface")) {
-                m_bShowModelTree = true;
-                m_bShowChargeDensityViewerWindow = true;
-                requestFocus(FocusTarget::ChargeDensityViewer);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
-                    AtomsTemplate::DataMenuRequest::Isosurface);
+                controller.OpenDataPanel(shell::application::DataPanelAction::Isosurface);
             }
             if (ImGui::MenuItem("Surface")) {
-                m_bShowModelTree = true;
-                m_bShowChargeDensityViewerWindow = true;
-                requestFocus(FocusTarget::ChargeDensityViewer);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
-                    AtomsTemplate::DataMenuRequest::Surface);
+                controller.OpenDataPanel(shell::application::DataPanelAction::Surface);
             }
             if (ImGui::MenuItem("Volumetric")) {
-                m_bShowModelTree = true;
-                m_bShowChargeDensityViewerWindow = true;
-                requestFocus(FocusTarget::ChargeDensityViewer);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
-                    AtomsTemplate::DataMenuRequest::Volumetric);
+                controller.OpenDataPanel(shell::application::DataPanelAction::Volumetric);
             }
             if (ImGui::MenuItem("Plane")) {
-                m_bShowModelTree = true;
-                m_bShowSliceViewerWindow = true;
-                requestFocus(FocusTarget::SliceViewer);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(
-                    AtomsTemplate::DataMenuRequest::Plane);
+                controller.OpenDataPanel(shell::application::DataPanelAction::Plane);
             }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("  Utilities")) {
             if (ImGui::MenuItem("Brillouin Zone")) {
-                m_bShowBrillouinZonePlotWindow = true;
-                requestFocus(FocusTarget::BrillouinZonePlot);
-                GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
-                    AtomsTemplate::BuilderSectionRequest::BrillouinZone);
+                controller.OpenBuilderPanel(shell::application::BuilderPanelAction::BrillouinZone);
             }
             ImGui::EndMenu();
         }
@@ -815,26 +947,28 @@ void App::renderDockSpaceAndMenu() {
         }
         ImGui::Separator();
         if (ImGui::SmallButton("Layout 1")) {
-            m_PendingLayoutPreset = LayoutPreset::DefaultFloating;
+            controller.RequestLayoutPreset(shell::domain::ShellLayoutPreset::DefaultFloating);
         }
         AddTooltip("Layout 1", "Viewer window uses the default floating placement.");
         ImGui::SameLine();
         if (ImGui::SmallButton("Layout 2")) {
-            m_PendingLayoutPreset = LayoutPreset::DockRight;
+            controller.RequestLayoutPreset(shell::domain::ShellLayoutPreset::DockRight);
         }
         AddTooltip("Layout 2", "Left 30%: Model Tree/tool windows, Right 15%: Charge Density(top)+Plane(bottom), Center: Viewer.");
         ImGui::SameLine();
         if (ImGui::SmallButton("Layout 3")) {
-            m_PendingLayoutPreset = LayoutPreset::DockBottom;
+            controller.RequestLayoutPreset(shell::domain::ShellLayoutPreset::DockBottom);
         }
         AddTooltip("Layout 3", "Dock Viewer (60%) top -- Model Tree and split tool windows (40%) bottom.");
         ImGui::SameLine();
         if (ImGui::SmallButton("Reset")) {
-            m_PendingLayoutPreset = LayoutPreset::ResetDocking;
+            controller.RequestLayoutPreset(shell::domain::ShellLayoutPreset::ResetDocking);
         }
         AddTooltip("Reset", "Reset docking and restore default window geometry.");
         ImGui::EndMenuBar();
     }
+
+    syncShellStateToStore();
     ImGui::End();
 }
 
@@ -921,6 +1055,8 @@ void App::renderAboutPopup() {
 }
 
 void App::renderImGuiWindows() {
+    syncShellStateFromStore();
+
     // About 팝업 렌더링
     if (m_bShowAboutPopup) {
         renderAboutPopup();
@@ -1095,6 +1231,8 @@ void App::renderImGuiWindows() {
             m_PendingFocusTarget = FocusTarget::None;
         }
     }
+
+    syncShellStateToStore();
 }
 
 double App::DevicePixelRatio() {
@@ -1171,11 +1309,46 @@ void App::SetProgressPopupText(const std::string& title, const std::string& text
     Instance().setProgressPopupText(title, text);
 }
 
+void App::ShowCrystalBuilderWindow(bool show) {
+    App& app = Instance();
+    app.syncShellStateFromStore();
+    app.m_bShowPeriodicTableWindow = show;
+    app.syncShellStateToStore();
+}
+
+void App::ShowCrystalEditorWindow(bool show) {
+    App& app = Instance();
+    app.syncShellStateFromStore();
+    app.m_bShowCreatedAtomsWindow = show;
+    app.syncShellStateToStore();
+}
+
+void App::ShowAdvancedViewWindow(bool show) {
+    App& app = Instance();
+    app.syncShellStateFromStore();
+    app.m_bShowChargeDensityViewerWindow = show;
+    app.syncShellStateToStore();
+}
+
+void App::ShowSliceViewerWindow(bool show) {
+    App& app = Instance();
+    app.syncShellStateFromStore();
+    app.m_bShowSliceViewerWindow = show;
+    app.syncShellStateToStore();
+}
+
+void App::ShowAtomsTemplateWindow(bool show) {
+    ShowCrystalBuilderWindow(show);
+}
+
 void App::RequestLayout1() {
-    Instance().m_PendingLayoutPreset = LayoutPreset::DefaultFloating;
-    Instance().m_RequestModelTreeFocus = false;
-    Instance().m_PendingFocusTarget = FocusTarget::None;
-    Instance().m_PendingFocusPassesRemaining = 0;
+    App& app = Instance();
+    app.syncShellStateFromStore();
+    app.m_PendingLayoutPreset = LayoutPreset::DefaultFloating;
+    app.m_RequestModelTreeFocus = false;
+    app.m_PendingFocusTarget = FocusTarget::None;
+    app.m_PendingFocusPassesRemaining = 0;
+    app.syncShellStateToStore();
 }
 
 void App::setProgressPopupText(const std::string& title, const std::string& text) {
