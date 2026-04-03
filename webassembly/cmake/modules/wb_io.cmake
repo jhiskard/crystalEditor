@@ -2,6 +2,7 @@ target_sources(wb_io PRIVATE
   webassembly/src/file_loader.cpp
   webassembly/src/unv_reader.cpp
   webassembly/src/io/application/import_apply_service.cpp
+  webassembly/src/io/application/import_workflow_service.cpp
   webassembly/src/io/application/import_orchestrator.cpp
   webassembly/src/io/application/parser_worker_service.cpp
   webassembly/src/io/infrastructure/xsf_parser.cpp

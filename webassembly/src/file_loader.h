@@ -2,7 +2,7 @@
 
 #include "macro/singleton_macro.h"
 #include "io/application/import_apply_service.h"
-#include "io/application/import_orchestrator.h"
+#include "io/application/import_workflow_service.h"
 #include "io/application/parser_worker_service.h"
 
 // Standard library
@@ -54,12 +54,10 @@ private:
     std::thread m_LoadingThread;
     io::application::ParserWorkerService m_ParserWorkerService;
     io::application::ImportApplyService m_ImportApplyService;
-    io::application::ImportOrchestrator m_ImportOrchestrator;
-    io::application::ReplaceSceneImportSnapshot m_ReplaceSceneImportSnapshot;
+    io::application::ImportWorkflowService m_ImportWorkflowService;
 
     bool m_ShowStructureReplacePopup = false;
     bool m_ReplaceSceneOnNextStructureImport = false;
-    bool m_ReplaceSceneImportTransactionActive = false;
     std::string m_DeferredStructureFileName;
     bool m_ShowStructureImportErrorPopup = false;
     std::string m_StructureImportErrorTitle;
