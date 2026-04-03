@@ -237,4 +237,4 @@ W0 산출 로그:
 - [x] W3 panel singleton 해체 1차
 - [x] W4 panel singleton 해체 2차 + app 축소
 - [x] W5 정적 게이트 도입
-- [ ] W6 빌드/테스트 + 종료 판정 문서화
+- [x] W6 빌드/테스트 + 종료 판정 문서화

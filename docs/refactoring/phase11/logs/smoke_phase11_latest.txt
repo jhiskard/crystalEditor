@@ -1,0 +1,10 @@
+
+> vtk-workbench@0.1.0 test:smoke
+> playwright test
+
+
+Running 1 test using 1 worker
+
+  ok 1 [msedge] › tests\e2e\workbench-smoke.spec.ts:8:1 › imports structure and grid without runtime errors (1.2s)
+
+  1 passed (2.1s)

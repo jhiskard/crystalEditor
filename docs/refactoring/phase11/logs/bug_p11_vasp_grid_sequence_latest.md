@@ -2,7 +2,7 @@
 
 - Bug ID: `P9-BUG-01`
 - Scenario: `XSF(Grid) -> VASP -> XSF(Grid) -> VASP`
-- Last updated: `2026-04-03 (KST)`
+- Last updated: `2026-04-03 (KST, W6)`
 - Status: `Deferred`
 
 ## 1) Baseline
@@ -36,3 +36,13 @@
 1. W3/W4 changed shell-panel runtime ownership and menu/toolbar routing boundaries.
 2. Import transaction/data-clear sequence logic was not directly changed in W3~W5 scope.
 3. Status remains `Deferred` and is carried forward to W6 smoke/manual verification.
+
+## 6) W6 Update
+
+1. W6 gate/build/test/smoke execution completed:
+   - `check_phase11_shell_panel_objectization_latest.txt`: PASS
+   - `build_phase11_latest.txt`: PASS
+   - `unit_test_phase11_latest.txt`: PASS (`1/1`)
+   - `smoke_phase11_latest.txt`: PASS (`1 passed`)
+2. The current smoke test validates runtime error absence in import flow, but does not fully automate the exact repetition sequence (`XSF(Grid) -> VASP -> XSF(Grid) -> VASP`).
+3. Final status remains `Deferred` and is carried over to Phase 12 follow-up tracking.
