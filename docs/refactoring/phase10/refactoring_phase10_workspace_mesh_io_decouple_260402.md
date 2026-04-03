@@ -235,12 +235,12 @@ W0 산출 로그:
 - [x] W0 기준선/버그 로그 고정
 - [x] W1 workspace 저장소/계약 정립
 - [x] W2 MeshManager 해체
-- [ ] W3 FileLoader 축소 + import workflow 집중
-- [ ] W4 panel read-model 전환 + `P9-BUG-01` 추적
-- [ ] W5 정적 게이트 도입
+- [x] W3 FileLoader 축소 + import workflow 집중
+- [x] W4 panel read-model 전환 + `P9-BUG-01` 추적
+- [x] W5 정적 게이트 도입
 - [ ] W6 빌드/테스트 + 종료 판정 문서화
 
-## 11. Execution Update (2026-04-02 KST, W0~W2)
+## 11. Execution Update (2026-04-03 KST, W0~W5)
 
 - [x] W0 기준선/버그 로그 고정
   - `workspace_mesh_io_inventory_phase10_latest.md` 갱신
@@ -251,3 +251,13 @@ W0 산출 로그:
 - [x] W2 MeshManager 해체(1차)
   - `mesh_repository`, `mesh_query_service`, `mesh_command_service` 추가
   - `import_orchestrator` + `mesh/presentation/model_tree_*` 경로를 mesh service 경유로 전환
+- [x] W3 FileLoader 축소 + import workflow 집중
+  - `import_workflow_service` 추가
+  - replace-scene import transaction을 `FileLoader`에서 workflow 서비스로 이관
+- [x] W4 panel read-model 전환 + `P9-BUG-01` 추적
+  - `model_tree` selected mesh id를 workspace command로 동기화
+  - `mesh_group_detail` 포함 panel 경로 singleton 의존 축소
+  - `bug_p10_vasp_grid_sequence_latest.md` 상태/분석 갱신(`Deferred`)
+- [x] W5 정적 게이트 도입
+  - `check_phase10_workspace_mesh_io_decouple.ps1` 추가
+  - `check_phase10_workspace_mesh_io_decouple_latest.txt` PASS 로그 확보
