@@ -5,12 +5,11 @@
 #include "shell/application/shell_state_command_service.h"
 #include "font_manager.h"
 #include "vtk_viewer.h"
-#include "test_window.h"
 #include "model_tree.h"
 #include "mesh_detail.h"
 #include "mesh_manager.h"
 #include "mesh_group_detail.h"
-#include "measurement/application/measurement_service.h"
+#include "mesh.h"
 
 // Add AtomsTemplate
 // #include "atoms_template.h"
@@ -873,15 +872,14 @@ void App::renderDockSpaceAndMenu() {
 
         bool openSettings = ImGui::BeginMenu(ICON_FA6_GEAR"  Settings");
         if (openSettings) {
-            bool nodeInfoEnabled = GetWorkbenchRuntime().AtomsTemplateFacade().IsNodeInfoEnabled();
-            VtkViewer& viewer = GetWorkbenchRuntime().Viewer();
-            bool viewerFpsOverlayEnabled = viewer.IsPerformanceOverlayEnabled();
+            bool nodeInfoEnabled = controller.IsNodeInfoEnabled();
+            bool viewerFpsOverlayEnabled = controller.IsViewerFpsOverlayEnabled();
 
             if (ImGui::MenuItem("Node Tooltip", nullptr, &nodeInfoEnabled)) {
-                GetWorkbenchRuntime().AtomsTemplateFacade().SetNodeInfoEnabled(nodeInfoEnabled);
+                controller.SetNodeInfoEnabled(nodeInfoEnabled);
             }
             if (ImGui::MenuItem("Viewer FPS Overlay", nullptr, &viewerFpsOverlayEnabled)) {
-                viewer.SetPerformanceOverlayEnabled(viewerFpsOverlayEnabled);
+                controller.SetViewerFpsOverlayEnabled(viewerFpsOverlayEnabled);
             }
             ImGui::Separator();
             if (ImGui::BeginMenu("Style")) {
@@ -973,16 +971,13 @@ void App::renderDockSpaceAndMenu() {
 }
 
 void App::InitImGuiWindows() {
-    // ImGui::LoadIniSettingsFromMemory("", 0); // 저장된 레이아웃 무시
-    VtkViewer& viewer = GetWorkbenchRuntime().Viewer();
-    // VtkViewer& viewer2 = GetWorkbenchRuntime().Viewer();
-    TestWindow& testWindow = GetWorkbenchRuntime().TestWindowPanel();
-    ModelTree& modelTree = GetWorkbenchRuntime().ModelTreePanel();
-    MeshDetail& meshDetail = GetWorkbenchRuntime().MeshDetailPanel();
-    MeshGroupDetail& meshGroupDetail = GetWorkbenchRuntime().MeshGroupDetailPanel();
-
-    // Add AtomsTemplate
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    // Keep panel/materialization warm-up in the runtime composition root path.
+    (void)GetWorkbenchRuntime().Viewer();
+    (void)GetWorkbenchRuntime().TestWindowPanel();
+    (void)GetWorkbenchRuntime().ModelTreePanel();
+    (void)GetWorkbenchRuntime().MeshDetailPanel();
+    (void)GetWorkbenchRuntime().MeshGroupDetailPanel();
+    (void)GetWorkbenchRuntime().AtomsTemplateFacade();
 }
 
 void App::renderAboutPopup() {

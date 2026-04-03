@@ -72,6 +72,26 @@ public:
     void OpenDataPanel(DataPanelAction action);
 
     /**
+     * @brief Returns whether node tooltip info is enabled.
+     */
+    bool IsNodeInfoEnabled() const;
+
+    /**
+     * @brief Enables/disables node tooltip info.
+     */
+    void SetNodeInfoEnabled(bool enabled);
+
+    /**
+     * @brief Returns whether viewer FPS overlay is enabled.
+     */
+    bool IsViewerFpsOverlayEnabled() const;
+
+    /**
+     * @brief Enables/disables viewer FPS overlay.
+     */
+    void SetViewerFpsOverlayEnabled(bool enabled);
+
+    /**
      * @brief Returns whether a measurement mode is currently active.
      */
     bool IsMeasurementModeActive(measurement::application::MeasurementMode mode) const;

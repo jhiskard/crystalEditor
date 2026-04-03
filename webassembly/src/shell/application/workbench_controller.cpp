@@ -4,7 +4,9 @@
 #include "../../atoms/atoms_template.h"
 #include "../../file_loader.h"
 #include "../../mesh_manager.h"
+#include "../../vtk_viewer.h"
 #include "../../render/application/render_gateway.h"
+#include "../../render/infrastructure/vtk_render_gateway.h"
 
 #include <algorithm>
 
@@ -108,6 +110,22 @@ void WorkbenchController::OpenDataPanel(DataPanelAction action) {
         AtomsTemplate::Instance().RequestDataMenu(AtomsTemplate::DataMenuRequest::Plane);
         break;
     }
+}
+
+bool WorkbenchController::IsNodeInfoEnabled() const {
+    return AtomsTemplate::Instance().IsNodeInfoEnabled();
+}
+
+void WorkbenchController::SetNodeInfoEnabled(bool enabled) {
+    AtomsTemplate::Instance().SetNodeInfoEnabled(enabled);
+}
+
+bool WorkbenchController::IsViewerFpsOverlayEnabled() const {
+    return render::infrastructure::GetLegacyViewerFacade().IsPerformanceOverlayEnabled();
+}
+
+void WorkbenchController::SetViewerFpsOverlayEnabled(bool enabled) {
+    render::infrastructure::GetLegacyViewerFacade().SetPerformanceOverlayEnabled(enabled);
 }
 
 bool WorkbenchController::IsMeasurementModeActive(measurement::application::MeasurementMode mode) const {
