@@ -1,36 +1,43 @@
-#pragma once
-
-#include "macro/singleton_macro.h"
+﻿#pragma once
 
 // Standard library
 #include <cstdint>
 
 class MeshGroup;
 
-
+/**
+ * @brief Mesh-group detail presenter panel.
+ */
 class MeshGroupDetail {
-    DECLARE_SINGLETON(MeshGroupDetail)
-
 public:
+    /**
+     * @brief Compatibility accessor resolved via runtime-owned panel instance.
+     * @note Phase 11 runtime shim. Remove this wrapper in Phase 12.
+     */
+    static MeshGroupDetail& Instance();
+
+    MeshGroupDetail();
+    ~MeshGroupDetail();
+
     void Render(int32_t meshId);
 
-    static int32_t GetSelectedMeshGroupId() { return s_SelectedMeshGroupId; }
+    static int32_t GetSelectedMeshGroupId() { return Instance().m_SelectedMeshGroupId; }
 
     void SetUiPointSize(float size) { m_UiPointSize = size; }
     void SetUiGroupColor(const double* color);
 
-    void SetHasPointSizeChanged(bool hasChanged) { s_HasPointSizeChanged = hasChanged; }
-    void SetHasGroupColorChanged(bool hasChanged) { s_HasGroupColorChanged = hasChanged; }
+    void SetHasPointSizeChanged(bool hasChanged) { m_HasPointSizeChanged = hasChanged; }
+    void SetHasGroupColorChanged(bool hasChanged) { m_HasGroupColorChanged = hasChanged; }
 
 private:
-    static int32_t s_SelectedMeshGroupId;
-    static int32_t s_DeleteMeshGroupId;
+    int32_t m_SelectedMeshGroupId = -1;
+    int32_t m_DeleteMeshGroupId = -1;
 
     float m_UiPointSize { 0.0f };
     float m_UiGroupColor[3] { 0.0f, 0.0f, 0.0f };
 
-    static bool s_HasPointSizeChanged;
-    static bool s_HasGroupColorChanged;
+    bool m_HasPointSizeChanged = false;
+    bool m_HasGroupColorChanged = false;
 
     void renderTableRow(const char* item, int32_t value);
     void renderTableRow(const char* item, const char* value = nullptr);

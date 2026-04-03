@@ -1,4 +1,4 @@
-#include "../../model_tree.h"
+﻿#include "../../model_tree.h"
 #include "../../app.h"
 #include "../../font_manager.h"
 #include "../../mesh_detail.h"
@@ -68,18 +68,18 @@ void ModelTree::renderMeshTable(ImGuiTableFlags tableFlags) {
 
     // Delete mesh 처리 (일반 VTK 메시)
     MeshDetail& meshDetail = MeshDetail::Instance();
-    if (s_DeleteMeshId != -1) {
-        if (s_DeleteMeshId != 0) {
-            mesh::application::GetMeshCommandService().DeleteMesh(s_DeleteMeshId);
+    if (m_DeleteMeshId != -1) {
+        if (m_DeleteMeshId != 0) {
+            mesh::application::GetMeshCommandService().DeleteMesh(m_DeleteMeshId);
         } else {
             SPDLOG_ERROR("Cannot delete the root node.");
         }
-        s_DeleteMeshId = -1;
+        m_DeleteMeshId = -1;
     }
     else {
         // 더블클릭으로 선택 해제
         if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsWindowFocused()) {
-            s_SelectedMeshId = -1;
+            m_SelectedMeshId = -1;
 
             meshDetail.SetHasEdgeMeshColorChanged(false);
             meshDetail.SetHasEdgeMeshOpacityChanged(false);
@@ -139,7 +139,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
     // Column 0: Mesh name
     ImGui::TableSetColumnIndex(0);
     std::string meshNodeId = std::to_string(node->GetId());
-    ImGuiTreeNodeFlags selectFlag = s_SelectedMeshId == node->GetId() ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None;
+    ImGuiTreeNodeFlags selectFlag = m_SelectedMeshId == node->GetId() ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None;
     
     if (node->GetLeftChild()) {
         isTreeOpen = ImGui::TreeNodeEx(meshNodeId.c_str(), flagOpen | selectFlag, ICON_FA6_CUBES"  %s", mesh->GetName());
@@ -156,8 +156,8 @@ void ModelTree::renderMeshTree(TreeNode* node) {
 
         MeshDetail& meshDetail = MeshDetail::Instance();
 
-        if (s_SelectedMeshId != node->GetId()) {
-            s_SelectedMeshId = node->GetId();
+        if (m_SelectedMeshId != node->GetId()) {
+            m_SelectedMeshId = node->GetId();
 
             if (!isXsfStructure) {
                 meshDetail.SetUiEdgeMeshColor(mesh->GetEdgeMeshColor());
@@ -186,7 +186,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
             }
         }
         else {
-            s_SelectedMeshId = -1;
+            m_SelectedMeshId = -1;
 
             meshDetail.SetHasEdgeMeshColorChanged(false);
             meshDetail.SetHasEdgeMeshOpacityChanged(false);
@@ -257,8 +257,8 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         TextColoredCentered(ImVec4(0.7f, 0.0f, 0.0f, 1.0f), ICON_FA6_TRASH_CAN);
         
         if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            s_PendingDeleteMeshId = node->GetId();
-            s_ShowDeleteConfirmPopup = true;
+            m_PendingDeleteMeshId = node->GetId();
+            m_ShowDeleteConfirmPopup = true;
         }
     }
 
@@ -271,3 +271,4 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         renderMeshTree(node->GetRightSiblingMutable());
     }
 }
+

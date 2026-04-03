@@ -1,4 +1,4 @@
-#include "../../model_tree.h"
+﻿#include "../../model_tree.h"
 #include "../../atoms/atoms_template.h"
 #include "../application/mesh_command_service.h"
 #include "../application/mesh_query_service.h"
@@ -6,7 +6,7 @@
 #include <imgui.h>
 
 void ModelTree::renderDeleteConfirmPopup() {
-    if (s_ShowDeleteConfirmPopup) {
+    if (m_ShowDeleteConfirmPopup) {
         ImGui::OpenPopup("Delete Confirmation");
     }
     
@@ -16,8 +16,8 @@ void ModelTree::renderDeleteConfirmPopup() {
     if (ImGui::BeginPopupModal("Delete Confirmation", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         std::string meshName = "Unknown";
         bool isXsfStructure = false;
-        if (s_PendingDeleteMeshId != -1) {
-            const Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshById(s_PendingDeleteMeshId);
+        if (m_PendingDeleteMeshId != -1) {
+            const Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshById(m_PendingDeleteMeshId);
             if (mesh) {
                 meshName = mesh->GetName();
                 isXsfStructure = mesh->IsXsfStructure();
@@ -36,31 +36,31 @@ void ModelTree::renderDeleteConfirmPopup() {
         ImGui::SetCursorPosX(startX);
 
         if (ImGui::Button("Yes", ImVec2(buttonWidth, 0))) {
-            if (s_PendingDeleteMeshId != -1) {
+            if (m_PendingDeleteMeshId != -1) {
                 if (isXsfStructure) {
-                    if (s_SelectedMeshId == s_PendingDeleteMeshId) {
-                        s_SelectedMeshId = -1;
+                    if (m_SelectedMeshId == m_PendingDeleteMeshId) {
+                        m_SelectedMeshId = -1;
                     }
-                    AtomsTemplate::Instance().RemoveStructure(s_PendingDeleteMeshId);
-                    mesh::application::GetMeshCommandService().DeleteXsfStructure(s_PendingDeleteMeshId);
+                    AtomsTemplate::Instance().RemoveStructure(m_PendingDeleteMeshId);
+                    mesh::application::GetMeshCommandService().DeleteXsfStructure(m_PendingDeleteMeshId);
                 } else {
-                    if (s_SelectedMeshId == s_PendingDeleteMeshId) {
-                        s_SelectedMeshId = -1;
+                    if (m_SelectedMeshId == m_PendingDeleteMeshId) {
+                        m_SelectedMeshId = -1;
                     }
-                    mesh::application::GetMeshCommandService().DeleteMesh(s_PendingDeleteMeshId);
+                    mesh::application::GetMeshCommandService().DeleteMesh(m_PendingDeleteMeshId);
                 }
-                s_PendingDeleteMeshId = -1;
+                m_PendingDeleteMeshId = -1;
             }
             
-            s_ShowDeleteConfirmPopup = false;
+            m_ShowDeleteConfirmPopup = false;
             ImGui::CloseCurrentPopup();
         }
         
         ImGui::SameLine();
         
         if (ImGui::Button("No", ImVec2(buttonWidth, 0))) {
-            s_PendingDeleteMeshId = -1;
-            s_ShowDeleteConfirmPopup = false;
+            m_PendingDeleteMeshId = -1;
+            m_ShowDeleteConfirmPopup = false;
             ImGui::CloseCurrentPopup();
         }
         
@@ -70,7 +70,7 @@ void ModelTree::renderDeleteConfirmPopup() {
 
 
 void ModelTree::renderClearMeasurementsConfirmPopup() {
-    if (s_ShowClearMeasurementsConfirmPopup) {
+    if (m_ShowClearMeasurementsConfirmPopup) {
         ImGui::OpenPopup("Clear Measurements Confirmation");
     }
 
@@ -89,23 +89,24 @@ void ModelTree::renderClearMeasurementsConfirmPopup() {
 
         ImGui::SetCursorPosX(startX);
         if (ImGui::Button("Yes", ImVec2(buttonWidth, 0))) {
-            if (s_PendingClearMeasurementsStructureId != -1) {
+            if (m_PendingClearMeasurementsStructureId != -1) {
                 AtomsTemplate::Instance().RemoveMeasurementsByStructure(
-                    s_PendingClearMeasurementsStructureId);
+                    m_PendingClearMeasurementsStructureId);
             }
-            s_PendingClearMeasurementsStructureId = -1;
-            s_ShowClearMeasurementsConfirmPopup = false;
+            m_PendingClearMeasurementsStructureId = -1;
+            m_ShowClearMeasurementsConfirmPopup = false;
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::SameLine();
         if (ImGui::Button("No", ImVec2(buttonWidth, 0))) {
-            s_PendingClearMeasurementsStructureId = -1;
-            s_ShowClearMeasurementsConfirmPopup = false;
+            m_PendingClearMeasurementsStructureId = -1;
+            m_ShowClearMeasurementsConfirmPopup = false;
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
     }
 }
+
 

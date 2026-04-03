@@ -915,8 +915,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                         ImGui::SetTooltip("Remove all Measurement entries");
                     }
                     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                        s_PendingClearMeasurementsStructureId = entry.id;
-                        s_ShowClearMeasurementsConfirmPopup = true;
+                        m_PendingClearMeasurementsStructureId = entry.id;
+                        m_ShowClearMeasurementsConfirmPopup = true;
                     }
 
                     if (measurementOpen) {
@@ -1407,7 +1407,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     ImGui::TreeNodeEx(nodeId.c_str(), gridFlags, ICON_FA6_LAYER_GROUP"  %s", gridName);
                                     if (ImGui::IsItemHovered() &&
                                         ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-                                        s_SelectedMeshId = gridNode->GetId();
+                                        m_SelectedMeshId = gridNode->GetId();
                                         openChargeDensityViewer(entry.id, request);
                                         densityService.SetAdvancedGridVisible(
                                             gridNode->GetId(), volumeMode, true);
@@ -1578,5 +1578,6 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
+
 
 
