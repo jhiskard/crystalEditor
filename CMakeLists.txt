@@ -133,10 +133,10 @@ foreach (module IN LISTS WB_MODULE_TARGETS)
   endif ()
 endforeach ()
 
-target_link_libraries(wb_render PUBLIC wb_core wb_ui wb_mesh wb_atoms)
-target_link_libraries(wb_mesh PUBLIC wb_core wb_ui wb_render wb_atoms)
-target_link_libraries(wb_atoms PUBLIC wb_core wb_ui wb_render wb_mesh)
-target_link_libraries(wb_io PUBLIC wb_core wb_ui wb_render wb_mesh wb_atoms)
+target_link_libraries(wb_render PUBLIC wb_core)
+target_link_libraries(wb_mesh PUBLIC wb_core wb_render)
+target_link_libraries(wb_atoms PUBLIC wb_core wb_render wb_mesh)
+target_link_libraries(wb_io PUBLIC wb_core wb_render wb_mesh wb_atoms)
 target_link_libraries(wb_ui PUBLIC wb_core wb_render wb_mesh wb_atoms wb_io)
 
 add_executable(${PROJECT_NAME}

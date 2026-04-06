@@ -1,8 +1,7 @@
 #include "parser_worker_service.h"
 
-#include "../../app.h"
-#include "../../atoms/atoms_template.h"
 #include "../../config/log_config.h"
+#include "../../shell/runtime/workbench_runtime.h"
 
 // Emscripten
 #include <emscripten/threading.h>
@@ -49,9 +48,9 @@ void ParserWorkerService::ProcessStructureFile(
         if (ContainsDatagrid3d(filePath)) {
             SPDLOG_INFO("Detected DATAGRID_3D in structure file: {}", fileName);
 
-            atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
+            atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
             loader.SetProgressCallback([](float progress) {
-                App::Instance().SetProgress(progress);
+                GetWorkbenchRuntime().SetProgress(progress);
             });
 
             auto parseResult = loader.load3DGridXSFFile(filePath);
@@ -64,9 +63,9 @@ void ParserWorkerService::ProcessStructureFile(
         }
 
         SPDLOG_INFO("Starting XSF structure file processing (background): {}", fileName);
-        atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
+        atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
         loader.SetProgressCallback([](float progress) {
-            App::Instance().SetProgress(progress);
+            GetWorkbenchRuntime().SetProgress(progress);
         });
 
         auto parseResult = loader.loadXSFFile(filePath);
@@ -85,9 +84,9 @@ void ParserWorkerService::ProcessXsfFile(
         SPDLOG_INFO("Starting XSF file processing (background): {}", fileName);
         const std::string filePath = "/" + fileName;
 
-        atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
+        atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
         loader.SetProgressCallback([](float progress) {
-            App::Instance().SetProgress(progress);
+            GetWorkbenchRuntime().SetProgress(progress);
         });
 
         auto parseResult = loader.loadXSFFile(filePath);
@@ -106,9 +105,9 @@ void ParserWorkerService::ProcessXsfGridFile(
         SPDLOG_INFO("Starting XSF grid file processing (background): {}", fileName);
         const std::string filePath = "/" + fileName;
 
-        atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
+        atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
         loader.SetProgressCallback([](float progress) {
-            App::Instance().SetProgress(progress);
+            GetWorkbenchRuntime().SetProgress(progress);
         });
 
         auto parseResult = loader.load3DGridXSFFile(filePath);
@@ -130,7 +129,7 @@ void ParserWorkerService::ProcessChgcarFile(
         auto parseResult = atoms::infrastructure::ChgcarParser::parse(
             filePath,
             [](float progress) {
-                App::Instance().SetProgress(progress);
+                GetWorkbenchRuntime().SetProgress(progress);
             });
 
         auto* result = new ParserWorkerResult();

@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "app.h"
 #include "render/application/render_gateway.h"
+#include "shell/runtime/workbench_runtime.h"
 #include "toolbar.h"
 
 // 표준 라이브러리
@@ -211,7 +212,7 @@ void Mesh::createMeshActor() {
     SetVolumeMeshEdgeColor(0.0, 0.0, 0.0);  // Black
     SetVolumeMeshVisibility(true);  // Show by default
 
-    SetDisplayMode(Toolbar::Instance().GetMeshDisplayMode());
+    SetDisplayMode(GetWorkbenchRuntime().ToolbarPanel().GetMeshDisplayMode());
 
     if (m_VolumeDataSet != nullptr) {
         vtkSmartPointer<vtkDataSet> volumeData = m_VolumeRenderQualityDataSets[static_cast<int>(m_VolumeQuality)];
@@ -822,7 +823,7 @@ void Mesh::ensureVolumeMeshPipeline() {
         SetVolumeMeshOpacity(1.0);
         SetVolumeMeshEdgeColor(0.0, 0.0, 0.0);
         updateVolumeRenderVisibility();
-        SetDisplayMode(Toolbar::Instance().GetMeshDisplayMode());
+        SetDisplayMode(GetWorkbenchRuntime().ToolbarPanel().GetMeshDisplayMode());
     } else {
         m_VolumeMeshActor->SetMapper(m_VolumeMeshMapper);
     }

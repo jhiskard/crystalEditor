@@ -33,6 +33,8 @@ public:
     void AlignCameraToIcellAxis(int axisIndex) override;
     void SetArrowRotateStepDeg(float stepDeg) override;
     float GetArrowRotateStepDeg() const override;
+    bool IsPerformanceOverlayEnabled() const override;
+    void SetPerformanceOverlayEnabled(bool enabled) override;
 
     bool CaptureActorImage(
         vtkActor* actor,

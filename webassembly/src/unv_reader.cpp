@@ -1,8 +1,8 @@
 #include "unv_reader.h"
 #include "config/log_config.h"
-#include "app.h"
 #include "common/string_utils.h"
 #include "mesh_group.h"
+#include "shell/runtime/workbench_runtime.h"
 #include "vtk_viewer.h"  // Test
 #include <vtkVertexGlyphFilter.h>  // Test
 #include <vtkPolyDataMapper.h>  // Test
@@ -67,7 +67,7 @@ bool UnvReader::ReadUnvFile() {
             float progress = (float)currentPos / m_FileSize;
             if (progress - prevProgress > 0.01f) {  // Update progress every 1%
                 // SPDLOG_INFO("Progress: {:.2f}", 100.0f * progress);
-                App::Instance().SetProgress(static_cast<float>(progress));  // Update progress in the app
+                GetWorkbenchRuntime().SetProgress(static_cast<float>(progress));  // Update progress in the app
                 prevProgress = progress;
             }
         }

@@ -12,6 +12,7 @@
 // - Render all ImGui windows
 // - Save/Load ImGui settings
 // - Set ImGui style
+// @note Phase 12: direct singleton access should be limited to WorkbenchRuntime shim.
 class App {
     DECLARE_SINGLETON(App)
 
