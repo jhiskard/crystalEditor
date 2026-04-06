@@ -47,6 +47,8 @@ public:
     virtual void AlignCameraToIcellAxis(int axisIndex) = 0;
     virtual void SetArrowRotateStepDeg(float stepDeg) = 0;
     virtual float GetArrowRotateStepDeg() const = 0;
+    virtual bool IsPerformanceOverlayEnabled() const = 0;
+    virtual void SetPerformanceOverlayEnabled(bool enabled) = 0;
 
     virtual bool CaptureActorImage(
         vtkActor* actor,

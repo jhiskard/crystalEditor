@@ -12,6 +12,7 @@ class MeshGroupDetail;
 class MeshManager;
 class ModelTree;
 class TestWindow;
+class Toolbar;
 class VtkViewer;
 
 namespace structure {
@@ -60,9 +61,9 @@ public:
     static WorkbenchRuntime& Instance();
 
     /**
-     * @brief Initializes singleton-backed services that can be warmed up before ImGui context creation.
-     * @details Services that touch ImGui state (for example fonts/icons) must be initialized
-     *          after `ImGui::CreateContext()` in the bootstrap flow.
+     * @brief Initializes singleton-backed services used during runtime bootstrap.
+     * @details Services that touch ImGui state or OpenGL resources (for example fonts/icons/textures)
+     *          must be initialized after `ImGui::CreateContext()` and after a valid GL context exists.
      */
     void PrimeLegacySingletons();
 
@@ -75,6 +76,12 @@ public:
      * @brief Returns font manager service.
      */
     FontManager& FontRegistry();
+
+    /**
+     * @brief Returns toolbar facade owned behind runtime boundary.
+     * @note Compatibility shim: keep direct `Toolbar::Instance()` calls out of feature modules.
+     */
+    Toolbar& ToolbarPanel();
 
     /**
      * @brief Returns viewer facade.
@@ -172,6 +179,7 @@ public:
     void InitIdbfs();
     void SaveImGuiIniFile();
     void LoadImGuiIniFile();
+    void SetProgress(float progress);
     void ShowProgressPopup(bool show);
     void SetProgressPopupText(const std::string& title, const std::string& text);
 

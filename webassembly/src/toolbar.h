@@ -12,6 +12,10 @@
 struct ImVec2;
 
 
+/**
+ * @brief Viewer toolbar presenter.
+ * @note Phase 12 compatibility shim: prefer runtime-mediated access.
+ */
 class Toolbar {
     DECLARE_SINGLETON(Toolbar)
 

@@ -1,10 +1,10 @@
 #include "file_loader.h"
 
-#include "app.h"
 #include "common/string_utils.h"
 #include "config/log_config.h"
 #include "io/platform/browser_file_picker.h"
 #include "mesh/application/mesh_command_service.h"
+#include "shell/runtime/workbench_runtime.h"
 #include "unv_reader.h"
 #include "render/application/render_gateway.h"
 
@@ -132,7 +132,7 @@ void FileLoader::handleStructureFile(const std::string& fileName) {
     if (!m_ReplaceSceneOnNextStructureImport && hasSceneDataForStructureImport()) {
         m_DeferredStructureFileName = fileName;
         m_ShowStructureReplacePopup = true;
-        App::Instance().ShowProgressPopup(false);
+        GetWorkbenchRuntime().ShowProgressPopup(false);
         return;
     }
 
@@ -317,10 +317,9 @@ void FileLoader::CloseFile(const std::string& fileName) {
 
 void FileLoader::progressCallback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData) {
     vtkAlgorithm* reader = static_cast<vtkAlgorithm*>(caller);
-    FileLoader* fileLoader = static_cast<FileLoader*>(clientData);
 
     double progress = reader->GetProgress();
-    App::Instance().SetProgress(static_cast<float>(progress));
+    GetWorkbenchRuntime().SetProgress(static_cast<float>(progress));
     SPDLOG_INFO("Loading object - Progress: {:.2f}%", progress * 100.0);
 }
 
@@ -336,11 +335,11 @@ void FileLoader::processFileInBackground(const std::string& fileName, bool delet
     m_LoadingThread = std::thread([fileName, deleteFile]() {
         try {
             LoadArrayBuffer(fileName, deleteFile);
-            App::Instance().ShowProgressPopup(false);
+            GetWorkbenchRuntime().ShowProgressPopup(false);
         }
         catch (const std::exception& e) {
             SPDLOG_ERROR("Error loading file: {}", e.what());
-            App::Instance().ShowProgressPopup(false);
+            GetWorkbenchRuntime().ShowProgressPopup(false);
         }
     });
 }
@@ -382,7 +381,7 @@ void FileLoader::handleParserWorkerResult(io::application::ParserWorkerResult& r
             std::remove(result.filePath.c_str());
             SPDLOG_INFO("Temporary import file deleted: {}", result.filePath);
         }
-        App::Instance().ShowProgressPopup(false);
+        GetWorkbenchRuntime().ShowProgressPopup(false);
     };
 
     io::application::ImportApplyResult applyResult = m_ImportApplyService.Apply(result);
@@ -424,10 +423,10 @@ void FileLoader::RenderXsfGridImportPopups() {
         if (ImGui::Button("Yes")) {
             if (!m_DeferredStructureFileName.empty()) {
                 m_ReplaceSceneOnNextStructureImport = true;
-                App::Instance().SetProgressPopupText(
+                GetWorkbenchRuntime().SetProgressPopupText(
                     "Loading structure file",
                     "File(" + m_DeferredStructureFileName + ") is loading, please wait...");
-                App::Instance().ShowProgressPopup(true);
+                GetWorkbenchRuntime().ShowProgressPopup(true);
                 const std::string deferredFileName = m_DeferredStructureFileName;
                 m_DeferredStructureFileName.clear();
                 handleStructureFile(deferredFileName);
@@ -445,7 +444,7 @@ void FileLoader::RenderXsfGridImportPopups() {
                 std::remove(memfsPath.c_str());
                 m_DeferredStructureFileName.clear();
             }
-            App::Instance().ShowProgressPopup(false);
+            GetWorkbenchRuntime().ShowProgressPopup(false);
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();

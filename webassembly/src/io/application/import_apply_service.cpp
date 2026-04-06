@@ -3,7 +3,8 @@
 #include "../../atoms/atoms_template.h"
 #include "../../atoms/ui/charge_density_ui.h"
 #include "../../config/log_config.h"
-#include "../../mesh_manager.h"
+#include "../../mesh/application/mesh_command_service.h"
+#include "../../shell/runtime/workbench_runtime.h"
 
 // Standard library
 #include <cmath>
@@ -24,6 +25,14 @@
 namespace io::application {
 
 namespace {
+
+AtomsTemplate& atomsTemplateFacade() {
+    return GetWorkbenchRuntime().AtomsTemplateFacade();
+}
+
+mesh::application::MeshCommandService& meshCommandService() {
+    return mesh::application::GetMeshCommandService();
+}
 
 std::string ExtractFileName(const std::string& filePath, const char* fallback) {
     std::string fileNameOnly = filePath;
@@ -174,14 +183,15 @@ ImportApplyResult ImportApplyService::ApplyXsf(ParserWorkerResult& parsedResult)
     bool applySuccess = false;
     std::string failureReason;
     try {
-        structureId = MeshManager::Instance().RegisterXsfStructure(fileNameOnly);
+        structureId = meshCommandService().RegisterXsfStructure(fileNameOnly);
         if (structureId < 0) {
             throw std::runtime_error("Failed to register XSF structure");
         }
-        AtomsTemplate::Instance().SetCurrentStructureId(structureId);
-        AtomsTemplate::Instance().RegisterStructure(structureId, fileNameOnly);
-        AtomsTemplate::Instance().SetLoadedFileName(fileNameOnly);
-        applySuccess = AtomsTemplate::Instance().LoadXSFParsedData(parseResult);
+        AtomsTemplate& atomsTemplate = atomsTemplateFacade();
+        atomsTemplate.SetCurrentStructureId(structureId);
+        atomsTemplate.RegisterStructure(structureId, fileNameOnly);
+        atomsTemplate.SetLoadedFileName(fileNameOnly);
+        applySuccess = atomsTemplate.LoadXSFParsedData(parseResult);
     }
     catch (const std::exception& e) {
         SPDLOG_ERROR("Error applying XSF data: {}", e.what());
@@ -214,16 +224,17 @@ ImportApplyResult ImportApplyService::ApplyXsfGrid(ParserWorkerResult& parsedRes
     std::string failureReason;
 
     try {
-        structureId = MeshManager::Instance().RegisterXsfStructure(fileNameOnly);
+        structureId = meshCommandService().RegisterXsfStructure(fileNameOnly);
         if (structureId < 0) {
             throw std::runtime_error("Failed to register XSF grid structure");
         }
 
-        AtomsTemplate::Instance().SetCurrentStructureId(structureId);
-        AtomsTemplate::Instance().RegisterStructure(structureId, fileNameOnly);
-        AtomsTemplate::Instance().SetLoadedFileName(fileNameOnly);
+        AtomsTemplate& atomsTemplate = atomsTemplateFacade();
+        atomsTemplate.SetCurrentStructureId(structureId);
+        atomsTemplate.RegisterStructure(structureId, fileNameOnly);
+        atomsTemplate.SetLoadedFileName(fileNameOnly);
 
-        MeshManager& meshManager = MeshManager::Instance();
+        mesh::application::MeshCommandService& meshCommand = meshCommandService();
         std::vector<atoms::ui::ChargeDensityUI::GridDataEntry> gridEntries;
         int gridIndex = 1;
         for (auto& gridSet : parseResult.grids) {
@@ -281,7 +292,7 @@ ImportApplyResult ImportApplyService::ApplyXsfGrid(ParserWorkerResult& parsedRes
                 highVolumeDataSet = ResampleStructuredGridToImage(highStructured, gridHigh.dims);
             }
 
-            Mesh* mesh = meshManager.InsertMesh(gridHigh.label.c_str(), nullptr, nullptr, highDataSet, structureId);
+            Mesh* mesh = meshCommand.InsertMesh(gridHigh.label.c_str(), nullptr, nullptr, highDataSet, structureId);
             if (mesh == nullptr) {
                 failureReason = "Failed to create mesh from DATAGRID_3D data.";
                 applySuccess = false;
@@ -310,13 +321,13 @@ ImportApplyResult ImportApplyService::ApplyXsfGrid(ParserWorkerResult& parsedRes
         }
 
         if (!gridEntries.empty()) {
-            if (auto* cdUI = AtomsTemplate::Instance().chargeDensityUI()) {
+            if (auto* cdUI = atomsTemplate.chargeDensityUI()) {
                 cdUI->setGridDataEntries(std::move(gridEntries));
             }
 
-            AtomsTemplate::Instance().SetAllChargeDensityAdvancedGridVisible(
+            atomsTemplate.SetAllChargeDensityAdvancedGridVisible(
                 structureId, false, false);
-            AtomsTemplate::Instance().SetAllChargeDensityAdvancedGridVisible(
+            atomsTemplate.SetAllChargeDensityAdvancedGridVisible(
                 structureId, true, false);
         }
 
@@ -364,16 +375,17 @@ ImportApplyResult ImportApplyService::ApplyChgcar(ParserWorkerResult& parsedResu
     bool applySuccess = false;
     std::string failureReason;
     try {
-        structureId = MeshManager::Instance().RegisterXsfStructure(fileNameOnly);
+        structureId = meshCommandService().RegisterXsfStructure(fileNameOnly);
         if (structureId < 0) {
             throw std::runtime_error("Failed to register CHGCAR structure");
         }
-        AtomsTemplate::Instance().SetCurrentStructureId(structureId);
-        AtomsTemplate::Instance().RegisterStructure(structureId, fileNameOnly);
+        AtomsTemplate& atomsTemplate = atomsTemplateFacade();
+        atomsTemplate.SetCurrentStructureId(structureId);
+        atomsTemplate.RegisterStructure(structureId, fileNameOnly);
 
-        applySuccess = AtomsTemplate::Instance().LoadChgcarParsedData(parseResult);
+        applySuccess = atomsTemplate.LoadChgcarParsedData(parseResult);
         if (applySuccess) {
-            AtomsTemplate::Instance().SetLoadedFileName(fileNameOnly);
+            atomsTemplate.SetLoadedFileName(fileNameOnly);
             SPDLOG_INFO("CHGCAR file loaded successfully: {}", fileNameOnly);
         } else {
             failureReason = "Failed to apply parsed CHGCAR data.";
@@ -405,15 +417,16 @@ bool ImportApplyService::ApplyXsfGridAtomsPayload(
     }
 
     if (structureId < 0) {
-        structureId = MeshManager::Instance().RegisterXsfStructure(structureName);
+        structureId = meshCommandService().RegisterXsfStructure(structureName);
     }
     if (structureId < 0) {
         SPDLOG_ERROR("Failed to register XSF grid structure for atoms payload");
         return false;
     }
 
-    AtomsTemplate::Instance().SetCurrentStructureId(structureId);
-    AtomsTemplate::Instance().RegisterStructure(structureId, structureName);
+    AtomsTemplate& atomsTemplate = atomsTemplateFacade();
+    atomsTemplate.SetCurrentStructureId(structureId);
+    atomsTemplate.RegisterStructure(structureId, structureName);
 
     atoms::infrastructure::FileIOManager::ParseResult parse;
     parse.success = true;
@@ -427,7 +440,7 @@ bool ImportApplyService::ApplyXsfGridAtomsPayload(
     parse.atoms = std::move(parsedResult.atoms);
 
     try {
-        return AtomsTemplate::Instance().LoadXSFParsedData(parse, renderCell);
+        return atomsTemplate.LoadXSFParsedData(parse, renderCell);
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Error applying XSF grid atoms: {}", e.what());
         return false;

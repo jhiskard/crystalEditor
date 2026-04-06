@@ -3,6 +3,7 @@
 #include "../../atoms/atoms_template.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../mesh/application/mesh_query_service.h"
+#include "../../shell/runtime/workbench_runtime.h"
 #include "../../workspace/application/workspace_command_service.h"
 
 namespace io::application {
@@ -58,7 +59,7 @@ void ImportWorkflowService::CleanupImportedStructure(int32_t importedStructureId
 
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
 
     const Mesh* importedMesh = meshQuery.FindMeshById(importedStructureId);
     if (importedMesh == nullptr) {

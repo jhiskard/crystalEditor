@@ -61,7 +61,6 @@ int main(int argc, char* argv[]) {
     SPDLOG_DEBUG("Start Vtk-Workbench");
 
     WorkbenchRuntime& runtime = GetWorkbenchRuntime();
-    runtime.PrimeLegacySingletons();
 
     // Initialize glfw
     if (!glfwInit()) {
@@ -93,6 +92,7 @@ int main(int argc, char* argv[]) {
     // Setup ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    runtime.PrimeLegacySingletons();
     ImGuiIO& io = ImGui::GetIO();
     // Keep ini persistence on the explicit App::Save/LoadImGuiIniFile path.
     io.IniFilename = nullptr;

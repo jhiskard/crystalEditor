@@ -2,76 +2,90 @@
 
 #include "../../vtk_viewer.h"
 
+namespace {
+VtkViewer& viewerFacade() {
+    return VtkViewer::Instance();
+}
+} // namespace
+
 namespace render {
 namespace infrastructure {
 
 void VtkRenderGateway::RequestRender() {
-    VtkViewer::Instance().RequestRender();
+    viewerFacade().RequestRender();
 }
 
 void VtkRenderGateway::FitViewToVisibleProps() {
-    VtkViewer::Instance().FitViewToVisibleProps();
+    viewerFacade().FitViewToVisibleProps();
 }
 
 void VtkRenderGateway::ResetView() {
-    VtkViewer::Instance().ResetView();
+    viewerFacade().ResetView();
 }
 
 void VtkRenderGateway::AddActor(vtkSmartPointer<vtkActor> actor, bool resetCamera) {
-    VtkViewer::Instance().AddActor(actor, resetCamera);
+    viewerFacade().AddActor(actor, resetCamera);
 }
 
 void VtkRenderGateway::AddMeasurementOverlayActor(
     vtkSmartPointer<vtkActor> actor,
     bool resetCamera) {
-    VtkViewer::Instance().AddMeasurementOverlayActor(actor, resetCamera);
+    viewerFacade().AddMeasurementOverlayActor(actor, resetCamera);
 }
 
 void VtkRenderGateway::RemoveActor(vtkSmartPointer<vtkActor> actor) {
-    VtkViewer::Instance().RemoveActor(actor);
+    viewerFacade().RemoveActor(actor);
 }
 
 void VtkRenderGateway::RemoveMeasurementOverlayActor(vtkSmartPointer<vtkActor> actor) {
-    VtkViewer::Instance().RemoveMeasurementOverlayActor(actor);
+    viewerFacade().RemoveMeasurementOverlayActor(actor);
 }
 
 void VtkRenderGateway::AddActor2D(
     vtkSmartPointer<vtkActor2D> actor2D,
     bool resetCamera,
     bool measurementOverlay) {
-    VtkViewer::Instance().AddActor2D(actor2D, resetCamera, measurementOverlay);
+    viewerFacade().AddActor2D(actor2D, resetCamera, measurementOverlay);
 }
 
 void VtkRenderGateway::RemoveActor2D(vtkSmartPointer<vtkActor2D> actor2D) {
-    VtkViewer::Instance().RemoveActor2D(actor2D);
+    viewerFacade().RemoveActor2D(actor2D);
 }
 
 void VtkRenderGateway::AddVolume(vtkSmartPointer<vtkVolume> volume, bool resetCamera) {
-    VtkViewer::Instance().AddVolume(volume, resetCamera);
+    viewerFacade().AddVolume(volume, resetCamera);
 }
 
 void VtkRenderGateway::RemoveVolume(vtkSmartPointer<vtkVolume> volume) {
-    VtkViewer::Instance().RemoveVolume(volume);
+    viewerFacade().RemoveVolume(volume);
 }
 
 void VtkRenderGateway::SetProjectionMode(ProjectionMode mode) {
-    VtkViewer::Instance().SetProjectionMode(mode);
+    viewerFacade().SetProjectionMode(mode);
 }
 
 void VtkRenderGateway::AlignCameraToCellAxis(int axisIndex) {
-    VtkViewer::Instance().AlignCameraToCellAxis(axisIndex);
+    viewerFacade().AlignCameraToCellAxis(axisIndex);
 }
 
 void VtkRenderGateway::AlignCameraToIcellAxis(int axisIndex) {
-    VtkViewer::Instance().AlignCameraToIcellAxis(axisIndex);
+    viewerFacade().AlignCameraToIcellAxis(axisIndex);
 }
 
 void VtkRenderGateway::SetArrowRotateStepDeg(float stepDeg) {
-    VtkViewer::Instance().SetArrowRotateStepDeg(stepDeg);
+    viewerFacade().SetArrowRotateStepDeg(stepDeg);
 }
 
 float VtkRenderGateway::GetArrowRotateStepDeg() const {
-    return VtkViewer::Instance().GetArrowRotateStepDeg();
+    return viewerFacade().GetArrowRotateStepDeg();
+}
+
+bool VtkRenderGateway::IsPerformanceOverlayEnabled() const {
+    return viewerFacade().IsPerformanceOverlayEnabled();
+}
+
+void VtkRenderGateway::SetPerformanceOverlayEnabled(bool enabled) {
+    viewerFacade().SetPerformanceOverlayEnabled(enabled);
 }
 
 bool VtkRenderGateway::CaptureActorImage(
@@ -83,7 +97,7 @@ bool VtkRenderGateway::CaptureActorImage(
     const double* viewDirection,
     const double* viewUpHint,
     const double* backgroundColorRgb) {
-    return VtkViewer::Instance().CaptureActorImage(
+    return viewerFacade().CaptureActorImage(
         actor,
         rgbaPixels,
         width,
@@ -95,23 +109,23 @@ bool VtkRenderGateway::CaptureActorImage(
 }
 
 vtkCamera* VtkRenderGateway::GetActiveCamera() {
-    return VtkViewer::Instance().GetActiveCamera();
+    return viewerFacade().GetActiveCamera();
 }
 
 bool VtkRenderGateway::IsInteractionLodActive() const {
-    return VtkViewer::Instance().IsInteractionLodActive();
+    return viewerFacade().IsInteractionLodActive();
 }
 
 void VtkRenderGateway::BeginInteractionLod() {
-    VtkViewer::Instance().BeginInteractionLod();
+    viewerFacade().BeginInteractionLod();
 }
 
 void VtkRenderGateway::EndInteractionLod() {
-    VtkViewer::Instance().EndInteractionLod();
+    viewerFacade().EndInteractionLod();
 }
 
 VtkViewer& GetLegacyViewerFacade() {
-    return VtkViewer::Instance();
+    return viewerFacade();
 }
 
 } // namespace infrastructure

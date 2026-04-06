@@ -2,8 +2,9 @@
 #include "app.h"
 #include "atoms/domain/cell_manager.h"
 #include "font_manager.h"
-#include "toolbar.h"
 #include "mesh_manager.h"
+#include "shell/runtime/workbench_runtime.h"
+#include "toolbar.h"
 
 // GLFW
 #define GLFW_INCLUDE_ES3    // Include OpenGL ES 3.0 headers
@@ -176,8 +177,8 @@ void VtkViewer::init() {
     setCameraWidgetCallback();
     m_CameraOrientationWidget->On();
 
-    // Initialize toolbar
-    Toolbar& toolbar = Toolbar::Instance();
+    // Initialize toolbar through runtime composition root.
+    (void)GetWorkbenchRuntime().ToolbarPanel();
 }
 
 void VtkViewer::setCameraWidgetCallback() {
@@ -1452,7 +1453,7 @@ void VtkViewer::Render(bool* openWindow) {
     ImGui::Image((ImTextureID)(intptr_t)m_ColorTexture, ImVec2(m_Width, m_Height), 
         ImVec2(0, 1), ImVec2(1, 0));
     
-    Toolbar::Instance().Render(windowSize);
+    GetWorkbenchRuntime().ToolbarPanel().Render(windowSize);
     AtomsTemplate::Instance().RenderMeasurementModeOverlay();
 
     ImGuiIO& io = ImGui::GetIO();

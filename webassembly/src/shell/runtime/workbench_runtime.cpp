@@ -9,6 +9,7 @@
 #include "../../mesh_manager.h"
 #include "../../model_tree.h"
 #include "../../test_window.h"
+#include "../../toolbar.h"
 #include "../../render/infrastructure/vtk_render_gateway.h"
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
@@ -48,7 +49,6 @@ WorkbenchRuntime& WorkbenchRuntime::Instance() {
 
 void WorkbenchRuntime::PrimeLegacySingletons() {
     (void)AppController();
-    (void)MeshRepository();
 }
 
 App& WorkbenchRuntime::AppController() {
@@ -57,6 +57,10 @@ App& WorkbenchRuntime::AppController() {
 
 FontManager& WorkbenchRuntime::FontRegistry() {
     return FontManager::Instance();
+}
+
+Toolbar& WorkbenchRuntime::ToolbarPanel() {
+    return Toolbar::Instance();
 }
 
 VtkViewer& WorkbenchRuntime::Viewer() {
@@ -141,6 +145,10 @@ void WorkbenchRuntime::SaveImGuiIniFile() {
 
 void WorkbenchRuntime::LoadImGuiIniFile() {
     App::LoadImGuiIniFile();
+}
+
+void WorkbenchRuntime::SetProgress(float progress) {
+    AppController().SetProgress(progress);
 }
 
 void WorkbenchRuntime::ShowProgressPopup(bool show) {

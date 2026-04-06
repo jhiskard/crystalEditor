@@ -292,23 +292,10 @@ void App::syncShellStateToStore() {
         break;
     }
 
-    switch (m_PendingLayoutPreset) {
-    case LayoutPreset::None:
-        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::None;
-        break;
-    case LayoutPreset::DefaultFloating:
-        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::DefaultFloating;
-        break;
-    case LayoutPreset::DockRight:
-        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::DockRight;
-        break;
-    case LayoutPreset::DockBottom:
-        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::DockBottom;
-        break;
-    case LayoutPreset::ResetDocking:
-        shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::ResetDocking;
-        break;
-    }
+    // NOTE:
+    // pendingLayoutPreset is treated as a one-shot command from ShellStateCommandService.
+    // Do not mirror App's local cache back into the store here, otherwise menu-triggered
+    // preset requests can be overwritten in the same frame before they are consumed.
 }
 
 void App::InitIdbfs() {
@@ -763,6 +750,9 @@ void App::renderDockSpaceAndMenu() {
         }
 
         m_PendingLayoutPreset = LayoutPreset::None;
+        // Consume one-shot layout request in the shell store after applying once.
+        GetWorkbenchRuntime().ShellStateCommand().MutableState().pendingLayoutPreset =
+            shell::domain::ShellLayoutPreset::None;
     }
 
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
@@ -1337,13 +1327,11 @@ void App::ShowAtomsTemplateWindow(bool show) {
 }
 
 void App::RequestLayout1() {
-    App& app = Instance();
-    app.syncShellStateFromStore();
-    app.m_PendingLayoutPreset = LayoutPreset::DefaultFloating;
-    app.m_RequestModelTreeFocus = false;
-    app.m_PendingFocusTarget = FocusTarget::None;
-    app.m_PendingFocusPassesRemaining = 0;
-    app.syncShellStateToStore();
+    shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateCommand().MutableState();
+    shellState.pendingLayoutPreset = shell::domain::ShellLayoutPreset::DefaultFloating;
+    shellState.requestModelTreeFocus = false;
+    shellState.pendingFocusTarget = shell::domain::ShellFocusTarget::None;
+    shellState.pendingFocusPassesRemaining = 0;
 }
 
 void App::setProgressPopupText(const std::string& title, const std::string& text) {
