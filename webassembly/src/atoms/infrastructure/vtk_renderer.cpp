@@ -34,6 +34,21 @@ namespace atoms {
 namespace infrastructure {
 
 namespace {
+template <typename TMapper>
+void BindMapper(const vtkSmartPointer<vtkActor>& actor, const vtkSmartPointer<TMapper>& mapper) {
+    if (actor) {
+        actor->SetMapper(mapper);
+    }
+}
+
+vtkProperty* ActorProperty(const vtkSmartPointer<vtkActor>& actor) {
+    return actor ? actor->GetProperty() : nullptr;
+}
+
+vtkProperty* ActorProperty(vtkActor* actor) {
+    return actor ? actor->GetProperty() : nullptr;
+}
+
 void updateLabelActor2D(vtkSmartPointer<vtkActor2D> actor, const VTKRenderer::LabelActorSpec& label) {
     if (!actor) {
         return;
@@ -113,7 +128,7 @@ void VTKRenderer::initializeAtomGroupVTK(const std::string& symbol, float radius
         
         // Actor 초기화
         group.actor = vtkSmartPointer<vtkActor>::New();
-        group.actor->SetMapper(group.mapper);
+        BindMapper(group.actor, group.mapper);
         setupActorProperties(group.actor);
         
         // 렌더러에 추가 (편집 동작 중 카메라 시점 유지)
@@ -330,7 +345,7 @@ void VTKRenderer::initializeBondGroup(const std::string& bondTypeKey, float radi
         group.mapper1->SetInputConnection(group.appender1->GetOutputPort());
         
         group.actor1 = vtkSmartPointer<vtkActor>::New();
-        group.actor1->SetMapper(group.mapper1);
+        BindMapper(group.actor1, group.mapper1);
         group.actor1->SetPickable(false);  // ← 추가
         setupActorProperties(group.actor1, true);
         
@@ -343,7 +358,7 @@ void VTKRenderer::initializeBondGroup(const std::string& bondTypeKey, float radi
         group.mapper2->SetInputConnection(group.appender2->GetOutputPort());
         
         group.actor2 = vtkSmartPointer<vtkActor>::New();
-        group.actor2->SetMapper(group.mapper2);
+        BindMapper(group.actor2, group.mapper2);
         group.actor2->SetPickable(false);  // ← 추가
         setupActorProperties(group.actor2, true);
         
@@ -630,7 +645,7 @@ void VTKRenderer::updateAllBondGroupOpacity(float opacity) {
     
     for (auto& [bondTypeKey, group] : m_bondGroups) {
         if (group.actor1) {
-            vtkProperty* property1 = group.actor1->GetProperty();
+            vtkProperty* property1 = ActorProperty(group.actor1);
             if (property1) {
                 property1->SetOpacity(opacity);
                 
@@ -646,7 +661,7 @@ void VTKRenderer::updateAllBondGroupOpacity(float opacity) {
         }
         
         if (group.actor2) {
-            vtkProperty* property2 = group.actor2->GetProperty();
+            vtkProperty* property2 = ActorProperty(group.actor2);
             if (property2) {
                 property2->SetOpacity(opacity);
                 
@@ -754,12 +769,12 @@ void VTKRenderer::createUnitCell(int32_t structureId, const float matrix[3][3]) 
         mapper->SetInputConnection(lineSource->GetOutputPort());
         
         vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-        actor->SetMapper(mapper);
+        BindMapper(actor, mapper);
         actor->SetPickable(false);
 
         // 선 속성 설정
-        actor->GetProperty()->SetColor(1.0, 1.0, 1.0);  // 흰색
-        actor->GetProperty()->SetLineWidth(2.0);
+        ActorProperty(actor)->SetColor(1.0, 1.0, 1.0);  // 흰색
+        ActorProperty(actor)->SetLineWidth(2.0);
         actor->SetVisibility(effectiveVisible ? 1 : 0);
         
         // 렌더러에 추가
@@ -890,7 +905,7 @@ void VTKRenderer::setupActorProperties(vtkSmartPointer<vtkActor> actor, bool isB
     actor->SetPickable(true);
     // ========================================
 
-    vtkProperty* property = actor->GetProperty();
+    vtkProperty* property = ActorProperty(actor);
     if (property) {
         property->SetEdgeVisibility(false);
         property->SetAmbient(0.3);
@@ -952,11 +967,11 @@ void VTKRenderer::createBZPlot(const domain::BZVerticesResult& bzData) {
             mapper->SetInputConnection(lineSource->GetOutputPort());
             
             vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-            actor->SetMapper(mapper);
+            BindMapper(actor, mapper);
             
             // 선 속성 설정 (검은색 선)
-            actor->GetProperty()->SetColor(0.0, 0.0, 0.0);
-            actor->GetProperty()->SetLineWidth(3.0);
+            ActorProperty(actor)->SetColor(0.0, 0.0, 0.0);
+            ActorProperty(actor)->SetLineWidth(3.0);
             
             // 렌더러에 추가
             render::application::GetRenderGateway().AddActor(actor);
@@ -1075,12 +1090,12 @@ void VTKRenderer::createCompleteBZPlot(
                 mapper->SetInputConnection(lineSource->GetOutputPort());
                 
                 vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-                actor->SetMapper(mapper);
-                actor->GetProperty()->SetColor(0.0, 0.0, 0.0);
+                BindMapper(actor, mapper);
+                ActorProperty(actor)->SetColor(0.0, 0.0, 0.0);
                 
                 // ⚠️ 선 두께 고정값 사용
                 double lineWidth = 3.0;
-                actor->GetProperty()->SetLineWidth(lineWidth);
+                ActorProperty(actor)->SetLineWidth(lineWidth);
                 
                 render::application::GetRenderGateway().AddActor(actor);
                 m_bzPlotActors.push_back(actor);
@@ -1349,12 +1364,12 @@ void VTKRenderer::renderBandpath(const std::vector<std::array<double, 3>>& kpoin
     mapper->SetInputData(polyData);
     
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-    actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  // 빨간색
+    BindMapper(actor, mapper);
+    ActorProperty(actor)->SetColor(1.0, 0.0, 0.0);  // 빨간색
     
     // ⚠️ 선 두께
     double lineWidth = 5.0;
-    actor->GetProperty()->SetLineWidth(lineWidth);
+    ActorProperty(actor)->SetLineWidth(lineWidth);
     
     render::application::GetRenderGateway().AddActor(actor);
     m_bzPlotActors.push_back(actor);
@@ -1401,8 +1416,8 @@ void VTKRenderer::renderKpoints(
     mapper->SetInputConnection(glyph3D->GetOutputPort());
     
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-    actor->GetProperty()->SetColor(1.0, 0.0, 0.0);  // 빨간색
+    BindMapper(actor, mapper);
+    ActorProperty(actor)->SetColor(1.0, 0.0, 0.0);  // 빨간색
     
     render::application::GetRenderGateway().AddActor(actor);
     m_bzPlotActors.push_back(actor);
@@ -1546,13 +1561,13 @@ vtkSmartPointer<vtkActor> VTKRenderer::createArrowActor(
     mapper->SetInputConnection(transformFilter->GetOutputPort());
     
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
+    BindMapper(actor, mapper);
     
     // 색상 설정
     if (color != nullptr) {
-        actor->GetProperty()->SetColor(color[0], color[1], color[2]);
+        ActorProperty(actor)->SetColor(color[0], color[1], color[2]);
     } else {
-        actor->GetProperty()->SetColor(0.0, 0.0, 0.0);
+        ActorProperty(actor)->SetColor(0.0, 0.0, 0.0);
     }
     
     return actor;
@@ -1578,7 +1593,7 @@ vtkSmartPointer<vtkActor> VTKRenderer::createTextActor(
     
     // ⚠️ 옵션 3: vtkFollower 대신 일반 vtkActor 사용
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
+    BindMapper(actor, mapper);
     actor->SetPosition(position[0], position[1], position[2]);
     
     // 크기 조정
@@ -1587,9 +1602,9 @@ vtkSmartPointer<vtkActor> VTKRenderer::createTextActor(
     
     // 색상 설정
     if (color != nullptr) {
-        actor->GetProperty()->SetColor(color[0], color[1], color[2]);
+        ActorProperty(actor)->SetColor(color[0], color[1], color[2]);
     } else {
-        actor->GetProperty()->SetColor(0.0, 0.0, 0.0);
+        ActorProperty(actor)->SetColor(0.0, 0.0, 0.0);
     }
     
     SPDLOG_DEBUG("Created fixed text actor '{}' at ({:.3f}, {:.3f}, {:.3f}) with scale {:.3f}", 
@@ -1791,4 +1806,5 @@ void VTKRenderer::clearAllStructureLabelActors() {
 
 } // namespace infrastructure
 } // namespace atoms
+
 

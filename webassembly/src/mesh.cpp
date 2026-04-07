@@ -1,4 +1,4 @@
-#include "mesh.h"
+﻿#include "mesh.h"
 #include "app.h"
 #include "render/application/render_gateway.h"
 #include "shell/runtime/workbench_runtime.h"
@@ -30,6 +30,17 @@
 #include <vtkRectilinearGrid.h>
 
 namespace {
+template <typename TActor, typename TMapper>
+void BindMapper(const vtkSmartPointer<TActor>& actor, const vtkSmartPointer<TMapper>& mapper) {
+    if (actor) {
+        actor->SetMapper(mapper);
+    }
+}
+
+vtkProperty* ActorProperty(const vtkSmartPointer<vtkActor>& actor) {
+    return actor ? actor->GetProperty() : nullptr;
+}
+
 struct VolumeWindowLevelRange {
     double rangeMin;
     double rangeMax;
@@ -178,7 +189,7 @@ void Mesh::createMeshActor() {
         if (m_EdgeMeshActor == nullptr) {
             m_EdgeMeshActor = vtkSmartPointer<vtkActor>::New();
         }
-        m_EdgeMeshActor->SetMapper(m_EdgeMeshMapper);
+        BindMapper(m_EdgeMeshActor, m_EdgeMeshMapper);
     }
 
     // Set face mesh actor
@@ -186,7 +197,7 @@ void Mesh::createMeshActor() {
         if (m_FaceMeshActor == nullptr) {
             m_FaceMeshActor = vtkSmartPointer<vtkActor>::New();
         }
-        m_FaceMeshActor->SetMapper(m_FaceMeshMapper);
+        BindMapper(m_FaceMeshActor, m_FaceMeshMapper);
     }
 
     // Set volume mesh actor
@@ -194,7 +205,7 @@ void Mesh::createMeshActor() {
         if (m_VolumeMeshActor == nullptr) {
             m_VolumeMeshActor = vtkSmartPointer<vtkActor>::New();
         }
-        m_VolumeMeshActor->SetMapper(m_VolumeMeshMapper);
+        BindMapper(m_VolumeMeshActor, m_VolumeMeshMapper);
     }
 
     // Set default properties - color, opacity, edge color
@@ -316,8 +327,8 @@ void Mesh::createStreamLineMapper() {
 }
 
 void Mesh::createStreamLineActor() {
-    m_StreamLineActor->SetMapper(m_StreamLineMapper);
-    m_StreamLineActor->GetProperty()->SetLineWidth(3.0);    
+    BindMapper(m_StreamLineActor, m_StreamLineMapper);
+    ActorProperty(m_StreamLineActor)->SetLineWidth(3.0);    
 }
 
 void Mesh::createScalarBarActor() {
@@ -341,31 +352,31 @@ void Mesh::SetDisplayMode(MeshDisplayMode mode) {
 
     if (m_FaceMeshActor != nullptr) {
         if (mode == MeshDisplayMode::WIREFRAME) {
-            m_FaceMeshActor->GetProperty()->SetRepresentationToWireframe();
-            m_FaceMeshActor->GetProperty()->SetEdgeVisibility(true);
+            ActorProperty(m_FaceMeshActor)->SetRepresentationToWireframe();
+            ActorProperty(m_FaceMeshActor)->SetEdgeVisibility(true);
         }
         else if (mode == MeshDisplayMode::SHADED) {
-            m_FaceMeshActor->GetProperty()->SetRepresentationToSurface();
-            m_FaceMeshActor->GetProperty()->SetEdgeVisibility(false);
+            ActorProperty(m_FaceMeshActor)->SetRepresentationToSurface();
+            ActorProperty(m_FaceMeshActor)->SetEdgeVisibility(false);
         }
         else if (mode == MeshDisplayMode::WIRESHADED) {
-            m_FaceMeshActor->GetProperty()->SetRepresentationToSurface();
-            m_FaceMeshActor->GetProperty()->SetEdgeVisibility(true);
+            ActorProperty(m_FaceMeshActor)->SetRepresentationToSurface();
+            ActorProperty(m_FaceMeshActor)->SetEdgeVisibility(true);
         }
     }
 
     if (m_VolumeMeshActor != nullptr) {
         if (mode == MeshDisplayMode::WIREFRAME) {
-            m_VolumeMeshActor->GetProperty()->SetRepresentationToWireframe();
-            m_VolumeMeshActor->GetProperty()->SetEdgeVisibility(true);
+            ActorProperty(m_VolumeMeshActor)->SetRepresentationToWireframe();
+            ActorProperty(m_VolumeMeshActor)->SetEdgeVisibility(true);
         }
         else if (mode == MeshDisplayMode::SHADED) {
-            m_VolumeMeshActor->GetProperty()->SetRepresentationToSurface();
-            m_VolumeMeshActor->GetProperty()->SetEdgeVisibility(false);
+            ActorProperty(m_VolumeMeshActor)->SetRepresentationToSurface();
+            ActorProperty(m_VolumeMeshActor)->SetEdgeVisibility(false);
         }
         else if (mode == MeshDisplayMode::WIRESHADED) {
-            m_VolumeMeshActor->GetProperty()->SetRepresentationToSurface();
-            m_VolumeMeshActor->GetProperty()->SetEdgeVisibility(true);
+            ActorProperty(m_VolumeMeshActor)->SetRepresentationToSurface();
+            ActorProperty(m_VolumeMeshActor)->SetEdgeVisibility(true);
         }   
     }
 
@@ -376,7 +387,7 @@ void Mesh::SetVolumeMeshColor(double r, double g, double b) {
     if (m_VolumeMeshActor == nullptr) {
         return;
     }
-    m_VolumeMeshActor->GetProperty()->SetColor(r, g, b);
+    ActorProperty(m_VolumeMeshActor)->SetColor(r, g, b);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -384,7 +395,7 @@ void Mesh::SetVolumeMeshOpacity(double opacity) {
     if (m_VolumeMeshActor == nullptr) {
         return;
     }
-    m_VolumeMeshActor->GetProperty()->SetOpacity(opacity);
+    ActorProperty(m_VolumeMeshActor)->SetOpacity(opacity);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -392,7 +403,7 @@ void Mesh::SetVolumeMeshEdgeColor(double r, double g, double b) {
     if (m_VolumeMeshActor == nullptr) {
         return;
     }
-    m_VolumeMeshActor->GetProperty()->SetEdgeColor(r, g, b);
+    ActorProperty(m_VolumeMeshActor)->SetEdgeColor(r, g, b);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -400,42 +411,42 @@ const double* Mesh::GetVolumeMeshColor() const {
     if (m_VolumeMeshActor == nullptr) {
         return nullptr;
     }
-    return m_VolumeMeshActor->GetProperty()->GetColor();
+    return ActorProperty(m_VolumeMeshActor)->GetColor();
 }
 
 double Mesh::GetVolumeMeshOpacity() const {
     if (m_VolumeMeshActor == nullptr) {
         return 1.0;
     }
-    return m_VolumeMeshActor->GetProperty()->GetOpacity();
+    return ActorProperty(m_VolumeMeshActor)->GetOpacity();
 }
 
 const double* Mesh::GetVolumeMeshEdgeColor() const {
     if (m_VolumeMeshActor == nullptr) {
         return nullptr;
     }
-    return m_VolumeMeshActor->GetProperty()->GetEdgeColor();
+    return ActorProperty(m_VolumeMeshActor)->GetEdgeColor();
 }
 
 const double* Mesh::GetEdgeMeshColor() const {
     if (m_EdgeMeshActor == nullptr) {
         return nullptr;
     }
-    return m_EdgeMeshActor->GetProperty()->GetColor();
+    return ActorProperty(m_EdgeMeshActor)->GetColor();
 }
 
 double Mesh::GetEdgeMeshOpacity() const {
     if (m_EdgeMeshActor == nullptr) {
         return 1.0;
     }
-    return m_EdgeMeshActor->GetProperty()->GetOpacity();
+    return ActorProperty(m_EdgeMeshActor)->GetOpacity();
 }
 
 void Mesh::SetEdgeMeshColor(double r, double g, double b) {
     if (m_EdgeMeshActor == nullptr) {
         return;
     }
-    m_EdgeMeshActor->GetProperty()->SetColor(r, g, b);
+    ActorProperty(m_EdgeMeshActor)->SetColor(r, g, b);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -443,7 +454,7 @@ void Mesh::SetEdgeMeshOpacity(double opacity) {
     if (m_EdgeMeshActor == nullptr) {
         return;
     }
-    m_EdgeMeshActor->GetProperty()->SetOpacity(opacity);
+    ActorProperty(m_EdgeMeshActor)->SetOpacity(opacity);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -493,28 +504,28 @@ const double* Mesh::GetFaceMeshColor() const {
     if (m_FaceMeshActor == nullptr) {
         return nullptr;
     }
-    return m_FaceMeshActor->GetProperty()->GetColor();
+    return ActorProperty(m_FaceMeshActor)->GetColor();
 }
 
 double Mesh::GetFaceMeshOpacity() const {
     if (m_FaceMeshActor == nullptr) {
         return 1.0;
     }
-    return m_FaceMeshActor->GetProperty()->GetOpacity();
+    return ActorProperty(m_FaceMeshActor)->GetOpacity();
 }
 
 const double* Mesh::GetFaceMeshEdgeColor() const {
     if (m_FaceMeshActor == nullptr) {
         return nullptr;
     }
-    return m_FaceMeshActor->GetProperty()->GetEdgeColor();
+    return ActorProperty(m_FaceMeshActor)->GetEdgeColor();
 }
 
 void Mesh::SetFaceMeshColor(double r, double g, double b) {
     if (m_FaceMeshActor == nullptr) {
         return;
     }
-    m_FaceMeshActor->GetProperty()->SetColor(r, g, b);
+    ActorProperty(m_FaceMeshActor)->SetColor(r, g, b);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -522,7 +533,7 @@ void Mesh::SetFaceMeshOpacity(double opacity) {
     if (m_FaceMeshActor == nullptr) {
         return;
     }
-    m_FaceMeshActor->GetProperty()->SetOpacity(opacity);
+    ActorProperty(m_FaceMeshActor)->SetOpacity(opacity);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -530,7 +541,7 @@ void Mesh::SetFaceMeshEdgeColor(double r, double g, double b) {
     if (m_FaceMeshActor == nullptr) {
         return;
     }
-    m_FaceMeshActor->GetProperty()->SetEdgeColor(r, g, b);
+    ActorProperty(m_FaceMeshActor)->SetEdgeColor(r, g, b);
     render::application::GetRenderGateway().RequestRender();
 }
 
@@ -818,14 +829,14 @@ void Mesh::ensureVolumeMeshPipeline() {
 
     if (!m_VolumeMeshActor) {
         m_VolumeMeshActor = vtkSmartPointer<vtkActor>::New();
-        m_VolumeMeshActor->SetMapper(m_VolumeMeshMapper);
+        BindMapper(m_VolumeMeshActor, m_VolumeMeshMapper);
         SetVolumeMeshColor(0.95, 0.95, 0.95);
         SetVolumeMeshOpacity(1.0);
         SetVolumeMeshEdgeColor(0.0, 0.0, 0.0);
         updateVolumeRenderVisibility();
         SetDisplayMode(GetWorkbenchRuntime().ToolbarPanel().GetMeshDisplayMode());
     } else {
-        m_VolumeMeshActor->SetMapper(m_VolumeMeshMapper);
+        BindMapper(m_VolumeMeshActor, m_VolumeMeshMapper);
     }
     updateVolumeDataRange(m_VolumeDataSet);
 }
@@ -861,7 +872,7 @@ void Mesh::ensureVolumeRenderPipeline(vtkSmartPointer<vtkDataSet> dataSet) {
     }
     if (!m_VolumeRenderActor) {
         m_VolumeRenderActor = vtkSmartPointer<vtkVolume>::New();
-        m_VolumeRenderActor->SetMapper(m_VolumeRenderMapper);
+        BindMapper(m_VolumeRenderActor, m_VolumeRenderMapper);
         m_VolumeRenderActor->SetProperty(m_VolumeRenderProperty);
     }
     if (!m_VolumeRenderAdded) {
@@ -1010,3 +1021,4 @@ void Mesh::updateVolumeRenderVisibility() {
         m_VolumeRenderActor->SetVisibility(m_VolumeMeshVisibility && m_VolumeRenderVisibility);
     }
 }
+

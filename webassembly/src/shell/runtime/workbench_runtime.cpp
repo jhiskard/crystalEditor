@@ -10,7 +10,7 @@
 #include "../../model_tree.h"
 #include "../../test_window.h"
 #include "../../toolbar.h"
-#include "../../render/infrastructure/vtk_render_gateway.h"
+#include "../../render/application/legacy_viewer_facade.h"
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
 #include "../../density/application/density_service.h"
@@ -66,7 +66,7 @@ Toolbar& WorkbenchRuntime::ToolbarPanel() {
 }
 
 VtkViewer& WorkbenchRuntime::Viewer() {
-    return render::infrastructure::GetLegacyViewerFacade();
+    return render::application::GetLegacyViewerFacade();
 }
 
 AtomsTemplate& WorkbenchRuntime::AtomsTemplateFacade() {

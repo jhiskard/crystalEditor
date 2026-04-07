@@ -2,7 +2,7 @@
 
 #include "common/string_utils.h"
 #include "config/log_config.h"
-#include "io/platform/browser_file_picker.h"
+#include "platform/browser/browser_file_picker.h"
 #include "mesh/application/mesh_command_service.h"
 #include "shell/runtime/workbench_runtime.h"
 #include "unv_reader.h"
@@ -97,19 +97,19 @@ void FileLoader::showStructureImportErrorPopup(const std::string& title, const s
 }
 
 void FileLoader::OpenFileBrowser(bool useMainThread) {
-    io::platform::BrowserFilePicker::OpenMeshFileBrowser(useMainThread);
+    platform::browser::BrowserFilePicker::OpenMeshFileBrowser(useMainThread);
 }
 
 void FileLoader::OpenStructureFileBrowser() {
-    io::platform::BrowserFilePicker::OpenStructureFileBrowser();
+    platform::browser::BrowserFilePicker::OpenStructureFileBrowser();
 }
 
 void FileLoader::OpenXSFFileBrowser() {
-    io::platform::BrowserFilePicker::OpenXsfFileBrowser();
+    platform::browser::BrowserFilePicker::OpenXsfFileBrowser();
 }
 
 void FileLoader::OpenXSFGridFileBrowser() {
-    io::platform::BrowserFilePicker::OpenXsfGridFileBrowser();
+    platform::browser::BrowserFilePicker::OpenXsfGridFileBrowser();
 }
 
 void FileLoader::handleXSFFile(const std::string& fileName) {
@@ -280,7 +280,7 @@ Mesh* FileLoader::readUnvFile(const std::string& fileName) {
 }
 
 void FileLoader::OpenFileStreamingBrowser(bool useMainThread) {
-    io::platform::BrowserFilePicker::OpenMeshFileStreamingBrowser(useMainThread);
+    platform::browser::BrowserFilePicker::OpenMeshFileStreamingBrowser(useMainThread);
 }
 
 void FileLoader::WriteChunk(const std::string& fileName, int32_t offset, uintptr_t data, int32_t length) {
@@ -492,7 +492,7 @@ void FileLoader::RenderXsfGridImportPopups() {
 }
 
 void FileLoader::OpenChgcarFileBrowser() {
-    io::platform::BrowserFilePicker::OpenChgcarFileBrowser();
+    platform::browser::BrowserFilePicker::OpenChgcarFileBrowser();
 }
 
 void FileLoader::LoadChgcarFile(const std::string& filename) {
