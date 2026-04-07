@@ -39,7 +39,7 @@ int32_t TreeNode::GetChildCount() const {
     // Traverse the right siblings to count the children
     while (child != nullptr) {
         ++count;
-        child = child->m_RightSibling;
+        child = child->GetRightSiblingMutable();
     }
 
     return count;
@@ -52,7 +52,7 @@ int32_t TreeNode::GetDepth() const {
     // Traverse up the tree to count the depth
     while (parent != nullptr) {
         ++depth;
-        parent = parent->m_Parent;
+        parent = parent->GetParentMutable();
     }
 
     return depth;
@@ -113,20 +113,20 @@ TreeNode* LcrsTree::InsertItem(int32_t id, const char* label,
 
     TreeNode* newNode = new TreeNode(id, label);
 
-    if (parent->m_LeftChild == nullptr) {
+    if (parent->GetLeftChild() == nullptr) {
         // If the parent has no children, set the new node as the left child
-        parent->m_LeftChild = newNode;
-        newNode->m_Parent = parent;
+        parent->SetLeftChildMutable(newNode);
+        newNode->SetParentMutable(parent);
     }
     else {
         // Otherwise, find the rightmost sibling and set the new node as the right sibling
-        TreeNode* sibling = parent->m_LeftChild;
-        while (sibling->m_RightSibling != nullptr) {
-            sibling = sibling->m_RightSibling;
+        TreeNode* sibling = parent->GetLeftChildMutable();
+        while (sibling->GetRightSibling() != nullptr) {
+            sibling = sibling->GetRightSiblingMutable();
         }
-        sibling->m_RightSibling = newNode;
-        newNode->m_LeftSibling = sibling;
-        newNode->m_Parent = parent;
+        sibling->SetRightSiblingMutable(newNode);
+        newNode->SetLeftSiblingMutable(sibling);
+        newNode->SetParentMutable(parent);
     }
 
     return newNode;
@@ -144,23 +144,23 @@ bool LcrsTree::DeleteItem(int32_t id) {
     }
 
     // Update links
-    TreeNode* parent = node->m_Parent;
-    TreeNode* rightSibling = node->m_RightSibling;
-    TreeNode* leftSibling = node->m_LeftSibling;
+    TreeNode* parent = node->GetParentMutable();
+    TreeNode* rightSibling = node->GetRightSiblingMutable();
+    TreeNode* leftSibling = node->GetLeftSiblingMutable();
 
-    if (parent->m_LeftChild == node) {
+    if (parent && parent->GetLeftChild() == node) {
         // If the node is the left child of its parent
-        parent->m_LeftChild = rightSibling;
+        parent->SetLeftChildMutable(rightSibling);
     }
 
     if (leftSibling) {
         // If the node has a left sibling
-        leftSibling->m_RightSibling = rightSibling;
+        leftSibling->SetRightSiblingMutable(rightSibling);
     }
 
     if (rightSibling) {
         // If the node has a right sibling
-        rightSibling->m_LeftSibling = leftSibling;
+        rightSibling->SetLeftSiblingMutable(leftSibling);
     }
 
     deleteItemRecursive(node);
@@ -209,10 +209,10 @@ void LcrsTree::traverseTreeRecursive(
     callback(node, userData);
 
     // Traverse all children
-    const TreeNode* child = node->m_LeftChild;
+    const TreeNode* child = node->GetLeftChild();
     while (child != nullptr) {
         traverseTreeRecursive(callback, child, userData);
-        child = child->m_RightSibling;
+        child = child->GetRightSibling();
     }
 }
 
@@ -227,10 +227,10 @@ void LcrsTree::traverseTreeRecursiveMutable(
     callback(node, userData);
 
     // Traverse all children
-    TreeNode* child = node->m_LeftChild;
+    TreeNode* child = node->GetLeftChildMutable();
     while (child != nullptr) {
         traverseTreeRecursiveMutable(callback, child, userData);
-        child = child->m_RightSibling;
+        child = child->GetRightSiblingMutable();
     }
 }
 
@@ -240,9 +240,9 @@ void LcrsTree::deleteItemRecursive(TreeNode* node) {
     }
 
     // Recursively delete all children
-    TreeNode* child = node->m_LeftChild;
+    TreeNode* child = node->GetLeftChildMutable();
     while (child != nullptr) {
-        TreeNode* nextChild = child->m_RightSibling;
+        TreeNode* nextChild = child->GetRightSiblingMutable();
         deleteItemRecursive(child);
         child = nextChild;
     }

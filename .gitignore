@@ -208,6 +208,12 @@ public/wasm.old2/
 !docs/refactoring/phase13/logs/
 !docs/refactoring/phase13/logs/*.md
 !docs/refactoring/phase13/logs/*.txt
+!docs/refactoring/phase14/logs/
+!docs/refactoring/phase14/logs/*.md
+!docs/refactoring/phase14/logs/*.txt
+!docs/refactoring/phase15/logs/
+!docs/refactoring/phase15/logs/*.md
+!docs/refactoring/phase15/logs/*.txt
 
 # Example datasets
 /xsf_examples/

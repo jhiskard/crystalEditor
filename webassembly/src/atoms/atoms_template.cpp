@@ -90,6 +90,13 @@ constexpr float kMinDihedralPlaneOpacity = 0.05f;
 constexpr float kMaxDihedralPlaneOpacity = 0.60f;
 constexpr int kMeasurementValueBaseFontSize = static_cast<int>(14 * 1.5f);
 
+auto& createdAtoms = structure::domain::GetStructureRepository().CreatedAtoms();
+auto& surroundingAtoms = structure::domain::GetStructureRepository().SurroundingAtoms();
+auto& atomGroups = structure::domain::GetStructureRepository().AtomGroups();
+auto& createdBonds = structure::domain::GetStructureRepository().CreatedBonds();
+auto& surroundingBonds = structure::domain::GetStructureRepository().SurroundingBonds();
+auto& bondGroups = structure::domain::GetStructureRepository().BondGroups();
+
 float clampFloatRange(float value, float minValue, float maxValue) {
     return std::clamp(value, minValue, maxValue);
 }
@@ -386,8 +393,8 @@ bool createChgcarDataSets(const atoms::infrastructure::ChgcarParser::ParseResult
 
 const atoms::domain::AtomInfo* resolveBondAtom(
     const atoms::domain::BondInfo& bond, bool firstEndpoint) {
-    const auto& created = atoms::domain::createdAtoms;
-    const auto& surrounding = atoms::domain::surroundingAtoms;
+    const auto& created = createdAtoms;
+    const auto& surrounding = surroundingAtoms;
     const int atomIndex = firstEndpoint ? bond.atom1Index : bond.atom2Index;
     const uint32_t atomId = firstEndpoint ? bond.atom1Id : bond.atom2Id;
 
@@ -892,13 +899,6 @@ vtkSmartPointer<vtkActor2D> createMeasurementOrderTextActor(
 // (251212) ATOM RENDERING SYSTEM
 // ============================================================================
 
-// struct AtomInfo --> atom_manager.h 濡??대룞
-using atoms::domain::createdAtoms;
-using atoms::domain::surroundingAtoms;
-
-// struct AtomGroupInfo --> atom_manager.h 濡??대룞
-using atoms::domain::atomGroups;
-
 // (251211) 濡쒖쭅 ?뚰듃??domain layer濡?遺꾨━??
 // addAtomToGroup, initializeAtomGroup, removeAtomFromGroup
 
@@ -942,18 +942,11 @@ void removeAtomFromGroup(const std::string& symbol, uint32_t atomId) {
 // Bonds
 // ============================================================================
 
-// struct BondInfo --> bond_manager.h 濡??대룞
-using atoms::domain::createdBonds;
-using atoms::domain::surroundingBonds;
-
 static float bondScalingFactor = 1.0f; // Default scaling factor
 static float bondToleranceFactor = 0.10f;
 static float bondThickness = 1.0f;      // 寃고빀 ?먭퍡 (湲곕낯媛?1.0)
 static float bondOpacity = 1.0f;        // 寃고빀 ?щ챸??(湲곕낯媛?1.0)
 
-
-// struct BondGroupInfo --> bond_manager.h 濡??대룞
-using atoms::domain::bondGroups;
 
 // ============================================================================
 //  (251215) BOND RENDERING SYSTEM
@@ -2180,8 +2173,8 @@ bool AtomsTemplate::LoadXSFParsedData(const atoms::infrastructure::FileIOManager
             atoms::domain::Color4f color = elementDB.getDefaultColor(symbol);
             float radius = elementDB.getDefaultRadius(symbol);
             createAtomSphere(symbol.c_str(), color, radius, position);
-            if (!atoms::domain::createdAtoms.empty()) {
-                newAtomIds.push_back(atoms::domain::createdAtoms.back().id);
+            if (!createdAtoms.empty()) {
+                newAtomIds.push_back(createdAtoms.back().id);
             }
         }
 
@@ -5446,8 +5439,8 @@ bool AtomsTemplate::LoadChgcarParsedData(const atoms::infrastructure::ChgcarPars
             
             createAtomSphere(symbol.c_str(), color, radius, cartPos, 
                             atoms::domain::AtomType::ORIGINAL);
-            if (!atoms::domain::createdAtoms.empty()) {
-                newAtomIds.push_back(atoms::domain::createdAtoms.back().id);
+            if (!createdAtoms.empty()) {
+                newAtomIds.push_back(createdAtoms.back().id);
             }
             
             atomIndex++;

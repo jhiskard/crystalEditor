@@ -26,6 +26,9 @@ class WorkbenchRuntime;
  */
 class FileLoader {
 public:
+    FileLoader();
+    ~FileLoader();
+
     /**
      * @brief Requests mesh file picker from browser platform adapter.
      */
@@ -60,9 +63,6 @@ public:
     void LoadChgcarFile(const std::string& filename);
 
 private:
-    friend class WorkbenchRuntime;
-    FileLoader();
-    ~FileLoader();
     FileLoader(const FileLoader&) = delete;
     FileLoader& operator=(const FileLoader&) = delete;
     FileLoader(FileLoader&&) = delete;

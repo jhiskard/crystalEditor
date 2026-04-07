@@ -22,6 +22,9 @@ public:
         Large = 2
     };
 
+    App();
+    ~App();
+
     static void InitIdbfs();  // Mount IdbFS
     static void SaveImGuiIniFile();
     static void LoadImGuiIniFile();
@@ -61,9 +64,6 @@ public:
     static void RequestLayout1();
 
 private:
-    friend class WorkbenchRuntime;
-    App();
-    ~App();
     App(const App&) = delete;
     App& operator=(const App&) = delete;
     App(App&&) = delete;
