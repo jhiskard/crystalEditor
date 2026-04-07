@@ -29,6 +29,17 @@
 namespace {
 constexpr double kSliceEpsilon = 1e-8;
 
+template <typename TMapper>
+void BindMapper(const vtkSmartPointer<vtkActor>& actor, const vtkSmartPointer<TMapper>& mapper) {
+    if (actor) {
+        actor->SetMapper(mapper);
+    }
+}
+
+vtkProperty* ActorProperty(const vtkSmartPointer<vtkActor>& actor) {
+    return actor ? actor->GetProperty() : nullptr;
+}
+
 struct Vec3 {
     double x = 0.0;
     double y = 0.0;
@@ -298,8 +309,8 @@ void ChargeDensityRenderer::setIsosurfaceColor(float r, float g, float b, float 
     m_isoColor[3] = alpha;
     
     if (m_isosurfaceActor) {
-        m_isosurfaceActor->GetProperty()->SetColor(r, g, b);
-        m_isosurfaceActor->GetProperty()->SetOpacity(alpha);
+        ActorProperty(m_isosurfaceActor)->SetColor(r, g, b);
+        ActorProperty(m_isosurfaceActor)->SetOpacity(alpha);
         m_isosurfaceActor->Modified();
     }
 }
@@ -361,9 +372,9 @@ void ChargeDensityRenderer::addIsosurface(float value, float r, float g, float b
     mapper->ScalarVisibilityOff();
     
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-    actor->GetProperty()->SetColor(r, g, b);
-    actor->GetProperty()->SetOpacity(alpha);
+    BindMapper(actor, mapper);
+    ActorProperty(actor)->SetColor(r, g, b);
+    ActorProperty(actor)->SetOpacity(alpha);
     actor->SetVisibility(1);
     
     render::application::GetRenderGateway().AddActor(actor, false);
@@ -374,8 +385,8 @@ void ChargeDensityRenderer::addIsosurface(float value, float r, float g, float b
 void ChargeDensityRenderer::setIsosurfaceColorForValue(float value, float r, float g, float b, float alpha) {
     for (auto& iso : m_isosurfaces) {
         if (iso.actor && iso.value == value) {
-            iso.actor->GetProperty()->SetColor(r, g, b);
-            iso.actor->GetProperty()->SetOpacity(alpha);
+            ActorProperty(iso.actor)->SetColor(r, g, b);
+            ActorProperty(iso.actor)->SetOpacity(alpha);
             iso.actor->Modified();
         }
     }
@@ -450,10 +461,10 @@ void ChargeDensityRenderer::updateIsosurface() {
     
     // Actor 생성
     m_isosurfaceActor = vtkSmartPointer<vtkActor>::New();
-    m_isosurfaceActor->SetMapper(mapper);
-    m_isosurfaceActor->GetProperty()->SetColor(
+    BindMapper(m_isosurfaceActor, mapper);
+    ActorProperty(m_isosurfaceActor)->SetColor(
         m_isoColor[0], m_isoColor[1], m_isoColor[2]);
-    m_isosurfaceActor->GetProperty()->SetOpacity(m_isoColor[3]);
+    ActorProperty(m_isosurfaceActor)->SetOpacity(m_isoColor[3]);
     m_isosurfaceActor->SetVisibility(1);
     
     // 렌더러에 추가
@@ -1015,7 +1026,7 @@ void ChargeDensityRenderer::updateSlice() {
     
     // Actor
     m_sliceActor = vtkSmartPointer<vtkActor>::New();
-    m_sliceActor->SetMapper(mapper);
+    BindMapper(m_sliceActor, mapper);
     m_sliceActor->SetVisibility(m_sliceVisible ? 1 : 0);
     
     render::application::GetRenderGateway().AddActor(m_sliceActor, false);
@@ -1090,4 +1101,5 @@ bool ChargeDensityRenderer::loadFromParseResult(
 
 } // namespace infrastructure
 } // namespace atoms
+
 

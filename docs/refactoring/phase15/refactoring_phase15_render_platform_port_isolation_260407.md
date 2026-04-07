@@ -15,7 +15,7 @@
 - `webassembly/src/shell/*`
 - `scripts/refactoring/*`
 - `docs/refactoring/phase15/*`
-진행 상태: `W0 착수`
+진행 상태: `W6 완료`
 
 ## 0. 착수 배경과 고정 전제
 
@@ -225,9 +225,74 @@ W0 산출 로그:
 ## 10. 진행 체크리스트
 
 - [x] W0 기준선/중간 산출문서 등록
-- [ ] W1 `atoms/infrastructure` render 책임 이동
-- [ ] W2 `mesh/io/ui` RenderPort 치환
-- [ ] W3 `platform` 경계 정리
-- [ ] W4 camera/picking/overlay 계약 문서화
-- [ ] W5 정적 게이트 스크립트 도입
-- [ ] W6 빌드/테스트/종료 문서 완료
+- [x] W1 `atoms/infrastructure` render 책임 이동
+- [x] W2 `mesh/io/ui` RenderPort 치환
+- [x] W3 `platform` 경계 정리
+- [x] W4 camera/picking/overlay 계약 문서화
+- [x] W5 정적 게이트 스크립트 도입
+- [x] W6 빌드/테스트/종료 문서 완료
+
+## 11. W0~W6 실행 결과 (`2026-04-07`, KST)
+
+1. W0 기준선/추적 로그 등록 완료:
+   - `docs/refactoring/phase15/logs/render_port_inventory_phase15_latest.md`
+   - `docs/refactoring/phase15/logs/platform_boundary_inventory_phase15_latest.md`
+   - `docs/refactoring/phase15/logs/bug_p15_vasp_grid_sequence_latest.md`
+2. W1 완료:
+   - `atoms/infrastructure`의 반복 `SetMapper/GetProperty` 직접 조작 경로를 helper 기반 호출로 축소.
+   - 대상 파일:
+     - `webassembly/src/atoms/infrastructure/vtk_renderer.cpp`
+     - `webassembly/src/atoms/infrastructure/charge_density_renderer.cpp`
+3. W2 완료:
+   - `mesh` 계층의 반복 `SetMapper/GetProperty` 직접 조작 경로를 helper 기반으로 치환.
+   - `shell/runtime`의 `render/infrastructure` 직접 include 제거(`render/application` 브리지 경유).
+   - 대상 파일:
+     - `webassembly/src/mesh.cpp`
+     - `webassembly/src/shell/runtime/workbench_runtime.cpp`
+     - `webassembly/src/render/application/legacy_viewer_facade.h`
+     - `webassembly/src/render/application/legacy_viewer_facade.cpp`
+     - `webassembly/cmake/modules/wb_render.cmake`
+4. 정량 지표(W2 재계측):
+   - 비-render 직접 조작 토큰: `172 -> 110` (`-62`)
+   - `render/infrastructure` include render 외 참조: `1 -> 0`
+   - 세부 수치는 `docs/refactoring/phase15/logs/render_port_inventory_phase15_latest.md` 반영.
+5. 중간 빌드 검증:
+   - `npm run build-wasm:release` PASS
+6. W3 완료:
+   - browser adapter를 `io/platform`에서 `platform/browser`로 이동하고 namespace를 `platform::browser`로 정렬.
+   - 대상 파일:
+     - `webassembly/src/platform/browser/browser_file_picker.h`
+     - `webassembly/src/platform/browser/browser_file_picker.cpp`
+     - `webassembly/src/file_loader.cpp`
+     - `webassembly/cmake/modules/wb_io.cmake`
+     - `docs/refactoring/phase15/logs/platform_boundary_inventory_phase15_latest.md`
+7. W4 완료:
+   - camera/picking/overlay RenderPort 계약을 코드 주석과 산출문서로 명문화.
+   - 대상 파일:
+     - `webassembly/src/render/application/render_gateway.h`
+     - `webassembly/src/render/infrastructure/vtk_render_gateway.h`
+     - `docs/refactoring/phase15/logs/render_camera_picking_overlay_contract_phase15_latest.md`
+8. W5 완료:
+   - 정적 게이트 스크립트 추가:
+     - `scripts/refactoring/check_phase15_render_platform_isolation.ps1`
+   - 체크 항목:
+     - non-render `render/infrastructure` include 0
+     - non-render 직접 조작 신규 유입 차단(Phase 15 W2 snapshot 상한 유지)
+     - platform 경계 코드/문서 존재 + legacy `io/platform` 경로 제거
+     - 메뉴 오픈 회귀 코드 경로 보존
+     - bug 추적 로그 존재 + 상태 태그
+9. W6 완료:
+   - 실행 게이트 결과:
+     - `powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase15_render_platform_isolation.ps1` PASS
+     - `npm run build-wasm:release` PASS
+     - `npm run test:cpp` PASS
+     - `npm run test:smoke` PASS
+   - 산출 로그:
+     - `docs/refactoring/phase15/logs/check_phase15_render_platform_isolation_latest.txt`
+     - `docs/refactoring/phase15/logs/build_phase15_latest.txt`
+     - `docs/refactoring/phase15/logs/unit_test_phase15_latest.txt`
+     - `docs/refactoring/phase15/logs/smoke_phase15_latest.txt`
+     - `docs/refactoring/phase15/logs/menu_open_matrix_phase15_latest.md`
+   - 종료 문서:
+     - `docs/refactoring/phase15/dependency_gate_report.md` 최종 반영
+     - `docs/refactoring/phase15/go_no_go_phase16.md` 최종 반영 (`GO`)

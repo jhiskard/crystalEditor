@@ -7,6 +7,11 @@ class VtkViewer;
 namespace render {
 namespace infrastructure {
 
+/**
+ * @brief VTK adapter implementing the application-level render port contract.
+ * @details This type is render-internal infrastructure and must not be
+ *          referenced directly from non-render modules.
+ */
 class VtkRenderGateway final : public application::RenderGateway {
 public:
     void RequestRender() override;
