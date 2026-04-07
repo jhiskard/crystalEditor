@@ -1,0 +1,14 @@
+
+> vtk-workbench@0.1.0 build-wasm:release
+> emcmake cmake -GNinja -S. -Bwebassembly/build -DCMAKE_BUILD_TYPE=Release -DVTK_DIR=webassembly/dependencies/VTK/Release/lib/cmake/vtk && cmake --build webassembly/build --target install
+
+configure: cmake -GNinja -S. -Bwebassembly/build -DCMAKE_BUILD_TYPE=Release -DVTK_DIR=webassembly/dependencies/VTK/Release/lib/cmake/vtk -DCMAKE_TOOLCHAIN_FILE=C:\Users\user\Downloads\emsdk\upstream\emscripten\cmake\Modules\Platform\Emscripten.cmake -DCMAKE_CROSSCOMPILING_EMULATOR=C:/Users/user/Downloads/emsdk/node/22.16.0_64bit/bin/node.exe
+-- Build type: Release mode
+-- Configuring done (0.4s)
+-- Generating done (0.1s)
+-- Build files have been written to: C:/Users/user/Downloads/vtk-workbench_jclee/webassembly/build
+[0/1] Install the project...
+-- Install configuration: "Release"
+-- Up-to-date: C:/Users/user/Downloads/vtk-workbench_jclee/public/wasm/VTK-Workbench.data
+-- Up-to-date: C:/Users/user/Downloads/vtk-workbench_jclee/public/wasm/VTK-Workbench.wasm
+-- Up-to-date: C:/Users/user/Downloads/vtk-workbench_jclee/public/wasm/VTK-Workbench.js

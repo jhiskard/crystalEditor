@@ -1,6 +1,5 @@
 #pragma once
 
-#include "macro/singleton_macro.h"
 #include "enum/toolbar_enums.h"
 #include "enum/viewer_enums.h"
 #include "texture.h"
@@ -10,15 +9,14 @@
 #include <unordered_map>
 
 struct ImVec2;
+class WorkbenchRuntime;
 
 
 /**
  * @brief Viewer toolbar presenter.
- * @note Phase 12 compatibility shim: prefer runtime-mediated access.
+ * @note Phase 13: runtime owns this presenter instance; direct singleton entrypoint is removed.
  */
 class Toolbar {
-    DECLARE_SINGLETON(Toolbar)
-
 public:
     //void Render(const ImVec2& windowPos, const ImVec2& windowSize);
     void Render(const ImVec2& viewerContentSize);
@@ -28,6 +26,14 @@ public:
     ProjectionMode GetProjectionMode() const { return m_ProjectionMode; }
 
 private:
+    friend class WorkbenchRuntime;
+    Toolbar();
+    ~Toolbar();
+    Toolbar(const Toolbar&) = delete;
+    Toolbar& operator=(const Toolbar&) = delete;
+    Toolbar(Toolbar&&) = delete;
+    Toolbar& operator=(Toolbar&&) = delete;
+
     Anchor m_Anchor { Anchor::TOP };
     int32_t m_Padding;
 

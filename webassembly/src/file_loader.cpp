@@ -117,11 +117,11 @@ void FileLoader::handleXSFFile(const std::string& fileName) {
 }
 
 void FileLoader::HandleXSFGridFile(const std::string& fileName) {
-    Instance().handleXSFGridFile(fileName);
+    handleXSFGridFile(fileName);
 }
 
 void FileLoader::HandleStructureFile(const std::string& fileName) {
-    Instance().handleStructureFile(fileName);
+    handleStructureFile(fileName);
 }
 
 void FileLoader::handleXSFGridFile(const std::string& fileName) {
@@ -181,7 +181,7 @@ void FileLoader::LoadArrayBuffer(const std::string& fileName, bool deleteFile) {
     if (extension == "xsf") {
         try {
             SPDLOG_INFO("Processing XSF file: {}", fileName);
-            Instance().handleXSFFile(fileName);
+            handleXSFFile(fileName);
         }
         catch (const std::exception& e) {
             SPDLOG_ERROR("Error handling XSF file: {}: {}", fileName, e.what());
@@ -191,16 +191,16 @@ void FileLoader::LoadArrayBuffer(const std::string& fileName, bool deleteFile) {
 
     Mesh* newMesh = nullptr;
     if (extension == "vtk") {
-        newMesh = Instance().readVtkFile(fileName);
+        newMesh = readVtkFile(fileName);
     }
     else if (extension == "vtu") {
-        newMesh = Instance().readVtuFile(fileName);
+        newMesh = readVtuFile(fileName);
     }
     else if (extension == "unv") {
-        newMesh = Instance().readUnvFile(fileName);
+        newMesh = readUnvFile(fileName);
     }
 
-    Instance().CloseFile(fileName);
+    CloseFile(fileName);
     if (deleteFile) {
         std::remove(fileName.c_str());
     }
@@ -324,7 +324,7 @@ void FileLoader::progressCallback(vtkObject* caller, long unsigned int eventId, 
 }
 
 void FileLoader::ProcessFileInBackground(const std::string& fileName, bool deleteFile) {
-    FileLoader::Instance().processFileInBackground(fileName, deleteFile);
+    processFileInBackground(fileName, deleteFile);
 }
 
 void FileLoader::processFileInBackground(const std::string& fileName, bool deleteFile) {
@@ -332,7 +332,7 @@ void FileLoader::processFileInBackground(const std::string& fileName, bool delet
         m_LoadingThread.join();
     }
 
-    m_LoadingThread = std::thread([fileName, deleteFile]() {
+    m_LoadingThread = std::thread([this, fileName, deleteFile]() {
         try {
             LoadArrayBuffer(fileName, deleteFile);
             GetWorkbenchRuntime().ShowProgressPopup(false);
@@ -372,7 +372,7 @@ void FileLoader::OnParserWorkerResult(int dummy, const void* data) {
         return;
     }
 
-    FileLoader::Instance().handleParserWorkerResult(*result);
+    GetWorkbenchRuntime().FileLoaderService().handleParserWorkerResult(*result);
 }
 
 void FileLoader::handleParserWorkerResult(io::application::ParserWorkerResult& result) {
@@ -497,5 +497,5 @@ void FileLoader::OpenChgcarFileBrowser() {
 
 void FileLoader::LoadChgcarFile(const std::string& filename) {
     SPDLOG_INFO("LoadChgcarFile called: {}", filename);
-    Instance().processChgcarFileInBackground(filename);
+    processChgcarFileInBackground(filename);
 }
