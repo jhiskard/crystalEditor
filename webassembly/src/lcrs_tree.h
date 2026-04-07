@@ -26,10 +26,15 @@ public:
     const TreeNode* GetLeftSibling() const { return m_LeftSibling; }
     TreeNode* GetLeftChildMutable() { return m_LeftChild; }
     TreeNode* GetRightSiblingMutable() { return m_RightSibling; }    
+    TreeNode* GetLeftSiblingMutable() { return m_LeftSibling; }
     IconState GetIconState() const { return m_IconState; }
 
     // Setters
     void SetIconState(IconState state) { m_IconState = state; }
+    void SetParentMutable(TreeNode* parent) { m_Parent = parent; }
+    void SetLeftChildMutable(TreeNode* child) { m_LeftChild = child; }
+    void SetRightSiblingMutable(TreeNode* sibling) { m_RightSibling = sibling; }
+    void SetLeftSiblingMutable(TreeNode* sibling) { m_LeftSibling = sibling; }
 
     int32_t GetChildCount() const;
     int32_t GetDepth() const;
@@ -43,8 +48,6 @@ private:
     TreeNode* m_LeftSibling;
     IconState m_IconState { IconState::VISIBLE };
 
-    // All template instances of LcrsTree will be friends with this class.
-    friend class LcrsTree;
 };
 
 

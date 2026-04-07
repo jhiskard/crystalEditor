@@ -18,6 +18,9 @@ class WorkbenchRuntime;
  */
 class Toolbar {
 public:
+    Toolbar();
+    ~Toolbar();
+
     //void Render(const ImVec2& windowPos, const ImVec2& windowSize);
     void Render(const ImVec2& viewerContentSize);
     // ✅ 새로 추가: Charge Density 애니메이션 컨트롤
@@ -26,9 +29,6 @@ public:
     ProjectionMode GetProjectionMode() const { return m_ProjectionMode; }
 
 private:
-    friend class WorkbenchRuntime;
-    Toolbar();
-    ~Toolbar();
     Toolbar(const Toolbar&) = delete;
     Toolbar& operator=(const Toolbar&) = delete;
     Toolbar(Toolbar&&) = delete;

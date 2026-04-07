@@ -1,15 +1,9 @@
 #include "../atoms_template.h"
+#include "../../structure/domain/structure_repository.h"
 
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
-
-using atoms::domain::atomGroups;
-using atoms::domain::bondGroups;
-using atoms::domain::createdAtoms;
-using atoms::domain::createdBonds;
-using atoms::domain::surroundingAtoms;
-using atoms::domain::surroundingBonds;
 
 void AtomsTemplate::RegisterStructure(int32_t id, const std::string& name) {
     if (id < 0) {
@@ -26,6 +20,15 @@ void AtomsTemplate::RegisterStructure(int32_t id, const std::string& name) {
 
 
 void AtomsTemplate::RemoveStructure(int32_t id) {
+    auto& repository = structure::domain::GetStructureRepository();
+    auto& createdAtoms = repository.CreatedAtoms();
+    auto& surroundingAtoms = repository.SurroundingAtoms();
+    auto& atomGroups = repository.AtomGroups();
+    auto& createdBonds = repository.CreatedBonds();
+    auto& surroundingBonds = repository.SurroundingBonds();
+    auto& bondGroups = repository.BondGroups();
+    auto& cell = repository.Cell();
+
     auto it = m_Structures.find(id);
     if (it == m_Structures.end()) {
         return;
@@ -46,7 +49,7 @@ void AtomsTemplate::RemoveStructure(int32_t id) {
     if (m_CurrentStructureId == id) {
         m_CurrentStructureId = -1;
         atoms::domain::setCellVisible(false);
-        cellInfo.hasCell = false;
+        cell.hasCell = false;
     }
 
     if (m_ChargeDensityStructureId == id) {
@@ -247,6 +250,15 @@ void AtomsTemplate::RemoveStructure(int32_t id) {
 
 
 void AtomsTemplate::RemoveUnassignedData() {
+    auto& repository = structure::domain::GetStructureRepository();
+    auto& createdAtoms = repository.CreatedAtoms();
+    auto& surroundingAtoms = repository.SurroundingAtoms();
+    auto& atomGroups = repository.AtomGroups();
+    auto& createdBonds = repository.CreatedBonds();
+    auto& surroundingBonds = repository.SurroundingBonds();
+    auto& bondGroups = repository.BondGroups();
+    auto& cell = repository.Cell();
+
     std::vector<atoms::domain::AtomInfo> oldCreated = createdAtoms;
     std::vector<atoms::domain::AtomInfo> oldSurrounding = surroundingAtoms;
 
@@ -272,7 +284,7 @@ void AtomsTemplate::RemoveUnassignedData() {
         }
         if (m_CurrentStructureId < 0) {
             atoms::domain::setCellVisible(false);
-            cellInfo.hasCell = false;
+            cell.hasCell = false;
         }
         return;
     }
@@ -452,7 +464,7 @@ void AtomsTemplate::RemoveUnassignedData() {
     }
     if (m_CurrentStructureId < 0) {
         atoms::domain::setCellVisible(false);
-        cellInfo.hasCell = false;
+        cell.hasCell = false;
     }
     if (m_ChargeDensityStructureId < 0 && HasChargeDensity()) {
         ClearChargeDensity();

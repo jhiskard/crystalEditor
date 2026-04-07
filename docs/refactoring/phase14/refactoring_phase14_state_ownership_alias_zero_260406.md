@@ -14,7 +14,7 @@
 - `webassembly/src/shell/*` (메뉴/창 오픈 회귀 방지 체크 포함)
 - `scripts/refactoring/*`
 - `docs/refactoring/phase14/*`
-진행 상태: `W0 착수`
+진행 상태: `W6 완료`
 
 ## 0. 착수 배경과 고정 전제
 
@@ -223,9 +223,55 @@ W0 산출 로그:
 ## 10. 진행 체크리스트
 
 - [x] W0 기준선/중간 산출문서 등록
-- [ ] W1 `atoms/domain` 치환
-- [ ] W2 `atoms/application` 치환
-- [ ] W3 `atoms/ui` 치환
-- [ ] W4 `friend class` 0건화
-- [ ] W5 정적 게이트 스크립트 도입
-- [ ] W6 빌드/테스트/종료 문서 완료
+- [x] W1 `atoms/domain` 치환
+- [x] W2 `atoms/application` 치환
+- [x] W3 `atoms/ui` 치환
+- [x] W4 `friend class` 0건화
+- [x] W5 정적 게이트 스크립트 도입
+- [x] W6 빌드/테스트/종료 문서 완료
+
+## 11. W0~W5 실행 결과 (`2026-04-07`, KST)
+
+1. W0 기준선 로그 등록 완료:
+   - `logs/alias_inventory_phase14_latest.md`
+   - `logs/friend_class_inventory_phase14_latest.md`
+   - `logs/bug_p14_vasp_grid_sequence_latest.md`
+2. W1 완료:
+   - `atoms/domain + structure/domain` 범위의 legacy alias 참조가 0임을 재확인.
+3. W2 완료:
+   - `webassembly/src/atoms/application/structure_lifecycle_service.cpp`를 repository 경유 상태 접근으로 치환.
+   - application 범위 legacy alias 참조 수를 `2 -> 0`으로 감소.
+4. W3 완료:
+   - `atoms_template/ui/infrastructure`의 잔여 legacy alias 참조(`12`)를 모두 제거.
+   - 총 alias 참조 수 `14 -> 0`.
+5. W4 완료:
+   - `app.h/file_loader.h/toolbar.h/lcrs_tree.h`의 `friend class` 선언 제거.
+   - `lcrs_tree.cpp`를 접근자 기반 링크 조작으로 치환하여 friend 의존 제거.
+6. W5 완료:
+   - `scripts/refactoring/check_phase14_state_ownership_alias_zero.ps1` 추가.
+   - 정적 게이트(`legacy alias 0`, `외부 노출 0`, `friend class 0`, `메뉴 오픈 코드 경로`, `bug log`) PASS.
+7. 중간 검증:
+   - `npm run build-wasm:release` PASS.
+   - `npm run test:cpp` PASS.
+8. 잔여 작업:
+   - 없음 (Phase 14 W6 종료).
+
+## 12. W6 실행 결과 (`2026-04-07`, KST)
+
+1. 정적 게이트:
+   - `powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase14_state_ownership_alias_zero.ps1` PASS
+   - 로그: `docs/refactoring/phase14/logs/check_phase14_state_ownership_alias_zero_latest.txt`
+2. 빌드/테스트:
+   - `npm run build-wasm:release` PASS
+   - `npm run test:cpp` PASS
+   - `npm run test:smoke` PASS
+   - 로그:
+     - `docs/refactoring/phase14/logs/build_phase14_latest.txt`
+     - `docs/refactoring/phase14/logs/unit_test_phase14_latest.txt`
+     - `docs/refactoring/phase14/logs/smoke_phase14_latest.txt`
+3. 메뉴 오픈 검증:
+   - `docs/refactoring/phase14/logs/menu_open_matrix_phase14_latest.md` 작성
+   - 메뉴 경로(`Edit/Build/Data/Utilities`) 코드 경로 및 동기화 가드 점검 PASS
+4. 종료 문서:
+   - `docs/refactoring/phase14/dependency_gate_report.md` 최종 반영
+   - `docs/refactoring/phase14/go_no_go_phase15.md` 최종 반영 (`GO`)

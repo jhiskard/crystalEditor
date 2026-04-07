@@ -5,6 +5,7 @@
 #include "../domain/atom_manager.h"
 #include "../domain/bond_manager.h"
 #include "../domain/cell_manager.h"
+#include "../../structure/domain/structure_repository.h"
 #include "../../config/log_config.h"
 #include <algorithm>
 #include <unordered_map>
@@ -12,11 +13,13 @@
 namespace atoms {
 namespace ui {
 
-using atoms::domain::createdAtoms;
-using atoms::domain::surroundingAtoms;
-using atoms::domain::createdBonds;
-using atoms::domain::surroundingBonds;
-using atoms::domain::atomGroups;
+namespace {
+auto& createdAtoms = structure::domain::GetStructureRepository().CreatedAtoms();
+auto& surroundingAtoms = structure::domain::GetStructureRepository().SurroundingAtoms();
+auto& createdBonds = structure::domain::GetStructureRepository().CreatedBonds();
+auto& surroundingBonds = structure::domain::GetStructureRepository().SurroundingBonds();
+auto& atomGroups = structure::domain::GetStructureRepository().AtomGroups();
+}
 
 AtomEditorUI::AtomEditorUI(AtomsTemplate* parent)
     : m_parent(parent) {

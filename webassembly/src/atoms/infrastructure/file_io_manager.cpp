@@ -3,6 +3,7 @@
 #include "../atoms_template.h"
 #include "../../config/log_config.h"
 #include "../../io/infrastructure/xsf_parser.h"
+#include "../../structure/domain/structure_repository.h"
 #include "../domain/element_database.h"
 #include "../domain/atom_manager.h"
 #include "../domain/cell_manager.h"
@@ -269,6 +270,8 @@ bool FileIOManager::initializeStructure(const float cellVectors[3][3], const std
         return false;
     }
     try {
+        auto& createdAtoms = structure::domain::GetStructureRepository().CreatedAtoms();
+
         // 셀 행렬 업데이트
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -289,8 +292,8 @@ bool FileIOManager::initializeStructure(const float cellVectors[3][3], const std
             float radius = elementDB.getDefaultRadius(symbol);
 
             parent->createAtomSphere(symbol.c_str(), color, radius, position);
-            if (outNewAtomIds && !atoms::domain::createdAtoms.empty()) {
-                outNewAtomIds->push_back(atoms::domain::createdAtoms.back().id);
+            if (outNewAtomIds && !createdAtoms.empty()) {
+                outNewAtomIds->push_back(createdAtoms.back().id);
             }
         }
 

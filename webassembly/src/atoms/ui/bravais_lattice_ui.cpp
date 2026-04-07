@@ -4,6 +4,7 @@
 #include "../domain/crystal_system.h"
 #include "../domain/atom_manager.h"
 #include "../domain/cell_manager.h"
+#include "../../structure/domain/structure_repository.h"
 #include "../../app.h"
 #include "../../config/log_config.h"
 #include "../atoms_template.h"
@@ -496,7 +497,7 @@ bool BravaisLatticeUI::checkPredictedOverlap(
     std::string& outSymbolA,
     std::string& outSymbolB
 ) const {
-    const auto& atoms = atoms::domain::createdAtoms;
+    const auto& atoms = structure::domain::GetStructureRepository().CreatedAtoms();
     if (atoms.size() < 2) {
         return false;
     }
