@@ -304,65 +304,65 @@ void App::InitIdbfs() {
         VtkModule.FS.mkdir(path);
         VtkModule.FS.mount(IDBFS, {}, path); 
         console.log(`IDBFS mounted on "${path}"`);
-    }, Instance().IDBFS_MOUNT_PATH);
+    }, GetWorkbenchRuntime().AppController().IDBFS_MOUNT_PATH);
 }
 
 void App::SaveImGuiIniFile() {
-    Instance().syncShellStateFromStore();
+    GetWorkbenchRuntime().AppController().syncShellStateFromStore();
 
     // Get ImGui setting data
     size_t dataSize = 0;
     const char* data = ImGui::SaveIniSettingsToMemory(&dataSize);
 
-    std::ofstream iniFile(Instance().IMGUI_SETTING_FILE_PATH, std::ios::out | std::ios::trunc);
+    std::ofstream iniFile(GetWorkbenchRuntime().AppController().IMGUI_SETTING_FILE_PATH, std::ios::out | std::ios::trunc);
     if (!iniFile) {
         SPDLOG_ERROR("Failed to open ImGui setting file for writing: {}",
-            Instance().IMGUI_SETTING_FILE_PATH);
+            GetWorkbenchRuntime().AppController().IMGUI_SETTING_FILE_PATH);
         return;
     }
     iniFile.write(data, dataSize);
     iniFile.close();
 
-    std::ofstream windowFile(Instance().WINDOW_SETTING_FILE_PATH, std::ios::out | std::ios::trunc);
+    std::ofstream windowFile(GetWorkbenchRuntime().AppController().WINDOW_SETTING_FILE_PATH, std::ios::out | std::ios::trunc);
     if (!windowFile) {
         SPDLOG_ERROR("Failed to open window visibility file for writing: {}",
-            Instance().WINDOW_SETTING_FILE_PATH);
+            GetWorkbenchRuntime().AppController().WINDOW_SETTING_FILE_PATH);
         return;
     }
 
     const bool anyBuilderWindow =
-        Instance().m_bShowPeriodicTableWindow ||
-        Instance().m_bShowCrystalTemplatesWindow ||
-        Instance().m_bShowBrillouinZonePlotWindow;
+        GetWorkbenchRuntime().AppController().m_bShowPeriodicTableWindow ||
+        GetWorkbenchRuntime().AppController().m_bShowCrystalTemplatesWindow ||
+        GetWorkbenchRuntime().AppController().m_bShowBrillouinZonePlotWindow;
     const bool anyEditorWindow =
-        Instance().m_bShowCreatedAtomsWindow ||
-        Instance().m_bShowBondsManagementWindow ||
-        Instance().m_bShowCellInformationWindow;
+        GetWorkbenchRuntime().AppController().m_bShowCreatedAtomsWindow ||
+        GetWorkbenchRuntime().AppController().m_bShowBondsManagementWindow ||
+        GetWorkbenchRuntime().AppController().m_bShowCellInformationWindow;
     const bool anyDataWindow =
-        Instance().m_bShowChargeDensityViewerWindow ||
-        Instance().m_bShowSliceViewerWindow;
+        GetWorkbenchRuntime().AppController().m_bShowChargeDensityViewerWindow ||
+        GetWorkbenchRuntime().AppController().m_bShowSliceViewerWindow;
 
     // Legacy group keys for backward compatibility.
-    windowFile << "viewer=" << (Instance().m_bShowVtkViewer ? 1 : 0) << "\n";
-    windowFile << "model_tree=" << (Instance().m_bShowModelTree ? 1 : 0) << "\n";
+    windowFile << "viewer=" << (GetWorkbenchRuntime().AppController().m_bShowVtkViewer ? 1 : 0) << "\n";
+    windowFile << "model_tree=" << (GetWorkbenchRuntime().AppController().m_bShowModelTree ? 1 : 0) << "\n";
     windowFile << "crystal_builder=" << (anyBuilderWindow ? 1 : 0) << "\n";
     windowFile << "crystal_editor=" << (anyEditorWindow ? 1 : 0) << "\n";
     windowFile << "advanced_view=" << (anyDataWindow ? 1 : 0) << "\n";
 
     // Split-window keys.
-    windowFile << "periodic_table_window=" << (Instance().m_bShowPeriodicTableWindow ? 1 : 0) << "\n";
-    windowFile << "crystal_templates_window=" << (Instance().m_bShowCrystalTemplatesWindow ? 1 : 0) << "\n";
-    windowFile << "brillouin_zone_plot_window=" << (Instance().m_bShowBrillouinZonePlotWindow ? 1 : 0) << "\n";
-    windowFile << "created_atoms_window=" << (Instance().m_bShowCreatedAtomsWindow ? 1 : 0) << "\n";
-    windowFile << "bonds_management_window=" << (Instance().m_bShowBondsManagementWindow ? 1 : 0) << "\n";
-    windowFile << "cell_information_window=" << (Instance().m_bShowCellInformationWindow ? 1 : 0) << "\n";
-    windowFile << "charge_density_viewer_window=" << (Instance().m_bShowChargeDensityViewerWindow ? 1 : 0) << "\n";
-    windowFile << "slice_viewer_window=" << (Instance().m_bShowSliceViewerWindow ? 1 : 0) << "\n";
+    windowFile << "periodic_table_window=" << (GetWorkbenchRuntime().AppController().m_bShowPeriodicTableWindow ? 1 : 0) << "\n";
+    windowFile << "crystal_templates_window=" << (GetWorkbenchRuntime().AppController().m_bShowCrystalTemplatesWindow ? 1 : 0) << "\n";
+    windowFile << "brillouin_zone_plot_window=" << (GetWorkbenchRuntime().AppController().m_bShowBrillouinZonePlotWindow ? 1 : 0) << "\n";
+    windowFile << "created_atoms_window=" << (GetWorkbenchRuntime().AppController().m_bShowCreatedAtomsWindow ? 1 : 0) << "\n";
+    windowFile << "bonds_management_window=" << (GetWorkbenchRuntime().AppController().m_bShowBondsManagementWindow ? 1 : 0) << "\n";
+    windowFile << "cell_information_window=" << (GetWorkbenchRuntime().AppController().m_bShowCellInformationWindow ? 1 : 0) << "\n";
+    windowFile << "charge_density_viewer_window=" << (GetWorkbenchRuntime().AppController().m_bShowChargeDensityViewerWindow ? 1 : 0) << "\n";
+    windowFile << "slice_viewer_window=" << (GetWorkbenchRuntime().AppController().m_bShowSliceViewerWindow ? 1 : 0) << "\n";
     windowFile.close();
 }
 
 void App::LoadImGuiIniFile() {
-    std::ifstream iniFile(Instance().IMGUI_SETTING_FILE_PATH, std::ifstream::in);
+    std::ifstream iniFile(GetWorkbenchRuntime().AppController().IMGUI_SETTING_FILE_PATH, std::ifstream::in);
     if (!iniFile) {
         SPDLOG_INFO("ImGui setting file not found. Using default layout.");
     }
@@ -375,24 +375,24 @@ void App::LoadImGuiIniFile() {
         ImGui::LoadIniSettingsFromMemory(fileContents.c_str(), fileContents.size());
     }
 
-    std::ifstream windowFile(Instance().WINDOW_SETTING_FILE_PATH, std::ifstream::in);
+    std::ifstream windowFile(GetWorkbenchRuntime().AppController().WINDOW_SETTING_FILE_PATH, std::ifstream::in);
     if (!windowFile) {
         SPDLOG_INFO("Window visibility file not found. Using default window visibility.");
-        Instance().m_ShouldApplyInitialLayout = true;
-        Instance().m_bShowVtkViewer = true;
-        Instance().m_bShowModelTree = false;
-        Instance().m_bShowPeriodicTableWindow = false;
-        Instance().m_bShowCrystalTemplatesWindow = false;
-        Instance().m_bShowBrillouinZonePlotWindow = false;
-        Instance().m_bShowCreatedAtomsWindow = false;
-        Instance().m_bShowBondsManagementWindow = false;
-        Instance().m_bShowCellInformationWindow = false;
-        Instance().m_bShowChargeDensityViewerWindow = false;
-        Instance().m_bShowSliceViewerWindow = false;
-        Instance().syncShellStateToStore();
+        GetWorkbenchRuntime().AppController().m_ShouldApplyInitialLayout = true;
+        GetWorkbenchRuntime().AppController().m_bShowVtkViewer = true;
+        GetWorkbenchRuntime().AppController().m_bShowModelTree = false;
+        GetWorkbenchRuntime().AppController().m_bShowPeriodicTableWindow = false;
+        GetWorkbenchRuntime().AppController().m_bShowCrystalTemplatesWindow = false;
+        GetWorkbenchRuntime().AppController().m_bShowBrillouinZonePlotWindow = false;
+        GetWorkbenchRuntime().AppController().m_bShowCreatedAtomsWindow = false;
+        GetWorkbenchRuntime().AppController().m_bShowBondsManagementWindow = false;
+        GetWorkbenchRuntime().AppController().m_bShowCellInformationWindow = false;
+        GetWorkbenchRuntime().AppController().m_bShowChargeDensityViewerWindow = false;
+        GetWorkbenchRuntime().AppController().m_bShowSliceViewerWindow = false;
+        GetWorkbenchRuntime().AppController().syncShellStateToStore();
         return;
     }
-    Instance().m_ShouldApplyInitialLayout = false;
+    GetWorkbenchRuntime().AppController().m_ShouldApplyInitialLayout = false;
 
     std::string line;
     while (std::getline(windowFile, line)) {
@@ -409,56 +409,76 @@ void App::LoadImGuiIniFile() {
         }
 
         if (key == "viewer") {
-            Instance().m_bShowVtkViewer = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowVtkViewer = parsedValue;
         }
         else if (key == "model_tree") {
-            Instance().m_bShowModelTree = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowModelTree = parsedValue;
         }
         else if (key == "crystal_builder") {
-            Instance().m_bShowPeriodicTableWindow = parsedValue;
-            Instance().m_bShowCrystalTemplatesWindow = parsedValue;
-            Instance().m_bShowBrillouinZonePlotWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowPeriodicTableWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowCrystalTemplatesWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowBrillouinZonePlotWindow = parsedValue;
         }
         else if (key == "crystal_editor") {
-            Instance().m_bShowCreatedAtomsWindow = parsedValue;
-            Instance().m_bShowBondsManagementWindow = parsedValue;
-            Instance().m_bShowCellInformationWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowCreatedAtomsWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowBondsManagementWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowCellInformationWindow = parsedValue;
         }
         else if (key == "advanced_view") {
-            Instance().m_bShowChargeDensityViewerWindow = parsedValue;
-            Instance().m_bShowSliceViewerWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowChargeDensityViewerWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowSliceViewerWindow = parsedValue;
         }
         else if (key == "periodic_table_window") {
-            Instance().m_bShowPeriodicTableWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowPeriodicTableWindow = parsedValue;
         }
         else if (key == "crystal_templates_window") {
-            Instance().m_bShowCrystalTemplatesWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowCrystalTemplatesWindow = parsedValue;
         }
         else if (key == "brillouin_zone_plot_window") {
-            Instance().m_bShowBrillouinZonePlotWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowBrillouinZonePlotWindow = parsedValue;
         }
         else if (key == "created_atoms_window") {
-            Instance().m_bShowCreatedAtomsWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowCreatedAtomsWindow = parsedValue;
         }
         else if (key == "bonds_management_window") {
-            Instance().m_bShowBondsManagementWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowBondsManagementWindow = parsedValue;
         }
         else if (key == "cell_information_window") {
-            Instance().m_bShowCellInformationWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowCellInformationWindow = parsedValue;
         }
         else if (key == "charge_density_viewer_window") {
-            Instance().m_bShowChargeDensityViewerWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowChargeDensityViewerWindow = parsedValue;
         }
         else if (key == "slice_viewer_window") {
-            Instance().m_bShowSliceViewerWindow = parsedValue;
+            GetWorkbenchRuntime().AppController().m_bShowSliceViewerWindow = parsedValue;
         }
     }
 
-    if (!Instance().m_bShowModelTree) {
-        Instance().m_RequestModelTreeFocus = false;
+    if (!GetWorkbenchRuntime().AppController().m_bShowModelTree) {
+        GetWorkbenchRuntime().AppController().m_RequestModelTreeFocus = false;
     }
 
-    Instance().syncShellStateToStore();
+    GetWorkbenchRuntime().AppController().syncShellStateToStore();
+}
+
+void App::SetColorStyle(ColorStyle style) {
+    GetWorkbenchRuntime().AppController().setColorStyle(style);
+}
+
+ColorStyle App::GetColorStyle() {
+    return GetWorkbenchRuntime().AppController().getColorStyle();
+}
+
+void App::SetFontSizePreset(FontSizePreset preset) {
+    GetWorkbenchRuntime().AppController().setFontSizePreset(preset);
+}
+
+App::FontSizePreset App::GetFontSizePreset() {
+    return GetWorkbenchRuntime().AppController().getFontSizePreset();
+}
+
+float App::UiScale() {
+    return GetWorkbenchRuntime().AppController().m_kUiScale;
 }
 
 void App::setColorStyle(ColorStyle style) {
@@ -761,6 +781,60 @@ void App::renderDockSpaceAndMenu() {
 
     if (ImGui::BeginMenuBar()) {
         shell::application::WorkbenchController& controller = GetWorkbenchRuntime().ShellController();
+        auto requestLocalFocus = [&](FocusTarget target) {
+            m_PendingFocusTarget = target;
+            m_PendingFocusPassesRemaining = 2;
+        };
+        auto openEditorPanel = [&](shell::application::EditorPanelAction action) {
+            controller.OpenEditorPanel(action);
+            switch (action) {
+            case shell::application::EditorPanelAction::Atoms:
+                m_bShowCreatedAtomsWindow = true;
+                requestLocalFocus(FocusTarget::CreatedAtoms);
+                break;
+            case shell::application::EditorPanelAction::Bonds:
+                m_bShowBondsManagementWindow = true;
+                requestLocalFocus(FocusTarget::BondsManagement);
+                break;
+            case shell::application::EditorPanelAction::Cell:
+                m_bShowCellInformationWindow = true;
+                requestLocalFocus(FocusTarget::CellInformation);
+                break;
+            }
+        };
+        auto openBuilderPanel = [&](shell::application::BuilderPanelAction action) {
+            controller.OpenBuilderPanel(action);
+            switch (action) {
+            case shell::application::BuilderPanelAction::AddAtoms:
+                m_bShowPeriodicTableWindow = true;
+                requestLocalFocus(FocusTarget::PeriodicTable);
+                break;
+            case shell::application::BuilderPanelAction::BravaisLatticeTemplates:
+                m_bShowCrystalTemplatesWindow = true;
+                requestLocalFocus(FocusTarget::CrystalTemplates);
+                break;
+            case shell::application::BuilderPanelAction::BrillouinZone:
+                m_bShowBrillouinZonePlotWindow = true;
+                requestLocalFocus(FocusTarget::BrillouinZonePlot);
+                break;
+            }
+        };
+        auto openDataPanel = [&](shell::application::DataPanelAction action) {
+            controller.OpenDataPanel(action);
+            m_bShowModelTree = true;
+            switch (action) {
+            case shell::application::DataPanelAction::Isosurface:
+            case shell::application::DataPanelAction::Surface:
+            case shell::application::DataPanelAction::Volumetric:
+                m_bShowChargeDensityViewerWindow = true;
+                requestLocalFocus(FocusTarget::ChargeDensityViewer);
+                break;
+            case shell::application::DataPanelAction::Plane:
+                m_bShowSliceViewerWindow = true;
+                requestLocalFocus(FocusTarget::SliceViewer);
+                break;
+            }
+        };
 
         if (ImGui::BeginMenu("  Crystal Viewer")) {
             if (ImGui::MenuItem(ICON_FA6_CIRCLE_INFO "  About")) {
@@ -784,23 +858,23 @@ void App::renderDockSpaceAndMenu() {
 
         if (ImGui::BeginMenu("  Edit")) {
             if (ImGui::MenuItem("Atoms")) {
-                controller.OpenEditorPanel(shell::application::EditorPanelAction::Atoms);
+                openEditorPanel(shell::application::EditorPanelAction::Atoms);
             }
             if (ImGui::MenuItem("Bonds")) {
-                controller.OpenEditorPanel(shell::application::EditorPanelAction::Bonds);
+                openEditorPanel(shell::application::EditorPanelAction::Bonds);
             }
             if (ImGui::MenuItem("Cell")) {
-                controller.OpenEditorPanel(shell::application::EditorPanelAction::Cell);
+                openEditorPanel(shell::application::EditorPanelAction::Cell);
             }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("  Build")) {
             if (ImGui::MenuItem("Add atoms")) {
-                controller.OpenBuilderPanel(shell::application::BuilderPanelAction::AddAtoms);
+                openBuilderPanel(shell::application::BuilderPanelAction::AddAtoms);
             }
             if (ImGui::MenuItem("Bravais Lattice Templates")) {
-                controller.OpenBuilderPanel(
+                openBuilderPanel(
                     shell::application::BuilderPanelAction::BravaisLatticeTemplates);
             }
             ImGui::EndMenu();
@@ -839,23 +913,23 @@ void App::renderDockSpaceAndMenu() {
 
         if (ImGui::BeginMenu("  Data")) {
             if (ImGui::MenuItem("Isosurface")) {
-                controller.OpenDataPanel(shell::application::DataPanelAction::Isosurface);
+                openDataPanel(shell::application::DataPanelAction::Isosurface);
             }
             if (ImGui::MenuItem("Surface")) {
-                controller.OpenDataPanel(shell::application::DataPanelAction::Surface);
+                openDataPanel(shell::application::DataPanelAction::Surface);
             }
             if (ImGui::MenuItem("Volumetric")) {
-                controller.OpenDataPanel(shell::application::DataPanelAction::Volumetric);
+                openDataPanel(shell::application::DataPanelAction::Volumetric);
             }
             if (ImGui::MenuItem("Plane")) {
-                controller.OpenDataPanel(shell::application::DataPanelAction::Plane);
+                openDataPanel(shell::application::DataPanelAction::Plane);
             }
             ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("  Utilities")) {
             if (ImGui::MenuItem("Brillouin Zone")) {
-                controller.OpenBuilderPanel(shell::application::BuilderPanelAction::BrillouinZone);
+                openBuilderPanel(shell::application::BuilderPanelAction::BrillouinZone);
             }
             ImGui::EndMenu();
         }
@@ -1290,33 +1364,37 @@ void App::showProgressPopup(bool show) {
     }
 }
 
+void App::ShowProgressPopup(bool show) {
+    GetWorkbenchRuntime().AppController().showProgressPopup(show);
+}
+
 void App::SetProgressPopupText(const std::string& title, const std::string& text) {
-    Instance().setProgressPopupText(title, text);
+    GetWorkbenchRuntime().AppController().setProgressPopupText(title, text);
 }
 
 void App::ShowCrystalBuilderWindow(bool show) {
-    App& app = Instance();
+    App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
     app.m_bShowPeriodicTableWindow = show;
     app.syncShellStateToStore();
 }
 
 void App::ShowCrystalEditorWindow(bool show) {
-    App& app = Instance();
+    App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
     app.m_bShowCreatedAtomsWindow = show;
     app.syncShellStateToStore();
 }
 
 void App::ShowAdvancedViewWindow(bool show) {
-    App& app = Instance();
+    App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
     app.m_bShowChargeDensityViewerWindow = show;
     app.syncShellStateToStore();
 }
 
 void App::ShowSliceViewerWindow(bool show) {
-    App& app = Instance();
+    App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
     app.m_bShowSliceViewerWindow = show;
     app.syncShellStateToStore();
@@ -1338,4 +1416,5 @@ void App::setProgressPopupText(const std::string& title, const std::string& text
     m_PopupTitle = title;
     m_PopupText = text;
 }
+
 

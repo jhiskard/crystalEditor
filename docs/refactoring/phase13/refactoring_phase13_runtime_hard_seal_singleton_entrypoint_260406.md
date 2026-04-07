@@ -14,7 +14,7 @@
 - `webassembly/src/shell/runtime/*`
 - `scripts/refactoring/*`
 - `docs/refactoring/phase13/*`
-진행 상태: `W0 착수`
+진행 상태: `W6 완료`
 
 ## 0. 착수 배경과 고정 전제
 
@@ -197,6 +197,21 @@ W0 산출 로그:
 | P13-R2 | import 진입점 전환 중 파일 로딩 회귀 | Medium | parser/apply 경로 단위 테스트 + 스모크 |
 | P13-R3 | 임시 shim 누적 | Medium | W5 게이트에서 만료 임시 경로 검사 |
 
+## 8.1 사후 보완 메모 (2026-04-06)
+
+1. 증상:
+   - `Edit > Atoms/Bonds/Cell`
+   - `Build > Add atoms/Bravais Lattice Templates`
+   - `Data` 하위 메뉴 및 `Utilities > Brillouin Zone`
+   선택 시 해당 창이 열리지 않는 회귀가 확인되었다.
+2. 원인:
+   - 메뉴 액션에서 `ShellState`를 변경한 직후 같은 프레임의 `syncShellStateToStore()`가 stale local 상태로 store를 재덮어씀.
+3. 수정 원칙:
+   - 메뉴 액션 프레임에서 `ShellState`와 `App` local visibility/focus를 동시 갱신.
+4. 재발 방지:
+   - 차기 Phase부터 W6 검증에 메뉴 창 오픈 회귀 체크를 필수로 포함.
+   - 공통 정책 문서(`refactoring_plan_architecture_completion_phase13plus_260406.md`, 4.4) 적용.
+
 ## 9. 참조 문서
 
 - `docs/refactoring/refactoring_plan_architecture_completion_phase13plus_260406.md`
@@ -208,9 +223,9 @@ W0 산출 로그:
 ## 10. 진행 체크리스트
 
 - [x] W0 기준선/중간 산출문서 등록
-- [ ] W1 `App` singleton 정리
-- [ ] W2 `Toolbar` singleton 정리
-- [ ] W3 `FileLoader` entrypoint 정리
-- [ ] W4 runtime/binding 계약 및 주석 보강
-- [ ] W5 정적 게이트 스크립트 도입
-- [ ] W6 빌드/테스트/종료 문서 완료
+- [x] W1 `App` singleton 정리
+- [x] W2 `Toolbar` singleton 정리
+- [x] W3 `FileLoader` entrypoint 정리
+- [x] W4 runtime/binding 계약 및 주석 보강
+- [x] W5 정적 게이트 스크립트 도입
+- [x] W6 빌드/테스트/종료 문서 완료

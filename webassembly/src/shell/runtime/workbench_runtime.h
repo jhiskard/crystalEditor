@@ -50,8 +50,8 @@ class WorkbenchController;
 
 /**
  * @brief Runtime composition root facade for legacy singleton graph.
- * @details Phase 7에서는 singleton 제거 대신 접근 경계를 runtime으로 제한한다.
- *          main/app/wasm binding 계층은 이 타입을 통해서만 런타임 객체에 접근한다.
+ * @details main/app/wasm binding 계층은 이 타입을 통해서만 런타임 객체에 접근한다.
+ *          Phase 13에서는 App/Toolbar 진입점을 runtime-owned instance로 전환했다.
  */
 class WorkbenchRuntime {
 public:
@@ -79,7 +79,7 @@ public:
 
     /**
      * @brief Returns toolbar facade owned behind runtime boundary.
-     * @note Compatibility shim: keep direct `Toolbar::Instance()` calls out of feature modules.
+     * @note Runtime owns the concrete toolbar presenter instance.
      */
     Toolbar& ToolbarPanel();
 
@@ -130,6 +130,7 @@ public:
 
     /**
      * @brief Returns import/file-loading service facade.
+     * @note Runtime owns this service instance and mediates all wasm import entrypoints.
      */
     FileLoader& FileLoaderService();
 
@@ -185,6 +186,8 @@ public:
 
     /**
      * @brief Runtime wrapper for import APIs exposed to wasm bindings.
+     * @details JS/wasm bindings must not call `FileLoader` static entrypoints directly.
+     *          Route every import action through this facade to preserve runtime ownership.
      */
     void LoadArrayBuffer(const std::string& fileName, bool deleteFile);
     void LoadChgcarFile(const std::string& fileName);

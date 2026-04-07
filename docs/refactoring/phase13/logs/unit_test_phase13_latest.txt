@@ -1,0 +1,42 @@
+
+> vtk-workbench@0.1.0 test:cpp
+> cmd /c "..\emsdk\emsdk_env.bat && emcmake cmake --fresh -S webassembly/tests -B webassembly/tests/build-em -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CROSSCOMPILING_EMULATOR=node && cmake --build webassembly/tests/build-em --config Release && ctest --test-dir webassembly/tests/build-em --output-on-failure -C Release"
+
+Setting up EMSDK environment (suppress these messages with EMSDK_QUIET=1)
+Adding directories to PATH:
+PATH += C:\Users\user\Downloads\emsdk
+PATH += C:\Users\user\Downloads\emsdk\upstream\emscripten
+
+Setting environment variables:
+PATH = C:\Users\user\Downloads\emsdk;C:\Users\user\Downloads\emsdk\upstream\emscripten;C:\Users\user\Downloads\vtk-workbench_jclee\node_modules\.bin;C:\Users\user\Downloads\node_modules\.bin;C:\Users\user\node_modules\.bin;C:\Users\node_modules\.bin;C:\node_modules\.bin;C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script\lib\node-gyp-bin;C:\Users\user\.codex\tmp\arg0\codex-arg0dW0vsb;C:\Users\user\AppData\Local\Programs\Microsoft VS Code;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files\nodejs\;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\CMake\bin;C:\Program Files\Git\cmd;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Users\user\AppData\Local\Muse Hub\lib;C:\Users\user\AppData\Local\Programs\Python\Python312\Scripts\;C:\Users\user\AppData\Local\Programs\Python\Python312\;C:\Users\user\AppData\Local\Programs\Python\Launcher\;C:\Users\user\AppData\Local\Microsoft\WindowsApps;C:\Users\user\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\user\AppData\Roaming\npm;C:\Users\user\AppData\Local\Microsoft\WinGet\Packages\Ninja-build.Ninja_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Program Files\nodejs;c:\Users\user\.vscode\extensions\openai.chatgpt-26.325.31654-win32-x64\bin\windows-x86_64
+EMSDK = C:/Users/user/Downloads/emsdk
+EMSDK_NODE = C:\Users\user\Downloads\emsdk\node\22.16.0_64bit\bin\node.exe
+EMSDK_PYTHON = C:\Users\user\Downloads\emsdk\python\3.13.3_64bit\python.exe
+Clearing existing environment variable: EMSDK_PY
+configure: cmake --fresh -S webassembly/tests -B webassembly/tests/build-em -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CROSSCOMPILING_EMULATOR=node -DCMAKE_TOOLCHAIN_FILE=C:\Users\user\Downloads\emsdk\upstream\emscripten\cmake\Modules\Platform\Emscripten.cmake
+-- The CXX compiler identification is Clang 21.0.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Users/user/Downloads/emsdk/upstream/emscripten/em++.bat - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (1.9s)
+-- Generating done (0.0s)
+-- Build files have been written to: C:/Users/user/Downloads/vtk-workbench_jclee/webassembly/tests/build-em
+[1/10] Building CXX object CMakeFiles/wb_native_tests.dir/C_/Users/user/Downloads/vtk-workbench_jclee/webassembly/src/atoms/domain/cell_transform.cpp.o
+[2/10] Building CXX object CMakeFiles/wb_native_tests.dir/C_/Users/user/Downloads/vtk-workbench_jclee/webassembly/src/atoms/domain/measurement_geometry.cpp.o
+[3/10] Building CXX object CMakeFiles/wb_native_tests.dir/test_main.cpp.o
+[4/10] Building CXX object CMakeFiles/wb_native_tests.dir/atoms/cell_transform_test.cpp.o
+[5/10] Building CXX object CMakeFiles/wb_native_tests.dir/atoms/measurement_geometry_test.cpp.o
+[6/10] Building CXX object CMakeFiles/wb_native_tests.dir/io/chgcar_parser_test.cpp.o
+[7/10] Building CXX object CMakeFiles/wb_native_tests.dir/io/xsf_parser_test.cpp.o
+[8/10] Building CXX object CMakeFiles/wb_native_tests.dir/C_/Users/user/Downloads/vtk-workbench_jclee/webassembly/src/atoms/infrastructure/chgcar_parser.cpp.o
+[9/10] Building CXX object CMakeFiles/wb_native_tests.dir/C_/Users/user/Downloads/vtk-workbench_jclee/webassembly/src/io/infrastructure/xsf_parser.cpp.o
+[10/10] Linking CXX executable wb_native_tests.cjs
+Test project C:/Users/user/Downloads/vtk-workbench_jclee/webassembly/tests/build-em
+    Start 1: wb_native_tests
+1/1 Test #1: wb_native_tests ..................   Passed    0.04 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.04 sec

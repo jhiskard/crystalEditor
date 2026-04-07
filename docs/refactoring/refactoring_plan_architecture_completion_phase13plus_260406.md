@@ -140,6 +140,25 @@
 2. `npm run test:cpp`
 3. `npm run test:smoke`
 4. 해당 Phase 정적 게이트 스크립트
+5. 메뉴 기반 창 오픈 회귀 체크(수동 또는 자동):
+   - `Edit > Atoms | Bonds | Cell`
+   - `Build > Add atoms | Bravais Lattice Templates`
+   - `Data > Isosurface | Surface | Volumetric | Plane` (grid 데이터 로드 상태 포함)
+   - `Utilities > Brillouin Zone`
+
+## 4.4 UI 상태 동기화 정책 (메뉴 창 오픈 회귀 방지)
+
+목적:
+- 메뉴 액션이 `ShellState`에는 반영되지만 같은 프레임에 local cache가 store를 덮어써 창이 열리지 않는 회귀를 방지한다.
+
+핵심 규칙:
+1. 메뉴 액션(`OpenEditorPanel/OpenBuilderPanel/OpenDataPanel`) 처리 프레임에서
+   - `ShellState` 변경과
+   - `App` local visibility/focus cache
+   를 동일 프레임에 동기화한다.
+2. `syncShellStateToStore()` 호출 지점은 메뉴 명령 결과를 소거하지 않도록 관리한다.
+3. one-shot 상태(`pendingLayoutPreset`, `pendingFocusTarget`)는 store 기준 소비 모델을 유지하고, 역동기화로 재설정하지 않는다.
+4. 메뉴 창 오픈 회귀 발생 시 해당 Phase 종료 문서(`dependency_gate_report.md`, `go_no_go_phase{N+1}.md`)에 원인/재발방지 조치를 반드시 기록한다.
 
 Phase 17 추가 실행:
 - `npm run test:phase6` + 신규 architecture full gate

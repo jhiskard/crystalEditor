@@ -1,9 +1,10 @@
 #pragma once
 
-#include "macro/singleton_macro.h"
 #include "config/log_config.h"
 #include "enum/app_enums.h"
 
+
+class WorkbenchRuntime;
 
 // Application class
 // - Initialize logger
@@ -12,10 +13,8 @@
 // - Render all ImGui windows
 // - Save/Load ImGui settings
 // - Set ImGui style
-// @note Phase 12: direct singleton access should be limited to WorkbenchRuntime shim.
+// @note Phase 13: runtime owns this controller instance; direct singleton entrypoint is removed.
 class App {
-    DECLARE_SINGLETON(App)
-
 public:
     enum class FontSizePreset {
         Small = 0,
@@ -29,11 +28,11 @@ public:
 
     void SetInitColorStyle();
     void SetInitFontSize();
-    static void SetColorStyle(ColorStyle style) { Instance().setColorStyle(style); }
-    static ColorStyle GetColorStyle() { return Instance().getColorStyle(); }
-    static void SetFontSizePreset(FontSizePreset preset) { Instance().setFontSizePreset(preset); }
-    static FontSizePreset GetFontSizePreset() { return Instance().getFontSizePreset(); }
-    static float UiScale() { return Instance().m_kUiScale; }
+    static void SetColorStyle(ColorStyle style);
+    static ColorStyle GetColorStyle();
+    static void SetFontSizePreset(FontSizePreset preset);
+    static FontSizePreset GetFontSizePreset();
+    static float UiScale();
     void SetDetailedStyle();
 
     void InitImGuiWindows();
@@ -49,7 +48,7 @@ public:
     static void AddTooltip(const char* label, const char* desc = nullptr);
 
     void SetProgress(float progress) { m_Progress = progress; }
-    static void ShowProgressPopup(bool show) { Instance().showProgressPopup(show); }
+    static void ShowProgressPopup(bool show);
     static void SetProgressPopupText(const std::string& title, const std::string& text);
 
     // Helpers to show/hide split windows mapped from old grouped names.
@@ -62,6 +61,14 @@ public:
     static void RequestLayout1();
 
 private:
+    friend class WorkbenchRuntime;
+    App();
+    ~App();
+    App(const App&) = delete;
+    App& operator=(const App&) = delete;
+    App(App&&) = delete;
+    App& operator=(App&&) = delete;
+
     enum class LayoutPreset {
         None,
         DefaultFloating,

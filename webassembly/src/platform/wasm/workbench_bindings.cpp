@@ -26,6 +26,8 @@ void loadImGuiIniFile() {
 }
 
 void loadArrayBuffer(const std::string& fileName, bool deleteFile) {
+    // Runtime-mediated import contract (Phase 13):
+    // binding -> WorkbenchRuntime -> FileLoaderService(instance-owned)
     GetWorkbenchRuntime().LoadArrayBuffer(fileName, deleteFile);
 }
 

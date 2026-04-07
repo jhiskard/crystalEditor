@@ -52,7 +52,8 @@ void WorkbenchRuntime::PrimeLegacySingletons() {
 }
 
 App& WorkbenchRuntime::AppController() {
-    return App::Instance();
+    static App appController;
+    return appController;
 }
 
 FontManager& WorkbenchRuntime::FontRegistry() {
@@ -60,7 +61,8 @@ FontManager& WorkbenchRuntime::FontRegistry() {
 }
 
 Toolbar& WorkbenchRuntime::ToolbarPanel() {
-    return Toolbar::Instance();
+    static Toolbar toolbarPanel;
+    return toolbarPanel;
 }
 
 VtkViewer& WorkbenchRuntime::Viewer() {
@@ -100,7 +102,8 @@ MeshManager& WorkbenchRuntime::MeshRepository() {
 }
 
 FileLoader& WorkbenchRuntime::FileLoaderService() {
-    return FileLoader::Instance();
+    static FileLoader fileLoaderService;
+    return fileLoaderService;
 }
 
 workspace::application::WorkspaceQueryService& WorkbenchRuntime::WorkspaceQuery() {
@@ -160,19 +163,19 @@ void WorkbenchRuntime::SetProgressPopupText(const std::string& title, const std:
 }
 
 void WorkbenchRuntime::LoadArrayBuffer(const std::string& fileName, bool deleteFile) {
-    FileLoader::LoadArrayBuffer(fileName, deleteFile);
+    FileLoaderService().LoadArrayBuffer(fileName, deleteFile);
 }
 
 void WorkbenchRuntime::LoadChgcarFile(const std::string& fileName) {
-    FileLoader::LoadChgcarFile(fileName);
+    FileLoaderService().LoadChgcarFile(fileName);
 }
 
 void WorkbenchRuntime::HandleXSFGridFile(const std::string& fileName) {
-    FileLoader::HandleXSFGridFile(fileName);
+    FileLoaderService().HandleXSFGridFile(fileName);
 }
 
 void WorkbenchRuntime::HandleStructureFile(const std::string& fileName) {
-    FileLoader::HandleStructureFile(fileName);
+    FileLoaderService().HandleStructureFile(fileName);
 }
 
 void WorkbenchRuntime::WriteChunk(
@@ -180,15 +183,15 @@ void WorkbenchRuntime::WriteChunk(
     int32_t offset,
     uintptr_t data,
     int32_t length) {
-    FileLoader::WriteChunk(fileName, offset, data, length);
+    FileLoaderService().WriteChunk(fileName, offset, data, length);
 }
 
 void WorkbenchRuntime::CloseFile(const std::string& fileName) {
-    FileLoader::CloseFile(fileName);
+    FileLoaderService().CloseFile(fileName);
 }
 
 void WorkbenchRuntime::ProcessFileInBackground(const std::string& fileName, bool deleteFile) {
-    FileLoader::ProcessFileInBackground(fileName, deleteFile);
+    FileLoaderService().ProcessFileInBackground(fileName, deleteFile);
 }
 
 void WorkbenchRuntime::RequestOpenStructureImport() {

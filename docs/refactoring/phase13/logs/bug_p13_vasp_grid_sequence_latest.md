@@ -2,7 +2,7 @@
 
 - Bug ID: `P9-BUG-01`
 - Scenario: `XSF(Grid) -> VASP -> XSF(Grid) -> VASP`
-- Last updated: `2026-04-06 (KST, W0)`
+- Last updated: `2026-04-06 (KST, W6)`
 - Status: `Deferred`
 
 ## 1) Carry-over Baseline
@@ -32,3 +32,13 @@
 1. W0 only fixed baseline and Phase 13 migration scope.
 2. No direct import sequence semantics change is applied in W0.
 3. Status remains `Deferred`.
+
+## 5) W6 Gate Reflection
+
+1. Phase 13 W6 gate execution:
+   - `check_phase13_runtime_hard_seal.ps1`: PASS
+   - `build-wasm:release`: PASS
+   - `test:cpp`: PASS
+   - `test:smoke`: PASS
+2. This W6 run did not add dedicated automated replay coverage for the exact mixed import sequence.
+3. Status is maintained as `Deferred`, and validation scope is carried to Phase 14.

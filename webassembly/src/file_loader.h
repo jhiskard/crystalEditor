@@ -1,6 +1,5 @@
 #pragma once
 
-#include "macro/singleton_macro.h"
 #include "io/application/import_apply_service.h"
 #include "io/application/import_workflow_service.h"
 #include "io/application/parser_worker_service.h"
@@ -17,27 +16,40 @@
 class vtkObject;
 class vtkCallbackCommand;
 class Mesh;
+class WorkbenchRuntime;
 
 
+/**
+ * @brief Import/file-loading coordinator owned by runtime composition root.
+ * @details Wasm bindings and shell actions must access this service only via
+ *          `WorkbenchRuntime` wrappers to keep import entrypoints centralized.
+ */
 class FileLoader {
-    DECLARE_SINGLETON(FileLoader)
-
 public:
+    /**
+     * @brief Requests mesh file picker from browser platform adapter.
+     */
     void OpenFileBrowser(bool useMainThread = true);
     void OpenFileStreamingBrowser(bool useMainThread = true);
+    /**
+     * @brief Opens guarded structure import flow (replace-scene confirmation included).
+     */
     void RequestOpenStructureImport();
     void OpenStructureFileBrowser();
     void OpenXSFFileBrowser();
     void OpenXSFGridFileBrowser();
 
-    // fileName: MemFS path
-    // deleteFile: remove MemFS file from this function
-    static void LoadArrayBuffer(const std::string& fileName, bool deleteFile);
-    static void WriteChunk(const std::string& fileName, int32_t offset, uintptr_t data, int32_t length);
-    static void CloseFile(const std::string& fileName);
-    static void HandleXSFGridFile(const std::string& fileName);
-    static void HandleStructureFile(const std::string& fileName);
-    static void ProcessFileInBackground(const std::string& fileName, bool deleteFile);
+    /**
+     * @brief Loads a MemFS file into runtime import pipeline.
+     * @param fileName MemFS path.
+     * @param deleteFile When true, remove temporary MemFS file after processing.
+     */
+    void LoadArrayBuffer(const std::string& fileName, bool deleteFile);
+    void WriteChunk(const std::string& fileName, int32_t offset, uintptr_t data, int32_t length);
+    void CloseFile(const std::string& fileName);
+    void HandleXSFGridFile(const std::string& fileName);
+    void HandleStructureFile(const std::string& fileName);
+    void ProcessFileInBackground(const std::string& fileName, bool deleteFile);
 
     void handleXSFFile(const std::string& fileName);
     void handleXSFGridFile(const std::string& fileName);
@@ -45,9 +57,17 @@ public:
     void RenderXsfGridImportPopups();
 
     void OpenChgcarFileBrowser();
-    static void LoadChgcarFile(const std::string& filename);
+    void LoadChgcarFile(const std::string& filename);
 
 private:
+    friend class WorkbenchRuntime;
+    FileLoader();
+    ~FileLoader();
+    FileLoader(const FileLoader&) = delete;
+    FileLoader& operator=(const FileLoader&) = delete;
+    FileLoader(FileLoader&&) = delete;
+    FileLoader& operator=(FileLoader&&) = delete;
+
     static std::unordered_map<std::string, FILE*> s_FileMap;
     vtkSmartPointer<vtkCallbackCommand> m_ProgressCallback;
 
