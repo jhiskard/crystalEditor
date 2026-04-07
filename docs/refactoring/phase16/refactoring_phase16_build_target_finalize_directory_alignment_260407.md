@@ -12,7 +12,7 @@
 - `webassembly/src/*`
 - `scripts/refactoring/*`
 - `docs/refactoring/phase16/*`
-진행 상태: `W0 완료`
+진행 상태: `W0~W6 완료 (Phase 16 종료)`
 
 ## 0. 착수 배경과 고정 전제
 
@@ -240,9 +240,9 @@ W0 산출 로그:
 ## 10. 진행 체크리스트
 
 - [x] W0 기준선/중간 산출문서 등록
-- [ ] W1 `wb_structure/wb_measurement/wb_density` 분리
-- [ ] W2 `wb_platform/wb_shell/wb_workspace` 정렬 + `wb_common` 전환
-- [ ] W3 링크 의존 재배치 + 비순환 고정
-- [ ] W4 `wb_atoms` 제거 + 잔존 참조 제거
-- [ ] W5 정적 게이트 스크립트 도입
-- [ ] W6 빌드/테스트/종료 문서 완료
+- [x] W1 `wb_structure/wb_measurement/wb_density` 분리
+- [x] W2 `wb_platform/wb_shell/wb_workspace` 정렬 + `wb_common` 전환
+- [x] W3 링크 의존 재배치 + 비순환 고정
+- [x] W4 `wb_atoms` 제거 + 잔존 참조 제거
+- [x] W5 정적 게이트 스크립트 도입
+- [x] W6 빌드/테스트/종료 문서 완료
