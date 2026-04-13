@@ -1,7 +1,7 @@
 ﻿#include "mesh_detail.h"
 #include "app.h"
 #include "shell/runtime/workbench_runtime.h"
-#include "font_manager.h"
+#include "shell/presentation/font/font_registry.h"
 #include "mesh_manager.h"
 #include "mesh/application/mesh_query_service.h"
 
@@ -1272,5 +1272,6 @@ void MeshDetail::SetUiVolumeColorCurve(double midpoint, double sharpness) {
     m_UiVolumeColorMidpoint = static_cast<float>(midpoint);
     m_UiVolumeColorSharpness = static_cast<float>(sharpness);
 }
+
 
 

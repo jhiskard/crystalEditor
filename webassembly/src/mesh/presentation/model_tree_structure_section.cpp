@@ -1,6 +1,6 @@
 ﻿#include "../../model_tree.h"
 #include "../../app.h"
-#include "../../font_manager.h"
+#include "../../shell/presentation/font/font_registry.h"
 #include "../../lcrs_tree.h"
 #include "../../mesh_detail.h"
 #include "../../atoms/atoms_template.h"
@@ -1578,6 +1578,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
+
 
 
 

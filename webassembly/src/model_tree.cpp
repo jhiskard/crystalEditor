@@ -1,6 +1,6 @@
 ﻿#include "model_tree.h"
 #include "shell/runtime/workbench_runtime.h"
-#include "font_manager.h"
+#include "shell/presentation/font/font_registry.h"
 #include "workspace/application/workspace_command_service.h"
 
 // ImGui
@@ -39,5 +39,6 @@ void ModelTree::Render(bool* openWindow) {
 
     ImGui::End();
 }
+
 
 

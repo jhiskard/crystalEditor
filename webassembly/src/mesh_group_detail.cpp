@@ -2,7 +2,7 @@
 #include "shell/runtime/workbench_runtime.h"
 #include "mesh.h"
 #include "app.h"
-#include "font_manager.h"
+#include "shell/presentation/font/font_registry.h"
 #include "mesh/application/mesh_query_service.h"
 
 // ImGui
@@ -295,4 +295,5 @@ void MeshGroupDetail::renderTableRowGroupColor(MeshGroup* group) {
     }
     ImGui::PopStyleVar();
 }
+
 

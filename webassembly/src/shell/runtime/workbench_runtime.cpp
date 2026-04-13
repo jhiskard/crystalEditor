@@ -1,15 +1,15 @@
-#include "workbench_runtime.h"
+﻿#include "workbench_runtime.h"
 
 #include "../../app.h"
 #include "../../atoms/atoms_template.h"
 #include "../../file_loader.h"
-#include "../../font_manager.h"
+#include "../presentation/font/font_registry.h"
 #include "../../mesh_detail.h"
 #include "../../mesh_group_detail.h"
 #include "../../mesh_manager.h"
 #include "../../model_tree.h"
-#include "../../test_window.h"
-#include "../../toolbar.h"
+#include "../presentation/debug/test_window_panel.h"
+#include "../presentation/toolbar/viewer_toolbar_presenter.h"
 #include "../../render/application/legacy_viewer_facade.h"
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
@@ -239,3 +239,4 @@ WorkbenchRuntime& GetWorkbenchRuntime() {
 const WorkbenchRuntime& GetWorkbenchRuntimeConst() {
     return WorkbenchRuntime::Instance();
 }
+

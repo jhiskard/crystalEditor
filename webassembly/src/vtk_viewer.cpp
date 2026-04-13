@@ -1,10 +1,10 @@
-#include "vtk_viewer.h"
+﻿#include "vtk_viewer.h"
 #include "app.h"
 #include "atoms/domain/cell_manager.h"
-#include "font_manager.h"
+#include "shell/presentation/font/font_registry.h"
 #include "mesh_manager.h"
 #include "shell/runtime/workbench_runtime.h"
-#include "toolbar.h"
+#include "shell/presentation/toolbar/viewer_toolbar_presenter.h"
 
 // GLFW
 #define GLFW_INCLUDE_ES3    // Include OpenGL ES 3.0 headers
@@ -2189,3 +2189,4 @@ void VtkViewer::SetArrowRotateStepDeg(float stepDeg) {
     const float roundedStepDeg = std::round(stepDeg);
     m_ArrowRotateStepDeg = std::clamp(roundedStepDeg, kMinStepDeg, kMaxStepDeg);
 }
+

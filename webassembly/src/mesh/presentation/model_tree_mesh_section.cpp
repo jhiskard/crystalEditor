@@ -1,6 +1,6 @@
 ﻿#include "../../model_tree.h"
 #include "../../app.h"
-#include "../../font_manager.h"
+#include "../../shell/presentation/font/font_registry.h"
 #include "../../mesh_detail.h"
 #include "../../lcrs_tree.h"
 #include "../../config/log_config.h"
@@ -271,4 +271,5 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         renderMeshTree(node->GetRightSiblingMutable());
     }
 }
+
 
