@@ -2,7 +2,10 @@
 
 #include "../../app.h"
 #include "../../atoms/atoms_template.h"
-#include "../../file_loader.h"
+#include "../../io/application/import_entry_service.h"
+#include "../../platform/browser/browser_file_dialog_adapter.h"
+#include "../../platform/worker/emscripten_worker_port.h"
+#include "../../platform/worker/runtime_progress_port.h"
 #include "../presentation/font/font_registry.h"
 #include "../../mesh_detail.h"
 #include "../../mesh_group_detail.h"
@@ -102,7 +105,10 @@ MeshManager& WorkbenchRuntime::MeshRepository() {
 }
 
 FileLoader& WorkbenchRuntime::FileLoaderService() {
-    static FileLoader fileLoaderService;
+    static platform::browser::BrowserFileDialogAdapter fileDialogAdapter;
+    static platform::worker::EmscriptenWorkerPort workerPort;
+    static platform::worker::RuntimeProgressPort progressPort;
+    static FileLoader fileLoaderService(fileDialogAdapter, workerPort, progressPort);
     return fileLoaderService;
 }
 

@@ -1,4 +1,4 @@
-#include "../../vtk_viewer.h"
+#include "../presentation/viewer_window.h"
 
 #include "../../atoms/domain/cell_manager.h"
 #include "../../config/log_config.h"

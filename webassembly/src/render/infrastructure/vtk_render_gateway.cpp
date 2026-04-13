@@ -1,6 +1,6 @@
 #include "vtk_render_gateway.h"
 
-#include "../../vtk_viewer.h"
+#include "../presentation/viewer_window.h"
 
 namespace {
 VtkViewer& viewerFacade() {

@@ -393,7 +393,8 @@ public:
      * @param filePath XSF ?뚯씪 寃쎈줈.
      * @details BatchGuard濡?諛곗튂 紐⑤뱶瑜??닿퀬 湲곗〈 ?먯옄/寃고빀/????뺣━????FileIOManager濡?珥덇린 援ъ“瑜??앹꽦?⑸땲??
      * @note Affects: createdAtoms, surroundingAtoms, atoms::domain::atomGroups, atoms::domain::bondGroups, cellInfo, m_vtkRenderer.
-     * @note Called by: webassembly/src/file_loader.cpp (FileLoader::handleXSFFile).
+     * @note Called by: webassembly/src/io/application/import_entry_service.cpp
+     *       (FileLoader::handleXSFFile).
      */
     void LoadXSFFile(const std::string& filePath);
     bool LoadXSFParsedData(const atoms::infrastructure::FileIOManager::ParseResult& result, bool renderCell = true);

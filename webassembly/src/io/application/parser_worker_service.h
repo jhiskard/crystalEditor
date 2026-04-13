@@ -1,5 +1,8 @@
 #pragma once
 
+#include "progress_port.h"
+#include "worker_port.h"
+
 #include "../../atoms/infrastructure/chgcar_parser.h"
 #include "../../atoms/infrastructure/file_io_manager.h"
 
@@ -26,14 +29,19 @@ using ParserResultCallback = void (*)(int, const void*);
 
 class ParserWorkerService {
 public:
+    ParserWorkerService(WorkerPort& workerPort, ProgressPort& progressPort);
+
     void ProcessStructureFile(const std::string& fileName, ParserResultCallback callback) const;
     void ProcessXsfFile(const std::string& fileName, ParserResultCallback callback) const;
     void ProcessXsfGridFile(const std::string& fileName, ParserResultCallback callback) const;
     void ProcessChgcarFile(const std::string& fileName, ParserResultCallback callback) const;
 
 private:
+    WorkerPort& m_WorkerPort;
+    ProgressPort& m_ProgressPort;
+
     static bool ContainsDatagrid3d(const std::string& filePath);
-    static void DispatchToMainThread(ParserResultCallback callback, ParserWorkerResult* result);
+    void DispatchToMainThread(ParserResultCallback callback, ParserWorkerResult* result) const;
 };
 
 } // namespace io::application

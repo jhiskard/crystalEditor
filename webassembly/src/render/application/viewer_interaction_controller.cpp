@@ -1,4 +1,4 @@
-#include "../../vtk_viewer.h"
+#include "../presentation/viewer_window.h"
 
 #include "../../app.h"
 #include "../../mesh_detail.h"

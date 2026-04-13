@@ -9,6 +9,7 @@ target_sources(wb_ui PRIVATE
   webassembly/src/shell/application/workbench_controller.cpp
   webassembly/src/shell/runtime/workbench_runtime.cpp
   webassembly/src/shell/presentation/debug/test_window_panel.cpp
+  webassembly/src/shell/presentation/import/import_popup_presenter.cpp
   webassembly/src/render/infrastructure/resources/texture_resource.cpp
   webassembly/src/shell/presentation/toolbar/viewer_toolbar_presenter.cpp
 )

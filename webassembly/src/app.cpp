@@ -4,7 +4,7 @@
 #include "shell/application/shell_state_query_service.h"
 #include "shell/application/shell_state_command_service.h"
 #include "shell/presentation/font/font_registry.h"
-#include "vtk_viewer.h"
+#include "render/presentation/viewer_window.h"
 #include "model_tree.h"
 #include "mesh_detail.h"
 #include "mesh_manager.h"
