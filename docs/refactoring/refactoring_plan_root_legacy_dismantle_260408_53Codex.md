@@ -69,8 +69,8 @@
 | `mesh_manager.cpp/h` | mesh 조회/가시성/조정 | `mesh/application`, `mesh/domain` | repository/query/command service로 분해 |
 | `mesh_detail.cpp/h`, `mesh_group_detail.cpp/h`, `model_tree.cpp/h` | mesh UI 패널 | `mesh/presentation` | panel/presenter로 이동 |
 | `file_loader.cpp/h`, `unv_reader.cpp/h` | import orchestration/parser | `io/application`, `io/infrastructure`, `platform/browser`, `platform/worker` | workflow+parser+worker 분리 |
-| `atoms_template_bravais_lattice.cpp` | 격자 템플릿 UI | `structure/presentation` | builder 패널로 흡수 |
-| `atoms_template_periodic_table.cpp` | 주기율표 UI | `structure/presentation` | builder 패널로 흡수 |
+| `atoms_template_bravais_lattice.cpp` | Bravais lattice 코드 설명 자료(실행 경로 아님) | 계획 배제 | 해체/삭제 대상에서 제외(설명 자료 유지) |
+| `atoms_template_periodic_table.cpp` | periodic table 코드 설명 자료(실행 경로 아님) | 계획 배제 | 해체/삭제 대상에서 제외(설명 자료 유지) |
 | `atoms/atoms_template.cpp/h` | atoms god-object + 다중 기능 | `structure`, `measurement`, `density`, `shell/presentation`, `render/application` | 기능 단위 분해 후 파일 제거 |
 
 ### 2.3 구조적 갭 (3.3 대비)
@@ -233,12 +233,11 @@
 ### R5. Atoms 원본 해체 (6~9일)
 
 목표:
-- `webassembly/src/atoms/atoms_template.*`와 루트 atoms helper를 완전 제거
+- `webassembly/src/atoms/atoms_template.*`를 완전 제거
+- `atoms_template_bravais_lattice.cpp`, `atoms_template_periodic_table.cpp`는 실행용 파일이 아닌 설명 자료로 분류하여 본 해체 계획에서 제외
 
 대상:
 - `atoms/atoms_template.*`
-- `atoms_template_bravais_lattice.cpp`
-- `atoms_template_periodic_table.cpp`
 
 작업:
 1. 구조 편집/lifecycle는 `structure`로 이동.

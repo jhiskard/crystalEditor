@@ -132,8 +132,8 @@
 | `file_loader.cpp/h` | import orchestration 및 파일 브라우저 | `io/application`, `io/infrastructure`, `platform/browser`, `platform/worker` | import workflow로 분해 후 삭제 |
 | `unv_reader.cpp/h` | UNV 파서 | `io/infrastructure` | parser로 이동 후 삭제 |
 | `atoms_template.cpp/h` | atoms god-object와 핵심 feature 조정 | `structure`, `measurement`, `density`, `shell/presentation`, `render/application` | 기능 단위로 분해 후 삭제 |
-| `atoms_template_bravais_lattice.cpp` | Bravais lattice UI helper | `structure/presentation` | builder UI로 흡수 후 삭제 |
-| `atoms_template_periodic_table.cpp` | periodic table UI helper | `structure/presentation` | builder UI로 흡수 후 삭제 |
+| `atoms_template_bravais_lattice.cpp` | Bravais lattice 코드 설명 자료(실행 경로 아님) | 계획 배제 | 해체/삭제 대상에서 제외(설명 자료 유지) |
+| `atoms_template_periodic_table.cpp` | periodic table 코드 설명 자료(실행 경로 아님) | 계획 배제 | 해체/삭제 대상에서 제외(설명 자료 유지) |
 
 ### 3.3 shell facade의 목표 책임
 
@@ -248,12 +248,12 @@ WBS:
 2. 구조 편집과 lifecycle 로직을 `structure/application`과 `structure/presentation`으로 이동한다.
 3. 측정 계산과 overlay 생성 로직을 `measurement/application`으로 이동한다.
 4. charge density, isosurface, slice 관련 로직을 `density/application`과 `density/presentation`으로 이동한다.
-5. `atoms_template_bravais_lattice.cpp`, `atoms_template_periodic_table.cpp`를 builder UI로 흡수하고 삭제한다.
+5. `atoms_template_bravais_lattice.cpp`, `atoms_template_periodic_table.cpp`는 실행 경로가 아닌 설명 자료 파일로 분류하고 본 해체 범위에서 제외한다.
 6. atoms 루트 코드 파일 0건을 확인한 뒤 `go_no_go_phase22.md`를 작성한다.
 
 완료 기준:
 - `webassembly/src/atoms` 루트 코드 파일 수가 0이 된다.
-- `atoms_template.cpp/h`와 companion root helper가 더 이상 존재하지 않는다.
+- `atoms_template.cpp/h`가 더 이상 존재하지 않는다.
 
 ### Phase 22. 루트 seal + 최종 정리
 
