@@ -1,11 +1,10 @@
-/**
+﻿/**
  * @file mesh_repository.h
  * @brief Mesh repository facade for Phase 10 decoupling.
  */
 #pragma once
 
-#include "../../lcrs_tree.h"
-#include "../../mesh.h"
+#include "mesh_repository_core.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -26,6 +25,8 @@ namespace domain {
  */
 class MeshRepository {
 public:
+    using VolumeDisplaySettings = MeshManager::VolumeDisplaySettings;
+
     /**
      * @brief Returns singleton repository facade instance.
      */
@@ -38,9 +39,13 @@ public:
         int32_t parentId = 0);
 
     const LcrsTreeUPtr& MeshTree() const;
+    const LcrsTreeUPtr& GetMeshTree() const;
     size_t MeshCount() const;
+    size_t GetMeshCount() const;
     const Mesh* FindMeshById(int32_t id) const;
+    const Mesh* GetMeshById(int32_t id) const;
     Mesh* FindMeshByIdMutable(int32_t id);
+    Mesh* GetMeshByIdMutable(int32_t id);
 
     void ShowMesh(int32_t id);
     void HideMesh(int32_t id);
@@ -52,8 +57,18 @@ public:
     void DeleteXsfStructure(int32_t id);
     void DeleteAllXsfStructures();
     bool HasXsfStructures() const;
+    void SetParentIconState(TreeNode* node) const;
 
     bool GetGlobalVolumeDataRange(double& minOut, double& maxOut) const;
+    bool HasSharedVolumeDisplaySettings() const;
+    const VolumeDisplaySettings& GetSharedVolumeDisplaySettings() const;
+    void SetSharedVolumeDisplaySettings(const VolumeDisplaySettings& settings);
+    void EnsureSharedVolumeDisplaySettingsFromMesh(const Mesh& mesh);
+    void ApplySharedVolumeDisplaySettingsToAllMeshes();
+
+#ifdef DEBUG_BUILD
+    void PrintMeshTree() const;
+#endif
 
 private:
     MeshRepository() = default;
@@ -66,3 +81,5 @@ MeshRepository& GetMeshRepository();
 
 } // namespace domain
 } // namespace mesh
+
+

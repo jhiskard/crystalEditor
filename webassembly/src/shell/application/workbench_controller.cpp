@@ -2,7 +2,7 @@
 
 #include "shell_state_command_service.h"
 #include "../../atoms/atoms_template.h"
-#include "../../mesh_manager.h"
+#include "../../mesh/application/mesh_command_service.h"
 #include "../../render/application/render_gateway.h"
 #include "../runtime/workbench_runtime.h"
 
@@ -16,6 +16,10 @@ void requestFocus(shell::domain::ShellFocusTarget target, int passes = 2) {
 
 shell::domain::ShellUiState& mutableShellState() {
     return shell::application::GetShellStateCommandService().MutableState();
+}
+
+void consumeInitialLayoutBootstrap(shell::domain::ShellUiState& state) {
+    state.shouldApplyInitialLayout = false;
 }
 
 measurement::application::MeasurementService& measurementService() {
@@ -38,6 +42,7 @@ void WorkbenchController::RequestOpenStructureImport() {
 
 void WorkbenchController::OpenEditorPanel(EditorPanelAction action) {
     domain::ShellUiState& state = mutableShellState();
+    consumeInitialLayoutBootstrap(state);
 
     switch (action) {
     case EditorPanelAction::Atoms:
@@ -60,6 +65,7 @@ void WorkbenchController::OpenEditorPanel(EditorPanelAction action) {
 
 void WorkbenchController::OpenBuilderPanel(BuilderPanelAction action) {
     domain::ShellUiState& state = mutableShellState();
+    consumeInitialLayoutBootstrap(state);
 
     switch (action) {
     case BuilderPanelAction::AddAtoms:
@@ -84,6 +90,7 @@ void WorkbenchController::OpenBuilderPanel(BuilderPanelAction action) {
 
 void WorkbenchController::OpenDataPanel(DataPanelAction action) {
     domain::ShellUiState& state = mutableShellState();
+    consumeInitialLayoutBootstrap(state);
 
     state.showModelTree = true;
 
@@ -136,7 +143,9 @@ void WorkbenchController::EnterMeasurementMode(measurement::application::Measure
 }
 
 void WorkbenchController::RequestLayoutPreset(domain::ShellLayoutPreset preset) {
-    GetShellStateCommandService().RequestLayoutPreset(preset);
+    domain::ShellUiState& state = mutableShellState();
+    consumeInitialLayoutBootstrap(state);
+    state.pendingLayoutPreset = preset;
 }
 
 void WorkbenchController::ToggleBoundaryAtoms() {
@@ -149,7 +158,7 @@ bool WorkbenchController::IsBoundaryAtomsEnabled() const {
 }
 
 void WorkbenchController::SetMeshDisplayMode(MeshDisplayMode mode) {
-    GetWorkbenchRuntime().MeshRepository().SetAllDisplayMode(mode);
+    mesh::application::GetMeshCommandService().SetAllDisplayMode(mode);
 }
 
 void WorkbenchController::SetProjectionMode(ProjectionMode mode) {
@@ -184,3 +193,4 @@ WorkbenchController& GetWorkbenchController() {
 
 } // namespace application
 } // namespace shell
+

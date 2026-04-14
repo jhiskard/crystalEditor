@@ -1,11 +1,11 @@
-/**
+﻿/**
  * @file mesh_query_service.h
  * @brief Read-only mesh query service.
  */
 #pragma once
 
-#include "../../lcrs_tree.h"
-#include "../../mesh.h"
+#include "../domain/lcrs_tree.h"
+#include "../domain/mesh_entity.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -15,8 +15,8 @@ namespace application {
 
 /**
  * @brief Query facade for mesh read access.
- * @details Presenters and workflows should use this API instead of calling
- *          `MeshManager::Instance()` directly.
+ * @details Presenters and workflows should use this API instead of reading
+ *          the legacy mesh core singleton directly.
  */
 class MeshQueryService {
 public:
@@ -43,4 +43,6 @@ MeshQueryService& GetMeshQueryService();
 
 } // namespace application
 } // namespace mesh
+
+
 

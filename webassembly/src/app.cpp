@@ -5,11 +5,11 @@
 #include "shell/application/shell_state_command_service.h"
 #include "shell/presentation/font/font_registry.h"
 #include "render/presentation/viewer_window.h"
-#include "model_tree.h"
-#include "mesh_detail.h"
-#include "mesh_manager.h"
-#include "mesh_group_detail.h"
-#include "mesh.h"
+#include "mesh/presentation/model_tree_panel.h"
+#include "mesh/presentation/mesh_detail_panel.h"
+#include "mesh/application/mesh_query_service.h"
+#include "mesh/presentation/mesh_group_detail_panel.h"
+#include "mesh/domain/mesh_entity.h"
 
 // Add AtomsTemplate
 // #include "atoms_template.h"
@@ -665,6 +665,7 @@ void App::renderDockSpaceAndMenu() {
 
         shell::domain::ShellUiState& shellState = command.MutableState();
         shellState.requestModelTreeFocus = false;
+        shellState.shouldApplyInitialLayout = false;
         command.RequestFocus(shell::domain::ShellFocusTarget::None, 0);
 
         switch (preset) {
@@ -701,6 +702,7 @@ void App::renderDockSpaceAndMenu() {
             break;
         }
 
+        // Keep App mirror and shell store in sync within the same frame.
         syncShellStateFromStore();
     };
 
@@ -710,6 +712,9 @@ void App::renderDockSpaceAndMenu() {
     }
 
     if (m_PendingLayoutPreset != LayoutPreset::None) {
+        // Any explicit layout request consumes the one-time bootstrap layout signal.
+        m_ShouldApplyInitialLayout = false;
+        GetWorkbenchRuntime().ShellStateCommand().MutableState().shouldApplyInitialLayout = false;
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
             // 레이아웃 전환 시 기존 메뉴 기반 포커스 요청은 초기화한다.
             m_PendingFocusTarget = FocusTarget::None;
@@ -1169,7 +1174,7 @@ void App::renderImGuiWindows() {
     if (selectedMeshId != -1 && m_bShowMeshDetail) {
         GetWorkbenchRuntime().MeshDetailPanel().Render(selectedMeshId, &m_bShowMeshDetail);
     }
-    const Mesh* mesh = GetWorkbenchRuntime().MeshRepository().GetMeshById(selectedMeshId);
+    const Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshById(selectedMeshId);
     if (mesh != nullptr) {
         if (mesh->GetMeshGroupCount() > 0) {
             GetWorkbenchRuntime().MeshGroupDetailPanel().Render(selectedMeshId);
@@ -1354,6 +1359,7 @@ void App::SetProgressPopupText(const std::string& title, const std::string& text
 void App::ShowCrystalBuilderWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowPeriodicTableWindow = show;
     app.syncShellStateToStore();
 }
@@ -1361,6 +1367,7 @@ void App::ShowCrystalBuilderWindow(bool show) {
 void App::ShowCrystalEditorWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowCreatedAtomsWindow = show;
     app.syncShellStateToStore();
 }
@@ -1368,6 +1375,7 @@ void App::ShowCrystalEditorWindow(bool show) {
 void App::ShowAdvancedViewWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowChargeDensityViewerWindow = show;
     app.syncShellStateToStore();
 }
@@ -1375,6 +1383,7 @@ void App::ShowAdvancedViewWindow(bool show) {
 void App::ShowSliceViewerWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowSliceViewerWindow = show;
     app.syncShellStateToStore();
 }
@@ -1395,6 +1404,7 @@ void App::setProgressPopupText(const std::string& title, const std::string& text
     m_PopupTitle = title;
     m_PopupText = text;
 }
+
 
 
 

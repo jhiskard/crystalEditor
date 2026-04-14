@@ -9,7 +9,6 @@ class FileLoader;
 class FontManager;
 class MeshDetail;
 class MeshGroupDetail;
-class MeshManager;
 class ModelTree;
 class TestWindow;
 class Toolbar;
@@ -32,6 +31,12 @@ namespace application {
 class DensityService;
 } // namespace application
 } // namespace density
+
+namespace mesh {
+namespace domain {
+class MeshRepository;
+} // namespace domain
+} // namespace mesh
 
 namespace workspace {
 namespace application {
@@ -126,7 +131,7 @@ public:
     /**
      * @brief Returns mesh repository/service facade.
      */
-    MeshManager& MeshRepository();
+    mesh::domain::MeshRepository& MeshRepository();
 
     /**
      * @brief Returns import/file-loading service facade.

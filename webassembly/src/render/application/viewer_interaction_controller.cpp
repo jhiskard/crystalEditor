@@ -1,7 +1,7 @@
-#include "../presentation/viewer_window.h"
+﻿#include "../presentation/viewer_window.h"
 
 #include "../../app.h"
-#include "../../mesh_detail.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
 #include "../../atoms/atoms_template.h"
 #include "../../shell/runtime/workbench_runtime.h"
 
@@ -351,4 +351,5 @@ void VtkViewer::processEvents() {
         RequestRender();
     }
 }
+
 

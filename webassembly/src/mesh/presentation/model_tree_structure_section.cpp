@@ -1,8 +1,8 @@
-﻿#include "../../model_tree.h"
+﻿#include "../../mesh/presentation/model_tree_panel.h"
 #include "../../app.h"
 #include "../../shell/presentation/font/font_registry.h"
-#include "../../lcrs_tree.h"
-#include "../../mesh_detail.h"
+#include "../../mesh/domain/lcrs_tree.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
 #include "../../atoms/atoms_template.h"
 #include "../../atoms/ui/charge_density_ui.h"
 #include "../../atoms/application/structure_read_model.h"
@@ -1578,6 +1578,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
+
 
 
 

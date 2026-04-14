@@ -1,10 +1,10 @@
-#include "../ui/charge_density_ui.h"
+﻿#include "../ui/charge_density_ui.h"
 
 #include "../atoms_template.h"
 #include "../infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
-#include "../../mesh_detail.h"
-#include "../../mesh_manager.h"
+#include "../../mesh/application/mesh_command_service.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
 
 #include <algorithm>
 #include <cctype>
@@ -38,7 +38,7 @@ void ChargeDensityUI::renderIsosurfaceSection(const std::vector<GridMeshEntry>& 
                 }
 
                 ImGui::BeginDisabled(!structureVisible);
-                MeshManager& meshManager = MeshManager::Instance();
+                auto& meshCommandService = mesh::application::GetMeshCommandService();
 
                 for (const auto& entry : gridMeshes) {
                     bool visible = entry.visible;
@@ -50,9 +50,9 @@ void ChargeDensityUI::renderIsosurfaceSection(const std::vector<GridMeshEntry>& 
                     if (ImGui::Checkbox(label.c_str(), &visible)) {
                         if (visible) {
                             MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
-                            meshManager.ShowMesh(entry.id);
+                            meshCommandService.ShowMesh(entry.id);
                         } else {
-                            meshManager.HideMesh(entry.id);
+                            meshCommandService.HideMesh(entry.id);
                         }
                     }
                 }
@@ -218,3 +218,4 @@ void ChargeDensityUI::rebuildMultipleIsosurfaces() {
 
 }  // namespace ui
 }  // namespace atoms
+

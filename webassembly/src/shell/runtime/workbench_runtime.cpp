@@ -7,10 +7,10 @@
 #include "../../platform/worker/emscripten_worker_port.h"
 #include "../../platform/worker/runtime_progress_port.h"
 #include "../presentation/font/font_registry.h"
-#include "../../mesh_detail.h"
-#include "../../mesh_group_detail.h"
-#include "../../mesh_manager.h"
-#include "../../model_tree.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
+#include "../../mesh/presentation/mesh_group_detail_panel.h"
+#include "../../mesh/domain/mesh_repository.h"
+#include "../../mesh/presentation/model_tree_panel.h"
 #include "../presentation/debug/test_window_panel.h"
 #include "../presentation/toolbar/viewer_toolbar_presenter.h"
 #include "../../render/application/legacy_viewer_facade.h"
@@ -100,8 +100,8 @@ MeshGroupDetail& WorkbenchRuntime::MeshGroupDetailPanel() {
     return runtimeMeshGroupDetailPanel();
 }
 
-MeshManager& WorkbenchRuntime::MeshRepository() {
-    return MeshManager::Instance();
+mesh::domain::MeshRepository& WorkbenchRuntime::MeshRepository() {
+    return mesh::domain::GetMeshRepository();
 }
 
 FileLoader& WorkbenchRuntime::FileLoaderService() {
@@ -234,7 +234,7 @@ bool WorkbenchRuntime::HasChargeDensity() {
 
 void WorkbenchRuntime::PrintMeshTree() {
 #ifdef DEBUG_BUILD
-    MeshManager::PrintMeshTree();
+    MeshRepository().PrintMeshTree();
 #endif
 }
 
@@ -245,4 +245,5 @@ WorkbenchRuntime& GetWorkbenchRuntime() {
 const WorkbenchRuntime& GetWorkbenchRuntimeConst() {
     return WorkbenchRuntime::Instance();
 }
+
 

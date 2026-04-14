@@ -1,9 +1,9 @@
 ﻿#include "viewer_window.h"
 #include "../../app.h"
 #include "../../atoms/domain/cell_manager.h"
+#include "../../mesh/application/mesh_query_service.h"
 #include "../../platform/persistence/viewer_preferences_store.h"
 #include "../../shell/presentation/font/font_registry.h"
-#include "../../mesh_manager.h"
 #include "../../shell/runtime/workbench_runtime.h"
 #include "../../shell/presentation/toolbar/viewer_toolbar_presenter.h"
 
@@ -1558,9 +1558,9 @@ void VtkViewer::BeginInteractionLod() {
     }
 
     m_InteractionLodStates.clear();
-    MeshManager& meshManager = MeshManager::Instance();
-    meshManager.GetMeshTree()->TraverseTree([&](const TreeNode* node, void*) {
-        Mesh* mesh = meshManager.GetMeshByIdMutable(node->GetId());
+    auto& meshQueryService = mesh::application::GetMeshQueryService();
+    meshQueryService.MeshTree()->TraverseTree([&](const TreeNode* node, void*) {
+        Mesh* mesh = meshQueryService.FindMeshByIdMutable(node->GetId());
         if (!mesh) {
             return;
         }
@@ -1608,9 +1608,9 @@ void VtkViewer::EndInteractionLod() {
         return;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
+    auto& meshQueryService = mesh::application::GetMeshQueryService();
     for (auto it = m_InteractionLodStates.begin(); it != m_InteractionLodStates.end();) {
-        Mesh* mesh = meshManager.GetMeshByIdMutable(it->first);
+        Mesh* mesh = meshQueryService.FindMeshByIdMutable(it->first);
         if (mesh) {
             const auto originalQuality = static_cast<Mesh::VolumeQuality>(it->second.volumeQualityIndex);
             if (mesh->GetVolumeQuality() != originalQuality) {
@@ -2178,6 +2178,7 @@ void VtkViewer::SetArrowRotateStepDeg(float stepDeg) {
     const float roundedStepDeg = std::round(stepDeg);
     m_ArrowRotateStepDeg = std::clamp(roundedStepDeg, kMinStepDeg, kMaxStepDeg);
 }
+
 
 
 

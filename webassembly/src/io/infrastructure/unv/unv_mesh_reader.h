@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include "../../../macro/ptr_macro.h"
-#include "../../../mesh_group.h"
+#include "../../../mesh/domain/mesh_group_entity.h"
 
 // Standard library
 #include <functional>
@@ -80,3 +80,4 @@ private:
     void processElementData(const std::vector<std::string>& dataSet);
     void processGroupData(const std::vector<std::string>& dataSet);
 };
+

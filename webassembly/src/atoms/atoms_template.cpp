@@ -1,8 +1,10 @@
-#include "atoms_template.h"
+﻿#include "atoms_template.h"
 #include "../app.h"
-#include "../model_tree.h"
-#include "../mesh_detail.h"
-#include "../mesh_manager.h"
+#include "../mesh/presentation/model_tree_panel.h"
+#include "../mesh/presentation/mesh_detail_panel.h"
+#include "../mesh/domain/mesh_repository.h"
+#include "../mesh/application/mesh_query_service.h"
+#include "../mesh/application/mesh_command_service.h"
 #include "../config/log_config.h" // spdlog ?ㅻ뜑 寃쎈줈 ?섏젙 - 濡쒓퉭 ?ㅼ젙 ?뚯씪 ?ъ슜
 #include "../structure/application/structure_service.h"
 #include "../measurement/application/measurement_service.h"
@@ -1359,7 +1361,7 @@ AtomsTemplate::ensureChargeDensityAdvancedGridVisibilityState(int32_t meshId) {
     }
 
     ChargeDensityAdvancedGridVisibilityState state {};
-    Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+    Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshByIdMutable(meshId);
     if (mesh && mesh->GetVolumeMeshActor()) {
         state.surfaceVisible = mesh->GetVolumeSurfaceVisibility();
         state.volumeVisible = mesh->GetVolumeRenderVisibility();
@@ -1387,7 +1389,7 @@ void AtomsTemplate::captureChargeDensityAdvancedGridVisibilityFromMesh(int32_t m
     if (!mesh || !mesh->GetVolumeMeshActor()) {
         return;
     }
-    const TreeNode* node = MeshManager::Instance().GetMeshTree()->GetTreeNodeById(meshId);
+    const TreeNode* node = mesh::application::GetMeshQueryService().MeshTree()->GetTreeNodeById(meshId);
     if (node && node->GetParent() && node->GetParent()->GetId() > 0) {
         if (!IsStructureVisible(node->GetParent()->GetId())) {
             return;
@@ -1401,8 +1403,8 @@ void AtomsTemplate::captureChargeDensityAdvancedGridVisibilityFromMesh(int32_t m
 
 void AtomsTemplate::setChargeDensityGridMeshVisibilityImmediate(
     int32_t meshId, bool surfaceVisible, bool volumeVisible) {
-    MeshManager& meshManager = MeshManager::Instance();
-    Mesh* mesh = meshManager.GetMeshByIdMutable(meshId);
+    auto& meshQueryService = mesh::application::GetMeshQueryService();
+    Mesh* mesh = meshQueryService.FindMeshByIdMutable(meshId);
     if (!mesh || !mesh->GetVolumeMeshActor()) {
         return;
     }
@@ -1415,7 +1417,7 @@ void AtomsTemplate::setChargeDensityGridMeshVisibilityImmediate(
     mesh->SetVolumeRenderVisibility(volumeVisible);
     mesh->SetVolumeMeshVisibility(anyVisible);
 
-    TreeNode* node = meshManager.GetMeshTree()->GetTreeNodeByIdMutable(meshId);
+    TreeNode* node = meshQueryService.MeshTree()->GetTreeNodeByIdMutable(meshId);
     if (!node) {
         return;
     }
@@ -1426,7 +1428,7 @@ void AtomsTemplate::setChargeDensityGridMeshVisibilityImmediate(
     } else {
         node->SetIconState(IconState::PARTIAL);
     }
-    MeshManager::SetParentIconState(node);
+    mesh::domain::GetMeshRepository().SetParentIconState(node);
 }
 
 void AtomsTemplate::applyChargeDensityAdvancedGridVisibilityToMesh(int32_t meshId, Mesh* mesh) {
@@ -1438,7 +1440,7 @@ void AtomsTemplate::applyChargeDensityAdvancedGridVisibilityToMesh(int32_t meshI
     bool surfaceVisible = state.surfaceVisible;
     bool volumeVisible = state.volumeVisible;
 
-    const TreeNode* node = MeshManager::Instance().GetMeshTree()->GetTreeNodeById(meshId);
+    const TreeNode* node = mesh::application::GetMeshQueryService().MeshTree()->GetTreeNodeById(meshId);
     if (node && node->GetParent() && node->GetParent()->GetId() > 0) {
         if (!IsStructureVisible(node->GetParent()->GetId())) {
             surfaceVisible = false;
@@ -1468,7 +1470,7 @@ void AtomsTemplate::SetChargeDensityAdvancedGridVisible(
         ensureChargeDensityAdvancedGridVisibilityState(meshId);
     setChargeDensityAdvancedGridVisibilityValue(state, volumeMode, visible);
 
-    Mesh* mesh = MeshManager::Instance().GetMeshByIdMutable(meshId);
+    Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshByIdMutable(meshId);
     if (!mesh || !mesh->GetVolumeMeshActor()) {
         return;
     }
@@ -1481,15 +1483,15 @@ void AtomsTemplate::SetAllChargeDensityAdvancedGridVisible(
         return;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
-    const TreeNode* structureNode = meshManager.GetMeshTree()->GetTreeNodeById(structureId);
+    const auto& meshQueryService = mesh::application::GetMeshQueryService();
+    const TreeNode* structureNode = meshQueryService.MeshTree()->GetTreeNodeById(structureId);
     if (!structureNode) {
         return;
     }
 
     const TreeNode* child = structureNode->GetLeftChild();
     while (child) {
-        Mesh* mesh = meshManager.GetMeshByIdMutable(child->GetId());
+        Mesh* mesh = meshQueryService.FindMeshByIdMutable(child->GetId());
         if (mesh && !mesh->IsXsfStructure() && mesh->GetVolumeMeshActor()) {
             SetChargeDensityAdvancedGridVisible(child->GetId(), volumeMode, visible);
         }
@@ -1502,15 +1504,15 @@ void AtomsTemplate::ApplyChargeDensityAdvancedGridVisibilityForStructure(int32_t
         return;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
-    const TreeNode* structureNode = meshManager.GetMeshTree()->GetTreeNodeById(structureId);
+    const auto& meshQueryService = mesh::application::GetMeshQueryService();
+    const TreeNode* structureNode = meshQueryService.MeshTree()->GetTreeNodeById(structureId);
     if (!structureNode) {
         return;
     }
 
     const TreeNode* child = structureNode->GetLeftChild();
     while (child) {
-        Mesh* mesh = meshManager.GetMeshByIdMutable(child->GetId());
+        Mesh* mesh = meshQueryService.FindMeshByIdMutable(child->GetId());
         if (mesh && !mesh->IsXsfStructure() && mesh->GetVolumeMeshActor()) {
             applyChargeDensityAdvancedGridVisibilityToMesh(child->GetId(), mesh);
         }
@@ -1531,8 +1533,8 @@ void AtomsTemplate::setCurrentStructureGridRenderMode(bool volumeMode) {
         ? Mesh::VolumeRenderMode::Volume
         : Mesh::VolumeRenderMode::Surface;
 
-    MeshManager& meshManager = MeshManager::Instance();
-    meshManager.GetMeshTree()->TraverseTree([&](const TreeNode* node, void*) {
+    auto& meshQueryService = mesh::application::GetMeshQueryService();
+    meshQueryService.MeshTree()->TraverseTree([&](const TreeNode* node, void*) {
         if (!node) {
             return;
         }
@@ -1544,7 +1546,7 @@ void AtomsTemplate::setCurrentStructureGridRenderMode(bool volumeMode) {
         if (!parent || parent->GetId() != targetStructureId) {
             return;
         }
-        Mesh* mesh = meshManager.GetMeshByIdMutable(id);
+        Mesh* mesh = meshQueryService.FindMeshByIdMutable(id);
         if (!mesh || !mesh->GetVolumeMeshActor()) {
             return;
         }
@@ -1640,11 +1642,11 @@ void AtomsTemplate::renderChargeDensityViewerContent() {
         return;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
+    auto& meshQueryService = mesh::application::GetMeshQueryService();
     std::vector<int32_t> volumeMeshIds;
     std::vector<std::string> volumeMeshNames;
 
-    meshManager.GetMeshTree()->TraverseTree([&](const TreeNode* node, void*) {
+    meshQueryService.MeshTree()->TraverseTree([&](const TreeNode* node, void*) {
         if (!node) {
             return;
         }
@@ -1656,11 +1658,11 @@ void AtomsTemplate::renderChargeDensityViewerContent() {
         if (!parent || parent->GetId() == 0) {
             return;
         }
-        const Mesh* parentMesh = meshManager.GetMeshById(parent->GetId());
+        const Mesh* parentMesh = meshQueryService.FindMeshById(parent->GetId());
         if (!parentMesh || !parentMesh->IsXsfStructure()) {
             return;
         }
-        Mesh* mesh = meshManager.GetMeshByIdMutable(id);
+        Mesh* mesh = meshQueryService.FindMeshByIdMutable(id);
         if (!mesh || !mesh->GetVolumeMeshActor()) {
             return;
         }
@@ -1716,7 +1718,7 @@ void AtomsTemplate::renderSliceViewerContent() {
     if (m_chargeDensityUI) {
         if (m_ActiveChargeDensityGridMeshId > 0) {
             const Mesh* activeMesh =
-                MeshManager::Instance().GetMeshById(m_ActiveChargeDensityGridMeshId);
+                mesh::application::GetMeshQueryService().FindMeshById(m_ActiveChargeDensityGridMeshId);
             if (activeMesh && activeMesh->GetVolumeMeshActor()) {
                 const double* range = activeMesh->GetVolumeDataRange();
                 const double dataMin = (range != nullptr) ? range[0] : 0.0;
@@ -1935,11 +1937,11 @@ void AtomsTemplate::RenderAdvancedView(bool* openAdvanced) {
                     m_chargeDensityUI->render();
                 }
             } else {
-                MeshManager& meshManager = MeshManager::Instance();
+                auto& meshQueryService = mesh::application::GetMeshQueryService();
                 std::vector<int32_t> volumeMeshIds;
                 std::vector<std::string> volumeMeshNames;
 
-                meshManager.GetMeshTree()->TraverseTree([&](const TreeNode* node, void*) {
+                meshQueryService.MeshTree()->TraverseTree([&](const TreeNode* node, void*) {
                     if (!node) {
                         return;
                     }
@@ -1951,11 +1953,11 @@ void AtomsTemplate::RenderAdvancedView(bool* openAdvanced) {
                     if (!parent || parent->GetId() == 0) {
                         return;
                     }
-                    const Mesh* parentMesh = meshManager.GetMeshById(parent->GetId());
+                    const Mesh* parentMesh = meshQueryService.FindMeshById(parent->GetId());
                     if (!parentMesh || !parentMesh->IsXsfStructure()) {
                         return;
                     }
-                    Mesh* mesh = meshManager.GetMeshByIdMutable(id);
+                    Mesh* mesh = meshQueryService.FindMeshByIdMutable(id);
                     if (!mesh || !mesh->GetVolumeMeshActor()) {
                         return;
                     }
@@ -2048,8 +2050,7 @@ void AtomsTemplate::setChargeDensityVolumeSuppressed(bool suppressed) {
     if (m_ChargeDensityVolumeMeshId < 0) {
         return;
     }
-    MeshManager& meshManager = MeshManager::Instance();
-    Mesh* mesh = meshManager.GetMeshByIdMutable(m_ChargeDensityVolumeMeshId);
+    Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshByIdMutable(m_ChargeDensityVolumeMeshId);
     if (!mesh || !mesh->GetVolumeMeshActor()) {
         return;
     }
@@ -2057,8 +2058,8 @@ void AtomsTemplate::setChargeDensityVolumeSuppressed(bool suppressed) {
 }
 
 void AtomsTemplate::setGridChargeDensitySuppressed(bool suppressed) {
-    MeshManager& meshManager = MeshManager::Instance();
-    meshManager.GetMeshTree()->TraverseTree([&](const TreeNode* node, void*) {
+    auto& meshQueryService = mesh::application::GetMeshQueryService();
+    meshQueryService.MeshTree()->TraverseTree([&](const TreeNode* node, void*) {
         if (!node) {
             return;
         }
@@ -2073,11 +2074,11 @@ void AtomsTemplate::setGridChargeDensitySuppressed(bool suppressed) {
         if (!parent || parent->GetId() == 0) {
             return;
         }
-        const Mesh* parentMesh = meshManager.GetMeshById(parent->GetId());
+        const Mesh* parentMesh = meshQueryService.FindMeshById(parent->GetId());
         if (!parentMesh || !parentMesh->IsXsfStructure()) {
             return;
         }
-        Mesh* mesh = meshManager.GetMeshByIdMutable(id);
+        Mesh* mesh = meshQueryService.FindMeshByIdMutable(id);
         if (!mesh || !mesh->GetVolumeMeshActor()) {
             return;
         }
@@ -5466,7 +5467,7 @@ bool AtomsTemplate::LoadChgcarParsedData(const atoms::infrastructure::ChgcarPars
 
     if (!result.density.empty()) {
         if (m_ChargeDensityVolumeMeshId >= 0) {
-            MeshManager::Instance().DeleteMesh(m_ChargeDensityVolumeMeshId);
+            mesh::application::GetMeshCommandService().DeleteMesh(m_ChargeDensityVolumeMeshId);
             m_ChargeDensityVolumeMeshId = -1;
         }
 
@@ -5490,9 +5491,9 @@ bool AtomsTemplate::LoadChgcarParsedData(const atoms::infrastructure::ChgcarPars
         }
 
         if (surfaceDataSet) {
-            MeshManager& meshManager = MeshManager::Instance();
+            auto& meshCommandService = mesh::application::GetMeshCommandService();
             int32_t parentId = m_CurrentStructureId >= 0 ? m_CurrentStructureId : 0;
-            Mesh* mesh = meshManager.InsertMesh("noname_01", nullptr, nullptr, surfaceDataSet, parentId);
+            Mesh* mesh = meshCommandService.InsertMesh("noname_01", nullptr, nullptr, surfaceDataSet, parentId);
             if (mesh) {
                 mesh->SetVolumeQualityDataSets(surfaceDataSet, mediumSurfaceDataSet, lowSurfaceDataSet,
                                                volumeDataSet, mediumVolumeDataSet, lowVolumeDataSet);
@@ -5516,7 +5517,7 @@ void AtomsTemplate::ClearChargeDensity() {
     }
     m_ActiveChargeDensityGridMeshId = -1;
     if (m_ChargeDensityVolumeMeshId >= 0) {
-        MeshManager::Instance().DeleteMesh(m_ChargeDensityVolumeMeshId);
+        mesh::application::GetMeshCommandService().DeleteMesh(m_ChargeDensityVolumeMeshId);
         m_ChargeDensityVolumeMeshId = -1;
     }
     m_ChargeDensityStructureId = -1;
@@ -5793,4 +5794,5 @@ bool AtomsTemplate::getBondStructureId(uint32_t bondId, int32_t& structureId) {
     }
     return false;
 }
+
 

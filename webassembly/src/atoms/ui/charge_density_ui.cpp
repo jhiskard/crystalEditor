@@ -1,11 +1,12 @@
-// atoms/ui/charge_density_ui.cpp
+﻿// atoms/ui/charge_density_ui.cpp
 #include "charge_density_ui.h"
 #include "../atoms_template.h"  // Keep full AtomsTemplate type for UI interactions.
 #include "../infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
-#include "../../mesh_manager.h"
-#include "../../mesh_detail.h"
-#include "../../lcrs_tree.h"
+#include "../../mesh/application/mesh_command_service.h"
+#include "../../mesh/application/mesh_query_service.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
+#include "../../mesh/domain/lcrs_tree.h"
 #include <vtkColorTransferFunction.h>
 
 #define GLFW_INCLUDE_ES3
@@ -216,19 +217,19 @@ std::vector<ChargeDensityUI::GridMeshEntry> ChargeDensityUI::collectGridMeshes()
         return entries;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
+    const auto& meshQueryService = mesh::application::GetMeshQueryService();
     auto collectFromStructure = [&](int32_t structureId) {
         if (structureId < 0) {
             return;
         }
-        const TreeNode* structureNode = meshManager.GetMeshTree()->GetTreeNodeById(structureId);
+        const TreeNode* structureNode = meshQueryService.MeshTree()->GetTreeNodeById(structureId);
         if (!structureNode) {
             return;
         }
 
         const TreeNode* child = structureNode->GetLeftChild();
         while (child) {
-            const Mesh* mesh = meshManager.GetMeshById(child->GetId());
+            const Mesh* mesh = meshQueryService.FindMeshById(child->GetId());
             if (mesh && !mesh->IsXsfStructure() && mesh->GetVolumeMeshActor()) {
                 GridMeshEntry entry;
                 entry.id = child->GetId();
@@ -248,7 +249,7 @@ std::vector<ChargeDensityUI::GridMeshEntry> ChargeDensityUI::collectGridMeshes()
     }
 
     std::vector<int32_t> structureIds;
-    meshManager.GetMeshTree()->TraverseTree([&](const TreeNode* node, void*) {
+    meshQueryService.MeshTree()->TraverseTree([&](const TreeNode* node, void*) {
         if (!node) {
             return;
         }
@@ -256,7 +257,7 @@ std::vector<ChargeDensityUI::GridMeshEntry> ChargeDensityUI::collectGridMeshes()
         if (id <= 0) {
             return;
         }
-        const Mesh* mesh = meshManager.GetMeshById(id);
+        const Mesh* mesh = meshQueryService.FindMeshById(id);
         if (mesh && mesh->IsXsfStructure()) {
             structureIds.push_back(id);
         }
@@ -1167,7 +1168,7 @@ void ChargeDensityUI::syncGridMeshVisibility(const std::string& selectedName) {
         return;
     }
 
-    MeshManager& meshManager = MeshManager::Instance();
+    auto& meshCommandService = mesh::application::GetMeshCommandService();
     for (const auto& entry : gridMeshes) {
         bool shouldShow = false;
         auto it = m_simpleGridVisibility.find(toLowerCopy(entry.name));
@@ -1178,9 +1179,9 @@ void ChargeDensityUI::syncGridMeshVisibility(const std::string& selectedName) {
         }
         if (shouldShow && !entry.visible) {
             MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
-            meshManager.ShowMesh(entry.id);
+            meshCommandService.ShowMesh(entry.id);
         } else if (!shouldShow && entry.visible) {
-            meshManager.HideMesh(entry.id);
+            meshCommandService.HideMesh(entry.id);
         }
     }
 }
@@ -1240,7 +1241,7 @@ common::ColorMapPreset ChargeDensityUI::resolveSliceColorMapPresetForKey(
             if (toLowerCopy(entry.name) != meshKey) {
                 continue;
             }
-            const Mesh* mesh = MeshManager::Instance().GetMeshById(entry.id);
+            const Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshById(entry.id);
             if (mesh && mesh->GetVolumeMeshActor()) {
                 return mesh->GetVolumeColorPreset();
             }
@@ -1259,7 +1260,7 @@ common::ColorMapPreset ChargeDensityUI::resolveSliceColorMapPresetForKey(
     }
 
     if (resolvedKey == kMainSliceSettingsKey && gridMeshes.size() == 1) {
-        const Mesh* mesh = MeshManager::Instance().GetMeshById(gridMeshes.front().id);
+        const Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshById(gridMeshes.front().id);
         if (mesh && mesh->GetVolumeMeshActor()) {
             return mesh->GetVolumeColorPreset();
         }
@@ -1773,5 +1774,6 @@ void ChargeDensityUI::updateAnimation() {
 
 } // namespace ui
 } // namespace atoms
+
 
 
