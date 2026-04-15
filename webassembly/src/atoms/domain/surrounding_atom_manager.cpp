@@ -1,6 +1,6 @@
 #include "surrounding_atom_manager.h"
 
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "atom_manager.h"
 #include "bond_manager.h"
 #include "cell_manager.h"

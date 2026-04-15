@@ -1,5 +1,5 @@
-﻿#include "bz_plot.h"
-#include "../atoms_template.h"
+#include "bz_plot.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../infrastructure/vtk_renderer.h"
 #include "../../render/application/render_gateway.h"
 #include "../domain/cell_manager.h"

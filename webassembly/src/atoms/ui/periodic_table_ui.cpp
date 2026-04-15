@@ -1,7 +1,7 @@
 // webassembly/src/atoms/ui/periodic_table_ui.cpp
 #include "periodic_table_ui.h"
 #include "ui_color_utils.h"
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../domain/element_database.h"
 #include "../domain/cell_manager.h"
 #include "../../config/log_config.h"

@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include "../../common/panel_request_types.h"
 #include "../../enum/viewer_enums.h"
 #include "../../measurement/application/measurement_service.h"
 #include "../domain/shell_state_store.h"
@@ -11,33 +12,9 @@
 namespace shell {
 namespace application {
 
-/**
- * @brief Logical editor panel actions triggered from shell menus.
- */
-enum class EditorPanelAction {
-    Atoms = 0,
-    Bonds,
-    Cell
-};
-
-/**
- * @brief Logical builder panel actions triggered from shell menus.
- */
-enum class BuilderPanelAction {
-    AddAtoms = 0,
-    BravaisLatticeTemplates,
-    BrillouinZone
-};
-
-/**
- * @brief Logical data panel actions triggered from shell menus.
- */
-enum class DataPanelAction {
-    Isosurface = 0,
-    Surface,
-    Volumetric,
-    Plane
-};
+using EditorPanelAction = workbench::panel::EditorRequest;
+using BuilderPanelAction = workbench::panel::BuilderRequest;
+using DataPanelAction = workbench::panel::DataRequest;
 
 /**
  * @brief Shell-level controller for menu/toolbar command dispatch.

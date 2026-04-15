@@ -51,6 +51,21 @@ public:
      */
     void RequestFocus(domain::ShellFocusTarget target, int passes = 2);
 
+    /**
+     * @brief Queues one-shot editor panel section request.
+     */
+    void RequestEditorPanel(workbench::panel::EditorRequest request);
+
+    /**
+     * @brief Queues one-shot builder panel section request.
+     */
+    void RequestBuilderPanel(workbench::panel::BuilderRequest request);
+
+    /**
+     * @brief Queues one-shot data panel request.
+     */
+    void RequestDataPanel(workbench::panel::DataRequest request);
+
 private:
     ShellStateCommandService() = default;
 };

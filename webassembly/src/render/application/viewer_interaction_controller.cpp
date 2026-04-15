@@ -1,8 +1,8 @@
-﻿#include "../presentation/viewer_window.h"
+#include "../presentation/viewer_window.h"
 
 #include "../../app.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
-#include "../../atoms/atoms_template.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
 #include "../../shell/runtime/workbench_runtime.h"
 
 #include <vtkCommand.h>

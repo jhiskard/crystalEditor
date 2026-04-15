@@ -1,6 +1,6 @@
 #include "import_apply_service.h"
 
-#include "../../atoms/atoms_template.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
 #include "../../atoms/ui/charge_density_ui.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"

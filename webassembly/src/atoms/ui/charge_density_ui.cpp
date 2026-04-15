@@ -1,6 +1,6 @@
-﻿// atoms/ui/charge_density_ui.cpp
+// atoms/ui/charge_density_ui.cpp
 #include "charge_density_ui.h"
-#include "../atoms_template.h"  // Keep full AtomsTemplate type for UI interactions.
+#include "../legacy/atoms_template_facade.h"  // Keep full AtomsTemplate type for UI interactions.
 #include "../infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"

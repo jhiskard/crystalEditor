@@ -1,4 +1,4 @@
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../../structure/domain/structure_repository.h"
 
 #include <algorithm>

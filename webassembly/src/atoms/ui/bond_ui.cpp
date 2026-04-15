@@ -1,6 +1,6 @@
 // webassembly/src/atoms/ui/bond_ui.cpp
 #include "bond_ui.h"
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../domain/bond_manager.h"
 #include "../../config/log_config.h"
 

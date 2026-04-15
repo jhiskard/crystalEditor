@@ -1,5 +1,5 @@
-﻿#include "bond_manager.h"
-#include "../atoms_template.h"
+#include "bond_manager.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../../render/application/render_gateway.h"
 #include "../../structure/domain/structure_repository.h"
 #include <algorithm>

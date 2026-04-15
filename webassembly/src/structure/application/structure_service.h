@@ -4,35 +4,27 @@
  */
 #pragma once
 
+#include "structure_service_port.h"
+#include "structure_service_types.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
-
-class AtomsTemplate;
 
 namespace structure {
 namespace application {
 
 /**
- * @brief Read model entry for structure list UI.
- */
-struct StructureEntryView {
-    int32_t id = -1;
-    std::string name;
-    bool visible = true;
-};
-
-/**
  * @brief Structure use-case facade extracted from AtomsTemplate.
- * @details The implementation delegates to `AtomsTemplate` during Phase 8 to
- *          preserve behavior while call-sites migrate to module-level APIs.
+ * @details The implementation delegates to a compatibility port while call-sites
+ *          migrate to module-level APIs.
  */
 class StructureService {
 public:
     /**
-     * @brief Creates service bound to the atoms compatibility facade.
+     * @brief Creates service bound to the structure compatibility port.
      */
-    explicit StructureService(AtomsTemplate* atomsTemplate);
+    explicit StructureService(StructureServicePort* port);
 
     /**
      * @brief Returns number of registered structures.
@@ -84,8 +76,18 @@ public:
      */
     size_t GetAtomCountForStructure(int32_t structureId) const;
 
+    /**
+     * @brief Returns current boundary-atom visibility.
+     */
+    bool IsBoundaryAtomsEnabled() const;
+
+    /**
+     * @brief Updates boundary-atom visibility.
+     */
+    void SetBoundaryAtomsEnabled(bool enabled);
+
 private:
-    AtomsTemplate* m_atomsTemplate = nullptr;
+    StructureServicePort* m_port = nullptr;
 };
 
 } // namespace application

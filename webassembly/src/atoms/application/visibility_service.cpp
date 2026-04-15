@@ -1,4 +1,4 @@
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 
 #include "../../render/application/render_gateway.h"
 #include "../ui/charge_density_ui.h"

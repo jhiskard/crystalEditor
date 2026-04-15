@@ -1,6 +1,6 @@
 #include "import_workflow_service.h"
 
-#include "../../atoms/atoms_template.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../mesh/application/mesh_query_service.h"
 #include "../../shell/runtime/workbench_runtime.h"

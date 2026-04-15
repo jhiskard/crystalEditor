@@ -1,5 +1,5 @@
 #include "bz_plot_ui.h"
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../domain/special_points.h"
 #include "../domain/cell_manager.h"
 #include "../../app.h"
@@ -7,7 +7,36 @@
 #include "../../render/application/render_gateway.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
+
+namespace {
+constexpr float kCellMatrixEpsilon = 1e-6f;
+
+bool isSameCellMatrix(
+    const std::array<std::array<float, 3>, 3>& lhs,
+    const float rhs[3][3]) {
+    for (int row = 0; row < 3; ++row) {
+        for (int col = 0; col < 3; ++col) {
+            if (std::fabs(lhs[static_cast<size_t>(row)][static_cast<size_t>(col)] - rhs[row][col]) >
+                kCellMatrixEpsilon) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void copyCellMatrix(
+    std::array<std::array<float, 3>, 3>& dst,
+    const float src[3][3]) {
+    for (int row = 0; row < 3; ++row) {
+        for (int col = 0; col < 3; ++col) {
+            dst[static_cast<size_t>(row)][static_cast<size_t>(col)] = src[row][col];
+        }
+    }
+}
+} // namespace
 
 namespace atoms {
 namespace ui {
@@ -224,22 +253,19 @@ void BZPlotUI::renderStatus() {
 
 void BZPlotUI::renderSpecialPointsTable() {
     // 격자 타입 감지 및 특수점 데이터 조회
-    std::string latticeType =
-        atoms::domain::SpecialPointsDatabase::detectLatticeType(cellInfo.matrix);
-    auto special_points =
-        atoms::domain::SpecialPointsDatabase::getSpecialPoints(latticeType);
+    refreshSpecialPointsCache();
 
     ImGui::Spacing();
-    ImGui::Text("Special k-points for lattice: %s", latticeType.c_str());
+    ImGui::Text("Special k-points for lattice: %s", m_cachedLatticeType.c_str());
     ImGui::Spacing();
 
-    if (special_points.empty()) {
+    if (m_cachedSpecialPoints.empty()) {
         ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f),
                            "No special points to display");
         return;
     }
 
-    ImGui::Text("Total points: %zu", special_points.size());
+    ImGui::Text("Total points: %zu", m_cachedSpecialPoints.size());
     ImGui::Separator();
     ImGui::Spacing();
 
@@ -257,8 +283,8 @@ void BZPlotUI::renderSpecialPointsTable() {
 
         auto labelColor = ImVec4(0.8f, 0.9f, 1.0f, 1.0f);
 
-        // for (const auto& [label, coords] : special_points)
-        for (const auto& kv : special_points) {
+        // for (const auto& [label, coords] : m_cachedSpecialPoints)
+        for (const auto& kv : m_cachedSpecialPoints) {
             const std::string& label = kv.first;
             const auto& coords = kv.second;
 
@@ -279,6 +305,17 @@ void BZPlotUI::renderSpecialPointsTable() {
 
         ImGui::EndTable();
     }
+}
+
+void BZPlotUI::refreshSpecialPointsCache() {
+    if (m_hasLatticeCache && isSameCellMatrix(m_cachedCellMatrix, cellInfo.matrix)) {
+        return;
+    }
+
+    copyCellMatrix(m_cachedCellMatrix, cellInfo.matrix);
+    m_cachedLatticeType = atoms::domain::SpecialPointsDatabase::detectLatticeType(cellInfo.matrix);
+    m_cachedSpecialPoints = atoms::domain::SpecialPointsDatabase::getSpecialPoints(m_cachedLatticeType);
+    m_hasLatticeCache = true;
 }
 
 /*

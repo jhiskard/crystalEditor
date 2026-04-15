@@ -3,8 +3,9 @@
 #include "../../../app.h"
 #include "../../runtime/workbench_runtime.h"
 #include "../../application/workbench_controller.h"
-#include "../../../atoms/atoms_template.h"
+#include "../../application/shell_state_query_service.h"
 #include "../../../atoms/domain/cell_manager.h"
+#include "../../../density/application/density_service.h"
 #include "../../../icon/FontAwesome6.h"
 
 // ImGui
@@ -12,12 +13,6 @@
 #include <imgui_internal.h>
 
 #include "../../../atoms/ui/charge_density_ui.h"
-
-namespace {
-AtomsTemplate& RuntimeAtomsTemplateFacade() {
-    return GetWorkbenchRuntime().AtomsTemplateFacade();
-}
-} // namespace
 
 Toolbar::Toolbar()
     : m_Padding(5 * App::DevicePixelRatio()) {
@@ -86,9 +81,9 @@ void Toolbar::Render(const ImVec2& viewerContentSize) {
     }
     
     // ✅ Charge Density 컨트롤 추가
-    AtomsTemplate& atomsTemplate = RuntimeAtomsTemplateFacade();
-    if (atomsTemplate.HasChargeDensity() &&
-        atomsTemplate.IsChargeDensitySimpleViewActive()) {
+    density::application::DensityService& densityService = GetWorkbenchRuntime().DensityFeature();
+    if (densityService.HasChargeDensity() &&
+        densityService.IsSimpleViewActive()) {
         ImGui::SameLine();
         ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
         ImGui::SameLine();
@@ -116,9 +111,9 @@ void Toolbar::Render(const ImVec2& viewerContentSize) {
     ImGui::PopStyleVar();
     
     // ✅ 애니메이션 업데이트 (매 프레임)
-    if (atomsTemplate.HasChargeDensity() &&
-        atomsTemplate.IsChargeDensitySimpleViewActive()) {
-        auto* cdUI = atomsTemplate.chargeDensityUI();
+    if (densityService.HasChargeDensity() &&
+        densityService.IsSimpleViewActive()) {
+        auto* cdUI = densityService.ChargeDensityUi();
         if (cdUI) {
             cdUI->updateAnimation();
         }
@@ -179,7 +174,7 @@ void Toolbar::renderArrowRotationStepInput() {
 
 
 void Toolbar::renderChargeDensityControls() {
-    auto* cdUI = RuntimeAtomsTemplateFacade().chargeDensityUI();
+    auto* cdUI = GetWorkbenchRuntime().DensityFeature().ChargeDensityUi();
     if (!cdUI || !cdUI->hasData()) return;
 
     bool isPlaying = cdUI->isPlaying();
@@ -504,7 +499,8 @@ void Toolbar::renderCellAlignButtons() {
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6.0f, 6.0f));
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1, 0.2, 0.3, 0.2));
 
-    const bool isBzMode = RuntimeAtomsTemplateFacade().IsBZPlotMode();
+    const bool isBzMode = GetWorkbenchRuntime().ShellStateQuery().IsWindowVisible(
+        shell::domain::ShellWindowId::BrillouinZonePlot);
     const char* const labelsA[3] = { "a1", "a2", "a3" };
     const char* const labelsB[3] = { "b1", "b2", "b3" };
     const char* const* labels = isBzMode ? labelsB : labelsA;

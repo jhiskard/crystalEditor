@@ -1,4 +1,4 @@
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 
 #include "../ui/atom_editor_ui.h"
 #include "../ui/bond_ui.h"

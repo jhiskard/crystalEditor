@@ -1,6 +1,8 @@
 #pragma once
 
 #include <imgui.h>
+#include <array>
+#include <map>
 #include <string>
 
 class AtomsTemplate;
@@ -38,12 +40,17 @@ private:
     bool  m_showLabels     = true;
     bool  m_showingBZ      = false;
     std::string m_lastErrorMessage;
+    bool m_hasLatticeCache = false;
+    std::array<std::array<float, 3>, 3> m_cachedCellMatrix {};
+    std::string m_cachedLatticeType;
+    std::map<std::string, std::array<double, 3>> m_cachedSpecialPoints;
 
     void renderBandpathConfig();
     void renderOptions();
     void renderToggleAndClearButtons();
     void renderStatus();
     void renderSpecialPointsTable();
+    void refreshSpecialPointsCache();
 
     void renderBZplot();
 };

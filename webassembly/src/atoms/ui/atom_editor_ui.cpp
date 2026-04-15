@@ -1,7 +1,7 @@
 // webassembly/src/atoms/ui/atom_editor_ui.cpp
 #include "atom_editor_ui.h"
 #include "ui_color_utils.h"
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../domain/atom_manager.h"
 #include "../domain/bond_manager.h"
 #include "../domain/cell_manager.h"

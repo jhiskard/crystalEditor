@@ -1,9 +1,11 @@
-﻿#include "workbench_controller.h"
+#include "workbench_controller.h"
 
 #include "shell_state_command_service.h"
-#include "../../atoms/atoms_template.h"
+#include "shell_state_query_service.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../render/application/render_gateway.h"
+#include "../../structure/application/structure_service.h"
 #include "../runtime/workbench_runtime.h"
 
 #include <algorithm>
@@ -26,6 +28,10 @@ measurement::application::MeasurementService& measurementService() {
     return GetWorkbenchRuntime().MeasurementFeature();
 }
 
+structure::application::StructureService& structureService() {
+    return GetWorkbenchRuntime().StructureFeature();
+}
+
 } // namespace
 
 namespace shell {
@@ -43,22 +49,23 @@ void WorkbenchController::RequestOpenStructureImport() {
 void WorkbenchController::OpenEditorPanel(EditorPanelAction action) {
     domain::ShellUiState& state = mutableShellState();
     consumeInitialLayoutBootstrap(state);
+    ShellStateCommandService& shellCommand = GetShellStateCommandService();
 
     switch (action) {
     case EditorPanelAction::Atoms:
         state.showCreatedAtomsWindow = true;
         requestFocus(domain::ShellFocusTarget::CreatedAtoms);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(AtomsTemplate::EditorSectionRequest::Atoms);
+        shellCommand.RequestEditorPanel(workbench::panel::EditorRequest::Atoms);
         break;
     case EditorPanelAction::Bonds:
         state.showBondsManagementWindow = true;
         requestFocus(domain::ShellFocusTarget::BondsManagement);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(AtomsTemplate::EditorSectionRequest::Bonds);
+        shellCommand.RequestEditorPanel(workbench::panel::EditorRequest::Bonds);
         break;
     case EditorPanelAction::Cell:
         state.showCellInformationWindow = true;
         requestFocus(domain::ShellFocusTarget::CellInformation);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestEditorSection(AtomsTemplate::EditorSectionRequest::Cell);
+        shellCommand.RequestEditorPanel(workbench::panel::EditorRequest::Cell);
         break;
     }
 }
@@ -66,24 +73,25 @@ void WorkbenchController::OpenEditorPanel(EditorPanelAction action) {
 void WorkbenchController::OpenBuilderPanel(BuilderPanelAction action) {
     domain::ShellUiState& state = mutableShellState();
     consumeInitialLayoutBootstrap(state);
+    ShellStateCommandService& shellCommand = GetShellStateCommandService();
 
     switch (action) {
     case BuilderPanelAction::AddAtoms:
         state.showPeriodicTableWindow = true;
         requestFocus(domain::ShellFocusTarget::PeriodicTable);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(AtomsTemplate::BuilderSectionRequest::AddAtoms);
+        shellCommand.RequestBuilderPanel(workbench::panel::BuilderRequest::AddAtoms);
         break;
     case BuilderPanelAction::BravaisLatticeTemplates:
         state.showCrystalTemplatesWindow = true;
         requestFocus(domain::ShellFocusTarget::CrystalTemplates);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
-            AtomsTemplate::BuilderSectionRequest::BravaisLatticeTemplates);
+        shellCommand.RequestBuilderPanel(
+            workbench::panel::BuilderRequest::BravaisLatticeTemplates);
         break;
     case BuilderPanelAction::BrillouinZone:
         state.showBrillouinZonePlotWindow = true;
         requestFocus(domain::ShellFocusTarget::BrillouinZonePlot);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestBuilderSection(
-            AtomsTemplate::BuilderSectionRequest::BrillouinZone);
+        shellCommand.RequestBuilderPanel(
+            workbench::panel::BuilderRequest::BrillouinZone);
         break;
     }
 }
@@ -91,6 +99,7 @@ void WorkbenchController::OpenBuilderPanel(BuilderPanelAction action) {
 void WorkbenchController::OpenDataPanel(DataPanelAction action) {
     domain::ShellUiState& state = mutableShellState();
     consumeInitialLayoutBootstrap(state);
+    ShellStateCommandService& shellCommand = GetShellStateCommandService();
 
     state.showModelTree = true;
 
@@ -98,22 +107,22 @@ void WorkbenchController::OpenDataPanel(DataPanelAction action) {
     case DataPanelAction::Isosurface:
         state.showChargeDensityViewerWindow = true;
         requestFocus(domain::ShellFocusTarget::ChargeDensityViewer);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(AtomsTemplate::DataMenuRequest::Isosurface);
+        shellCommand.RequestDataPanel(workbench::panel::DataRequest::Isosurface);
         break;
     case DataPanelAction::Surface:
         state.showChargeDensityViewerWindow = true;
         requestFocus(domain::ShellFocusTarget::ChargeDensityViewer);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(AtomsTemplate::DataMenuRequest::Surface);
+        shellCommand.RequestDataPanel(workbench::panel::DataRequest::Surface);
         break;
     case DataPanelAction::Volumetric:
         state.showChargeDensityViewerWindow = true;
         requestFocus(domain::ShellFocusTarget::ChargeDensityViewer);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(AtomsTemplate::DataMenuRequest::Volumetric);
+        shellCommand.RequestDataPanel(workbench::panel::DataRequest::Volumetric);
         break;
     case DataPanelAction::Plane:
         state.showSliceViewerWindow = true;
         requestFocus(domain::ShellFocusTarget::SliceViewer);
-        GetWorkbenchRuntime().AtomsTemplateFacade().RequestDataMenu(AtomsTemplate::DataMenuRequest::Plane);
+        shellCommand.RequestDataPanel(workbench::panel::DataRequest::Plane);
         break;
     }
 }
@@ -149,12 +158,12 @@ void WorkbenchController::RequestLayoutPreset(domain::ShellLayoutPreset preset) 
 }
 
 void WorkbenchController::ToggleBoundaryAtoms() {
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
-    atomsTemplate.SetBoundaryAtomsEnabled(!atomsTemplate.isSurroundingsVisible());
+    structure::application::StructureService& feature = structureService();
+    feature.SetBoundaryAtomsEnabled(!feature.IsBoundaryAtomsEnabled());
 }
 
 bool WorkbenchController::IsBoundaryAtomsEnabled() const {
-    return GetWorkbenchRuntime().AtomsTemplateFacade().isSurroundingsVisible();
+    return structureService().IsBoundaryAtomsEnabled();
 }
 
 void WorkbenchController::SetMeshDisplayMode(MeshDisplayMode mode) {
@@ -170,7 +179,9 @@ void WorkbenchController::ResetView() {
 }
 
 void WorkbenchController::AlignCameraToActiveCellAxis(int axisIndex) {
-    if (GetWorkbenchRuntime().AtomsTemplateFacade().IsBZPlotMode()) {
+    const bool isBzMode = GetWorkbenchRuntime().ShellStateQuery().IsWindowVisible(
+        domain::ShellWindowId::BrillouinZonePlot);
+    if (isBzMode) {
         render::application::GetRenderGateway().AlignCameraToIcellAxis(axisIndex);
         return;
     }

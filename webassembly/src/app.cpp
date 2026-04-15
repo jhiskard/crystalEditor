@@ -1,4 +1,4 @@
-﻿#include "app.h"
+#include "app.h"
 #include "shell/runtime/workbench_runtime.h"
 #include "shell/application/workbench_controller.h"
 #include "shell/application/shell_state_query_service.h"
@@ -11,9 +11,8 @@
 #include "mesh/presentation/mesh_group_detail_panel.h"
 #include "mesh/domain/mesh_entity.h"
 
-// Add AtomsTemplate
-// #include "atoms_template.h"
-#include "atoms/atoms_template.h"
+// Legacy atoms facade
+#include "atoms/legacy/atoms_template_facade.h"
 
 // ImGui
 #include <imgui.h>
@@ -1103,6 +1102,24 @@ void App::renderImGuiWindows() {
     // About 팝업 렌더링
     if (m_bShowAboutPopup) {
         renderAboutPopup();
+    }
+
+    {
+        shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateCommand().MutableState();
+        AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+
+        if (shellState.hasPendingEditorRequest) {
+            atomsTemplate.RequestEditorSection(shellState.pendingEditorRequest);
+            shellState.hasPendingEditorRequest = false;
+        }
+        if (shellState.hasPendingBuilderRequest) {
+            atomsTemplate.RequestBuilderSection(shellState.pendingBuilderRequest);
+            shellState.hasPendingBuilderRequest = false;
+        }
+        if (shellState.hasPendingDataRequest) {
+            atomsTemplate.RequestDataMenu(shellState.pendingDataRequest);
+            shellState.hasPendingDataRequest = false;
+        }
     }
 
     const bool applyResetLayoutThisFrame = m_ResetWindowGeometryPassesRemaining > 0;

@@ -1,6 +1,6 @@
 #include "../ui/charge_density_ui.h"
 
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../infrastructure/charge_density_renderer.h"
 
 #ifdef __EMSCRIPTEN__

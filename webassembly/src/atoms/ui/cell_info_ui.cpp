@@ -1,5 +1,5 @@
 #include "cell_info_ui.h"
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../domain/cell_manager.h"   // cellInfo, calculateInverseMatrix, cartesianToFractional
 #include "../../config/log_config.h"
 #include <cstdio>  // snprintf

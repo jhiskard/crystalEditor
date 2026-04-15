@@ -1,5 +1,6 @@
-﻿#include "../../mesh/presentation/model_tree_panel.h"
-#include "../../atoms/atoms_template.h"
+#include "../../mesh/presentation/model_tree_panel.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
+#include "../../shell/runtime/workbench_runtime.h"
 #include "../application/mesh_command_service.h"
 #include "../application/mesh_query_service.h"
 
@@ -41,7 +42,7 @@ void ModelTree::renderDeleteConfirmPopup() {
                     if (m_SelectedMeshId == m_PendingDeleteMeshId) {
                         m_SelectedMeshId = -1;
                     }
-                    AtomsTemplate::Instance().RemoveStructure(m_PendingDeleteMeshId);
+                    GetWorkbenchRuntime().AtomsTemplateFacade().RemoveStructure(m_PendingDeleteMeshId);
                     mesh::application::GetMeshCommandService().DeleteXsfStructure(m_PendingDeleteMeshId);
                 } else {
                     if (m_SelectedMeshId == m_PendingDeleteMeshId) {
@@ -90,7 +91,7 @@ void ModelTree::renderClearMeasurementsConfirmPopup() {
         ImGui::SetCursorPosX(startX);
         if (ImGui::Button("Yes", ImVec2(buttonWidth, 0))) {
             if (m_PendingClearMeasurementsStructureId != -1) {
-                AtomsTemplate::Instance().RemoveMeasurementsByStructure(
+                GetWorkbenchRuntime().AtomsTemplateFacade().RemoveMeasurementsByStructure(
                     m_PendingClearMeasurementsStructureId);
             }
             m_PendingClearMeasurementsStructureId = -1;

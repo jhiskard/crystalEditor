@@ -1,4 +1,4 @@
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 
 #include "../ui/bravais_lattice_ui.h"
 #include "../ui/bz_plot_ui.h"

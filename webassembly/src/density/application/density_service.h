@@ -4,35 +4,29 @@
  */
 #pragma once
 
+#include "density_service_port.h"
+
 #include <cstdint>
-#include <string>
-
-class AtomsTemplate;
-
-namespace atoms {
-namespace ui {
-class ChargeDensityUI;
-} // namespace ui
-} // namespace atoms
 
 namespace density {
 namespace application {
 
 /**
  * @brief Density use-case facade extracted from AtomsTemplate.
- * @details During Phase 8 this class delegates to existing AtomsTemplate APIs
- *          to preserve behavior while call-sites migrate to module boundaries.
+ * @details During Phase 8 this service delegates to a compatibility port so
+ *          call-sites can migrate without behavior changes.
  */
 class DensityService {
 public:
     /**
-     * @brief Creates service bound to the atoms compatibility facade.
+     * @brief Creates service bound to the density compatibility port.
      */
-    explicit DensityService(AtomsTemplate* atomsTemplate);
+    explicit DensityService(DensityServicePort* port);
 
     bool HasChargeDensity() const;
     bool IsChargeDensityVisible() const;
     void SetChargeDensityVisible(bool visible);
+    bool IsSimpleViewActive() const;
     void SyncChargeDensityViewTypeState();
 
     int32_t GetChargeDensityStructureId() const;
@@ -47,7 +41,7 @@ public:
     const atoms::ui::ChargeDensityUI* ChargeDensityUi() const;
 
 private:
-    AtomsTemplate* m_atomsTemplate = nullptr;
+    DensityServicePort* m_port = nullptr;
 };
 
 } // namespace application

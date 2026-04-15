@@ -1,10 +1,11 @@
-﻿#include "../../mesh/presentation/model_tree_panel.h"
+#include "../../mesh/presentation/model_tree_panel.h"
 #include "../../app.h"
 #include "../../shell/presentation/font/font_registry.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
 #include "../../mesh/domain/lcrs_tree.h"
 #include "../../config/log_config.h"
-#include "../../atoms/atoms_template.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
+#include "../../shell/runtime/workbench_runtime.h"
 #include "../application/mesh_command_service.h"
 #include "../application/mesh_query_service.h"
 
@@ -214,7 +215,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         ImVec4 curColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
         
         if (isXsfStructure) {
-            AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+            AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
             bool isVisible = atomsTemplate.IsStructureVisible(node->GetId());
             
             if (isVisible) {

@@ -81,7 +81,7 @@ try {
     )
 
     $forbiddenRootHeaderPattern =
-        '^(font_manager\.h|vtk_viewer\.h|model_tree\.h|mesh(_detail|_group(_detail)?|_manager)?\.h|mesh\.h|toolbar\.h|file_loader\.h|unv_reader\.h|custom_ui\.h|image\.h|texture\.h|test_window\.h|lcrs_tree\.h|atoms/atoms_template\.h)$'
+        '^(font_manager\.h|vtk_viewer\.h|model_tree\.h|mesh(_detail|_group(_detail)?|_manager)?\.h|mesh\.h|toolbar\.h|file_loader\.h|unv_reader\.h|custom_ui\.h|image\.h|texture\.h|test_window\.h|lcrs_tree\.h|atoms/legacy/atoms_template_facade\.h)$'
     $appHForbiddenIncludes = @(
         $appHIncludes | Where-Object { $_ -match $forbiddenRootHeaderPattern }
     )
@@ -95,7 +95,7 @@ try {
         "mesh_manager.h",
         "mesh_group_detail.h",
         "mesh.h",
-        "atoms/atoms_template.h"
+        "atoms/legacy/atoms_template_facade.h"
     )
     $appCppLegacyIncludeBudget = $appCppLegacyIncludeAllowlist.Count
 

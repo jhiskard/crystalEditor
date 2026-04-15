@@ -1,6 +1,6 @@
-﻿#include "../ui/charge_density_ui.h"
+#include "../ui/charge_density_ui.h"
 
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"

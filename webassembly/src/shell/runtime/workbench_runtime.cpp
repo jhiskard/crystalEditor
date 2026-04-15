@@ -1,7 +1,7 @@
-﻿#include "workbench_runtime.h"
+#include "workbench_runtime.h"
 
 #include "../../app.h"
-#include "../../atoms/atoms_template.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
 #include "../../io/application/import_entry_service.h"
 #include "../../platform/browser/browser_file_dialog_adapter.h"
 #include "../../platform/worker/emscripten_worker_port.h"
@@ -77,15 +77,15 @@ AtomsTemplate& WorkbenchRuntime::AtomsTemplateFacade() {
 }
 
 structure::application::StructureService& WorkbenchRuntime::StructureFeature() {
-    return AtomsTemplateFacade().structureService();
+    return AtomsTemplate::Instance().structureService();
 }
 
 measurement::application::MeasurementService& WorkbenchRuntime::MeasurementFeature() {
-    return AtomsTemplateFacade().measurementService();
+    return AtomsTemplate::Instance().measurementService();
 }
 
 density::application::DensityService& WorkbenchRuntime::DensityFeature() {
-    return AtomsTemplateFacade().densityService();
+    return AtomsTemplate::Instance().densityService();
 }
 
 ModelTree& WorkbenchRuntime::ModelTreePanel() {

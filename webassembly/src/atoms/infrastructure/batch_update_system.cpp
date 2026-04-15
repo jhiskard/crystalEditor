@@ -1,6 +1,6 @@
-﻿// atoms/infrastructure/batch_update_system.cpp
+// atoms/infrastructure/batch_update_system.cpp
 #include "batch_update_system.h"
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include "../../render/application/render_gateway.h"
 #include <spdlog/spdlog.h>
 

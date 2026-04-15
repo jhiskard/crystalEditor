@@ -1,4 +1,4 @@
-﻿#include "viewer_window.h"
+#include "viewer_window.h"
 #include "../../app.h"
 #include "../../atoms/domain/cell_manager.h"
 #include "../../mesh/application/mesh_query_service.h"
@@ -37,7 +37,7 @@
 #include <vtkCameraOrientationRepresentation.h>
 #include <vtkCamera.h>
 #include <vtkCommand.h>
-#include "../../atoms/atoms_template.h"
+#include "../../atoms/legacy/atoms_template_facade.h"
 
 namespace {
 constexpr int kInteractionSampleDistanceIndex = 5;
@@ -1455,7 +1455,8 @@ void VtkViewer::Render(bool* openWindow) {
         ImVec2(0, 1), ImVec2(1, 0));
     
     GetWorkbenchRuntime().ToolbarPanel().Render(windowSize);
-    AtomsTemplate::Instance().RenderMeasurementModeOverlay();
+    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    atomsTemplate.RenderMeasurementModeOverlay();
 
     ImGuiIO& io = ImGui::GetIO();
     bool isHovered = ImGui::IsWindowHovered();
@@ -1463,7 +1464,7 @@ void VtkViewer::Render(bool* openWindow) {
     if (!m_RenderPaused) {
         processEvents();
 
-        const bool nodeInfoEnabled = AtomsTemplate::Instance().IsNodeInfoEnabled();
+        const bool nodeInfoEnabled = atomsTemplate.IsNodeInfoEnabled();
         const bool isDragging = io.MouseDown[ImGuiMouseButton_Left] ||
             io.MouseDown[ImGuiMouseButton_Right] ||
             io.MouseDown[ImGuiMouseButton_Middle];
@@ -1497,9 +1498,9 @@ void VtkViewer::Render(bool* openWindow) {
                 if (m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
                     vtkActor* pickedActor = m_Picker->GetActor();
                     double* pickPos = m_Picker->GetPickPosition();
-                    AtomsTemplate::Instance().UpdateHoveredAtomByPicker(pickedActor, pickPos);
+                    atomsTemplate.UpdateHoveredAtomByPicker(pickedActor, pickPos);
                 } else {
-                    AtomsTemplate::Instance().ClearHover();
+                    atomsTemplate.ClearHover();
                 }
                 lastHoverPickX = pickX;
                 lastHoverPickY = pickY;
@@ -1507,10 +1508,10 @@ void VtkViewer::Render(bool* openWindow) {
                 hasLastHoverPickPos = true;
             }
         } else {
-            AtomsTemplate::Instance().ClearHover();
+            atomsTemplate.ClearHover();
         }
     } else {
-        AtomsTemplate::Instance().ClearHover();
+        atomsTemplate.ClearHover();
     }
 
     renderDragSelectionOverlay(windowPos, viewportPos);
@@ -1527,7 +1528,7 @@ void VtkViewer::Render(bool* openWindow) {
     ImGui::PopStyleVar();
     
     // ========== 툴팁 렌더링 (윈도우 외부에서) ==========
-    AtomsTemplate::Instance().RenderAtomTooltip(tooltipMouseX, tooltipMouseY);
+    atomsTemplate.RenderAtomTooltip(tooltipMouseX, tooltipMouseY);
 }
 
 void VtkViewer::SetRenderPaused(bool paused) {

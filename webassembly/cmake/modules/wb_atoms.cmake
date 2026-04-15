@@ -1,6 +1,9 @@
 target_sources(wb_atoms PRIVATE
-  webassembly/src/atoms/atoms_template.cpp
+  webassembly/src/atoms/legacy/atoms_template_facade.cpp
+  webassembly/src/atoms/application/density_service_legacy_port_adapter.cpp
   webassembly/src/atoms/application/measurement_controller.cpp
+  webassembly/src/atoms/application/measurement_service_legacy_port_adapter.cpp
+  webassembly/src/atoms/application/structure_service_legacy_port_adapter.cpp
   webassembly/src/atoms/application/structure_lifecycle_service.cpp
   webassembly/src/atoms/application/structure_read_model.cpp
   webassembly/src/atoms/application/visibility_service.cpp

@@ -81,6 +81,24 @@ void ShellStateCommandService::RequestFocus(domain::ShellFocusTarget target, int
     state.pendingFocusPassesRemaining = passes;
 }
 
+void ShellStateCommandService::RequestEditorPanel(workbench::panel::EditorRequest request) {
+    domain::ShellUiState& state = MutableState();
+    state.pendingEditorRequest = request;
+    state.hasPendingEditorRequest = true;
+}
+
+void ShellStateCommandService::RequestBuilderPanel(workbench::panel::BuilderRequest request) {
+    domain::ShellUiState& state = MutableState();
+    state.pendingBuilderRequest = request;
+    state.hasPendingBuilderRequest = true;
+}
+
+void ShellStateCommandService::RequestDataPanel(workbench::panel::DataRequest request) {
+    domain::ShellUiState& state = MutableState();
+    state.pendingDataRequest = request;
+    state.hasPendingDataRequest = true;
+}
+
 ShellStateCommandService& GetShellStateCommandService() {
     return ShellStateCommandService::Instance();
 }

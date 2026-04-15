@@ -7,7 +7,7 @@
 #include "../../structure/domain/structure_repository.h"
 #include "../../app.h"
 #include "../../config/log_config.h"
-#include "../atoms_template.h"
+#include "../legacy/atoms_template_facade.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
