@@ -4,7 +4,7 @@
 #include "../../runtime/workbench_runtime.h"
 #include "../../application/workbench_controller.h"
 #include "../../application/shell_state_query_service.h"
-#include "../../../atoms/domain/cell_manager.h"
+#include "../../../structure/domain/atoms/cell_manager.h"
 #include "../../../density/application/density_service.h"
 #include "../../../icon/FontAwesome6.h"
 
@@ -12,7 +12,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include "../../../atoms/ui/charge_density_ui.h"
+#include "../../../density/presentation/charge_density_ui.h"
 
 Toolbar::Toolbar()
     : m_Padding(5 * App::DevicePixelRatio()) {
@@ -526,4 +526,6 @@ void Toolbar::renderCellAlignButtons() {
     ImGui::PopStyleColor();
     ImGui::PopStyleVar();  // ImGuiStyleVar_FramePadding
 }
+
+
 

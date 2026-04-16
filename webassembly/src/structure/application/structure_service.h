@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "structure_service_port.h"
 #include "structure_service_types.h"
 
 #include <cstdint>
@@ -16,15 +15,15 @@ namespace application {
 
 /**
  * @brief Structure use-case facade extracted from AtomsTemplate.
- * @details The implementation delegates to a compatibility port while call-sites
- *          migrate to module-level APIs.
+ * @details R6 단계에서 legacy port adapter 의존을 제거하고 서비스가 직접
+ *          legacy atoms runtime 경로를 호출하도록 전환했다.
  */
 class StructureService {
 public:
     /**
-     * @brief Creates service bound to the structure compatibility port.
+     * @brief Creates structure service.
      */
-    explicit StructureService(StructureServicePort* port);
+    StructureService() = default;
 
     /**
      * @brief Returns number of registered structures.
@@ -86,8 +85,6 @@ public:
      */
     void SetBoundaryAtomsEnabled(bool enabled);
 
-private:
-    StructureServicePort* m_port = nullptr;
 };
 
 } // namespace application

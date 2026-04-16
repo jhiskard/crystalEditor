@@ -1,5 +1,5 @@
-#include "../test_harness.h"
-#include "../../src/atoms/domain/cell_transform.h"
+﻿#include "../test_harness.h"
+#include "../../src/structure/domain/atoms/cell_transform.h"
 
 namespace {
 
@@ -59,3 +59,4 @@ TEST_CASE(cell_transform_falls_back_to_identity_for_singular_matrix) {
     assertMatrixEntry(inverse, 1, 1, 1.0);
     assertMatrixEntry(inverse, 2, 2, 1.0);
 }
+

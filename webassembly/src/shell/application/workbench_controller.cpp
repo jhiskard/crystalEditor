@@ -1,8 +1,8 @@
-#include "workbench_controller.h"
+﻿#include "workbench_controller.h"
 
 #include "shell_state_command_service.h"
 #include "shell_state_query_service.h"
-#include "../../atoms/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../render/application/render_gateway.h"
 #include "../../structure/application/structure_service.h"
@@ -128,11 +128,11 @@ void WorkbenchController::OpenDataPanel(DataPanelAction action) {
 }
 
 bool WorkbenchController::IsNodeInfoEnabled() const {
-    return GetWorkbenchRuntime().AtomsTemplateFacade().IsNodeInfoEnabled();
+    return AtomsTemplate::Instance().IsNodeInfoEnabled();
 }
 
 void WorkbenchController::SetNodeInfoEnabled(bool enabled) {
-    GetWorkbenchRuntime().AtomsTemplateFacade().SetNodeInfoEnabled(enabled);
+    AtomsTemplate::Instance().SetNodeInfoEnabled(enabled);
 }
 
 bool WorkbenchController::IsViewerFpsOverlayEnabled() const {
@@ -204,4 +204,5 @@ WorkbenchController& GetWorkbenchController() {
 
 } // namespace application
 } // namespace shell
+
 

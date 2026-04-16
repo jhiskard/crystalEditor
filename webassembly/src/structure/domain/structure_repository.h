@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @file structure_repository.h
  * @brief Structure state repository facade for Phase 8 modularization.
  */
 #pragma once
 
-#include "../../atoms/domain/structure_state_store.h"
+#include "../../structure/domain/atoms/structure_state_store.h"
 
 namespace structure {
 namespace domain {
@@ -61,3 +61,4 @@ StructureRepository& GetStructureRepository();
 
 } // namespace domain
 } // namespace structure
+

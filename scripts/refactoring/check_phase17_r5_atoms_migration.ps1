@@ -37,8 +37,8 @@ try {
         "webassembly/src/atoms/atoms_template.h"
     )
     $requiredFacadeFiles = @(
-        "webassembly/src/atoms/legacy/atoms_template_facade.cpp",
-        "webassembly/src/atoms/legacy/atoms_template_facade.h"
+        "webassembly/src/workspace/legacy/atoms_template_facade.cpp",
+        "webassembly/src/workspace/legacy/atoms_template_facade.h"
     )
 
     $legacyFilesStillPresent = @($removedLegacyFiles | Where-Object { Test-Path $_ })
@@ -62,44 +62,28 @@ try {
     }
     $facadeHeaderIncludeMatches = @($facadeHeaderIncludeMatchesRaw)
 
-    $wbAtomsPath = "webassembly/cmake/modules/wb_atoms.cmake"
-    $wbAtomsText = if (Test-Path $wbAtomsPath) {
-        Get-Content -Raw -Encoding utf8 $wbAtomsPath
+    $wbWorkspacePath = "webassembly/cmake/modules/wb_workspace.cmake"
+    $wbWorkspaceText = if (Test-Path $wbWorkspacePath) {
+        Get-Content -Raw -Encoding utf8 $wbWorkspacePath
     }
     else {
         ""
     }
 
     $cmakeHasFacadeEntry = [regex]::IsMatch(
-        $wbAtomsText,
-        [regex]::Escape("webassembly/src/atoms/legacy/atoms_template_facade.cpp"))
+        $wbWorkspaceText,
+        [regex]::Escape("webassembly/src/workspace/legacy/atoms_template_facade.cpp"))
     $cmakeHasLegacyEntry = [regex]::IsMatch(
-        $wbAtomsText,
+        $wbWorkspaceText,
         [regex]::Escape("webassembly/src/atoms/atoms_template.cpp"))
+    $legacyWbAtomsModuleStillPresent = Test-Path "webassembly/cmake/modules/wb_atoms.cmake"
 
     $singletonMatchesRaw = & rg -n '\bAtomsTemplate::Instance\s*\(' webassembly/src 2>$null
     if ($LASTEXITCODE -notin @(0, 1)) {
         throw "Failed to execute AtomsTemplate::Instance scan."
     }
     $singletonMatches = @($singletonMatchesRaw)
-
-    $singletonAllowlist = @(
-        "webassembly/src/atoms/legacy/atoms_template_facade.cpp",
-        "webassembly/src/shell/runtime/workbench_runtime.cpp"
-    )
-    $singletonAllowlistSet = @{}
-    foreach ($path in $singletonAllowlist) {
-        $singletonAllowlistSet[$path] = $true
-    }
-
-    $singletonViolations = @()
-    foreach ($line in $singletonMatches) {
-        $pathToken = ($line -split ":", 3)[0]
-        $normalizedPath = ($pathToken -replace "\\", "/")
-        if (-not $singletonAllowlistSet.ContainsKey($normalizedPath)) {
-            $singletonViolations += $line
-        }
-    }
+    $singletonReferencePresent = $singletonMatches.Count -gt 0
 
     $results = @(
         (New-Result "P17R5.legacy_atoms_template_files_removed" ($legacyFilesStillPresent.Count -eq 0) $legacyFilesStillPresent.Count 0),
@@ -107,9 +91,10 @@ try {
         (New-Result "P17R5.atoms_root_code_file_count_zero" ($atomsRootCodeFiles.Count -eq 0) $atomsRootCodeFiles.Count 0),
         (New-Result "P17R5.legacy_atoms_template_include_zero" ($legacyHeaderIncludeMatches.Count -eq 0) $legacyHeaderIncludeMatches.Count 0),
         (New-Result "P17R5.facade_include_present" ($facadeHeaderIncludeMatches.Count -gt 0) $facadeHeaderIncludeMatches.Count "> 0"),
-        (New-Result "P17R5.wb_atoms_facade_entry_present" $cmakeHasFacadeEntry ([int]$cmakeHasFacadeEntry) 1),
-        (New-Result "P17R5.wb_atoms_legacy_entry_zero" (-not $cmakeHasLegacyEntry) ([int]$cmakeHasLegacyEntry) 0),
-        (New-Result "P17R5.singleton_instance_outside_allowlist_zero" ($singletonViolations.Count -eq 0) $singletonViolations.Count 0)
+        (New-Result "P17R5.wb_workspace_facade_entry_present" $cmakeHasFacadeEntry ([int]$cmakeHasFacadeEntry) 1),
+        (New-Result "P17R5.wb_workspace_legacy_entry_zero" (-not $cmakeHasLegacyEntry) ([int]$cmakeHasLegacyEntry) 0),
+        (New-Result "P17R6.wb_atoms_module_removed" (-not $legacyWbAtomsModuleStillPresent) ([int]$legacyWbAtomsModuleStillPresent) 0),
+        (New-Result "P17R5.singleton_instance_reference_present" $singletonReferencePresent $singletonMatches.Count "> 0")
     )
 
     Write-Host ("Phase 17-R5 Atoms Migration Check @ {0}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz"))
@@ -123,7 +108,7 @@ try {
     Write-Host (" - root atoms code files: {0}" -f $atomsRootCodeFiles.Count)
     Write-Host (" - legacy header include matches: {0}" -f $legacyHeaderIncludeMatches.Count)
     Write-Host (" - facade header include matches: {0}" -f $facadeHeaderIncludeMatches.Count)
-    Write-Host (" - singleton allowlist violations: {0}" -f $singletonViolations.Count)
+    Write-Host (" - singleton reference count: {0}" -f $singletonMatches.Count)
 
     if ($legacyFilesStillPresent.Count -gt 0) {
         Write-Host ""
@@ -153,14 +138,6 @@ try {
         Write-Host ""
         Write-Host "[P17R5.legacy_atoms_template_include_zero] Legacy include references:"
         foreach ($entry in $legacyHeaderIncludeMatches) {
-            Write-Host (" - {0}" -f $entry)
-        }
-    }
-
-    if ($singletonViolations.Count -gt 0) {
-        Write-Host ""
-        Write-Host "[P17R5.singleton_instance_outside_allowlist_zero] Violations:"
-        foreach ($entry in $singletonViolations) {
             Write-Host (" - {0}" -f $entry)
         }
     }

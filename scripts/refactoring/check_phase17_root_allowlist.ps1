@@ -94,6 +94,10 @@ try {
         "app.cpp",
         "app.h"
     )
+    $requiredWorkspaceLegacyFacadeFiles = @(
+        "webassembly/src/workspace/legacy/atoms_template_facade.h",
+        "webassembly/src/workspace/legacy/atoms_template_facade.cpp"
+    )
 
     $documentationOnlyFiles = @(
         "atoms_template_bravais_lattice.cpp",
@@ -113,6 +117,9 @@ try {
     $missingFacadeFiles = @(
         $requiredFacadeFiles | Where-Object { $_ -notin $currentSrcRootFiles }
     )
+    $missingWorkspaceLegacyFacadeFiles = @(
+        $requiredWorkspaceLegacyFacadeFiles | Where-Object { -not (Test-Path $_) }
+    )
 
     $unexpectedAtomsTemplateRootFiles = @(
         $currentSrcRootFiles |
@@ -125,6 +132,7 @@ try {
         (New-Result "P17R0.src_root_file_count_not_increased" ($currentSrcRootFiles.Count -le $baselineSrcRootFiles.Count) $currentSrcRootFiles.Count ("<= {0}" -f $baselineSrcRootFiles.Count)),
         (New-Result "P17R0.atoms_root_file_count_not_increased" ($currentAtomsRootFiles.Count -le $baselineAtomsRootFiles.Count) $currentAtomsRootFiles.Count ("<= {0}" -f $baselineAtomsRootFiles.Count)),
         (New-Result "P17R0.facade_files_present" ($missingFacadeFiles.Count -eq 0) $missingFacadeFiles.Count 0),
+        (New-Result "P17R6.workspace_legacy_facade_files_present" ($missingWorkspaceLegacyFacadeFiles.Count -eq 0) $missingWorkspaceLegacyFacadeFiles.Count 0),
         (New-Result "P17R0.documentation_only_files_classified" ($unexpectedAtomsTemplateRootFiles.Count -eq 0) $unexpectedAtomsTemplateRootFiles.Count 0)
     )
 
@@ -159,6 +167,14 @@ try {
         Write-Host ""
         Write-Host "[P17R0.facade_files_present] Missing facade files:"
         foreach ($entry in $missingFacadeFiles) {
+            Write-Host (" - {0}" -f $entry)
+        }
+    }
+
+    if ($missingWorkspaceLegacyFacadeFiles.Count -gt 0) {
+        Write-Host ""
+        Write-Host "[P17R6.workspace_legacy_facade_files_present] Missing workspace legacy facade files:"
+        foreach ($entry in $missingWorkspaceLegacyFacadeFiles) {
             Write-Host (" - {0}" -f $entry)
         }
     }

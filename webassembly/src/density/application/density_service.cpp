@@ -1,102 +1,61 @@
-#include "density_service.h"
+﻿#include "density_service.h"
+
+#include "../../workspace/legacy/atoms_template_facade.h"
 
 namespace density {
 namespace application {
 
-DensityService::DensityService(DensityServicePort* port)
-    : m_port(port) {}
-
 bool DensityService::HasChargeDensity() const {
-    if (!m_port) {
-        return false;
-    }
-    return m_port->HasChargeDensity();
+    return AtomsTemplate::Instance().HasChargeDensity();
 }
 
 bool DensityService::IsChargeDensityVisible() const {
-    if (!m_port) {
-        return false;
-    }
-    return m_port->IsChargeDensityVisible();
+    return AtomsTemplate::Instance().IsChargeDensityVisible();
 }
 
 void DensityService::SetChargeDensityVisible(bool visible) {
-    if (!m_port) {
-        return;
-    }
-    m_port->SetChargeDensityVisible(visible);
+    AtomsTemplate::Instance().SetChargeDensityVisible(visible);
 }
 
 bool DensityService::IsSimpleViewActive() const {
-    if (!m_port) {
-        return false;
-    }
-    return m_port->IsSimpleViewActive();
+    return AtomsTemplate::Instance().IsChargeDensitySimpleViewActive();
 }
 
 void DensityService::SyncChargeDensityViewTypeState() {
-    if (!m_port) {
-        return;
-    }
-    m_port->SyncChargeDensityViewTypeState();
+    AtomsTemplate::Instance().SyncChargeDensityViewTypeState();
 }
 
 int32_t DensityService::GetChargeDensityStructureId() const {
-    if (!m_port) {
-        return -1;
-    }
-    return m_port->GetChargeDensityStructureId();
+    return AtomsTemplate::Instance().GetChargeDensityStructureId();
 }
 
 void DensityService::SetChargeDensityStructureId(int32_t structureId) {
-    if (!m_port) {
-        return;
-    }
-    m_port->SetChargeDensityStructureId(structureId);
+    AtomsTemplate::Instance().SetChargeDensityStructureId(structureId);
 }
 
 bool DensityService::IsAdvancedGridVisible(int32_t meshId, bool volumeMode) const {
-    if (!m_port) {
-        return false;
-    }
-    return m_port->IsAdvancedGridVisible(meshId, volumeMode);
+    return AtomsTemplate::Instance().IsChargeDensityAdvancedGridVisible(meshId, volumeMode);
 }
 
 void DensityService::SetAdvancedGridVisible(int32_t meshId, bool volumeMode, bool visible) {
-    if (!m_port) {
-        return;
-    }
-    m_port->SetAdvancedGridVisible(meshId, volumeMode, visible);
+    AtomsTemplate::Instance().SetChargeDensityAdvancedGridVisible(meshId, volumeMode, visible);
 }
 
 void DensityService::SetAllAdvancedGridVisible(int32_t structureId, bool volumeMode, bool visible) {
-    if (!m_port) {
-        return;
-    }
-    m_port->SetAllAdvancedGridVisible(structureId, volumeMode, visible);
+    AtomsTemplate::Instance().SetAllChargeDensityAdvancedGridVisible(structureId, volumeMode, visible);
 }
 
 void DensityService::ApplyAdvancedGridVisibilityForStructure(int32_t structureId) {
-    if (!m_port) {
-        return;
-    }
-    m_port->ApplyAdvancedGridVisibilityForStructure(structureId);
+    AtomsTemplate::Instance().ApplyChargeDensityAdvancedGridVisibilityForStructure(structureId);
 }
 
 atoms::ui::ChargeDensityUI* DensityService::ChargeDensityUi() {
-    if (!m_port) {
-        return nullptr;
-    }
-    return m_port->ChargeDensityUi();
+    return AtomsTemplate::Instance().chargeDensityUI();
 }
 
 const atoms::ui::ChargeDensityUI* DensityService::ChargeDensityUi() const {
-    if (!m_port) {
-        return nullptr;
-    }
-    return m_port->ChargeDensityUi();
+    return AtomsTemplate::Instance().chargeDensityUI();
 }
 
 } // namespace application
 } // namespace density
-

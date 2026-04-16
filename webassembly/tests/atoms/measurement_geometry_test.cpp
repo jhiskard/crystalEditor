@@ -1,5 +1,5 @@
-#include "../test_harness.h"
-#include "../../src/atoms/domain/measurement_geometry.h"
+﻿#include "../test_harness.h"
+#include "../../src/measurement/domain/measurement_geometry.h"
 
 #include <array>
 
@@ -76,3 +76,4 @@ TEST_CASE(measurement_geometry_rejects_degenerate_dihedral) {
 
     ASSERT_FALSE(success);
 }
+

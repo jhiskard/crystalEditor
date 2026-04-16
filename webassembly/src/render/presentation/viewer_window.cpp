@@ -1,6 +1,6 @@
-#include "viewer_window.h"
+﻿#include "viewer_window.h"
 #include "../../app.h"
-#include "../../atoms/domain/cell_manager.h"
+#include "../../structure/domain/atoms/cell_manager.h"
 #include "../../mesh/application/mesh_query_service.h"
 #include "../../platform/persistence/viewer_preferences_store.h"
 #include "../../shell/presentation/font/font_registry.h"
@@ -37,7 +37,7 @@
 #include <vtkCameraOrientationRepresentation.h>
 #include <vtkCamera.h>
 #include <vtkCommand.h>
-#include "../../atoms/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
 
 namespace {
 constexpr int kInteractionSampleDistanceIndex = 5;
@@ -1455,7 +1455,7 @@ void VtkViewer::Render(bool* openWindow) {
         ImVec2(0, 1), ImVec2(1, 0));
     
     GetWorkbenchRuntime().ToolbarPanel().Render(windowSize);
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     atomsTemplate.RenderMeasurementModeOverlay();
 
     ImGuiIO& io = ImGui::GetIO();
@@ -2179,6 +2179,7 @@ void VtkViewer::SetArrowRotateStepDeg(float stepDeg) {
     const float roundedStepDeg = std::round(stepDeg);
     m_ArrowRotateStepDeg = std::clamp(roundedStepDeg, kMinStepDeg, kMaxStepDeg);
 }
+
 
 
 

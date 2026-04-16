@@ -1,8 +1,8 @@
-#include "../presentation/viewer_window.h"
+﻿#include "../presentation/viewer_window.h"
 
 #include "../../app.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
-#include "../../atoms/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../shell/runtime/workbench_runtime.h"
 
 #include <vtkCommand.h>
@@ -108,7 +108,7 @@ void VtkViewer::processEvents() {
     static bool leftPressForwardedToInteractor = false;
     static bool pendingMeasurementPick = false;
     bool requestRender = false;
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     const bool measurementModeActive = atomsTemplate.IsMeasurementModeActive();
     const bool measurementDragSelectionEnabled =
         measurementModeActive && atomsTemplate.IsMeasurementDragSelectionEnabled();
@@ -351,5 +351,6 @@ void VtkViewer::processEvents() {
         RequestRender();
     }
 }
+
 
 

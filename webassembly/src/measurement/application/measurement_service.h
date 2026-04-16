@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "measurement_service_port.h"
 #include "measurement_service_types.h"
 
 #include <cstdint>
@@ -15,15 +14,15 @@ namespace application {
 
 /**
  * @brief Measurement use-case facade extracted from AtomsTemplate.
- * @details During Phase 8 this service delegates to a compatibility port so call-sites
- *          can migrate without behavior changes.
+ * @details R6 단계에서 compatibility port 의존을 제거하고 서비스가 직접
+ *          legacy atoms runtime 경로를 호출하도록 전환했다.
  */
 class MeasurementService {
 public:
     /**
-     * @brief Creates service bound to the measurement compatibility port.
+     * @brief Creates measurement service.
      */
-    explicit MeasurementService(MeasurementServicePort* port);
+    MeasurementService() = default;
 
     MeasurementMode GetMode() const;
     bool IsModeActive() const;
@@ -39,8 +38,6 @@ public:
     void SetDistanceMeasurementVisible(uint32_t measurementId, bool visible);
     void RemoveDistanceMeasurement(uint32_t measurementId);
 
-private:
-    MeasurementServicePort* m_port = nullptr;
 };
 
 } // namespace application

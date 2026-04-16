@@ -81,7 +81,7 @@ try {
     )
 
     $forbiddenRootHeaderPattern =
-        '^(font_manager\.h|vtk_viewer\.h|model_tree\.h|mesh(_detail|_group(_detail)?|_manager)?\.h|mesh\.h|toolbar\.h|file_loader\.h|unv_reader\.h|custom_ui\.h|image\.h|texture\.h|test_window\.h|lcrs_tree\.h|atoms/legacy/atoms_template_facade\.h)$'
+        '^(font_manager\.h|vtk_viewer\.h|model_tree\.h|mesh(_detail|_group(_detail)?|_manager)?\.h|mesh\.h|toolbar\.h|file_loader\.h|unv_reader\.h|custom_ui\.h|image\.h|texture\.h|test_window\.h|lcrs_tree\.h|atoms/legacy/atoms_template_facade\.h|workspace/legacy/atoms_template_facade\.h)$'
     $appHForbiddenIncludes = @(
         $appHIncludes | Where-Object { $_ -match $forbiddenRootHeaderPattern }
     )
@@ -95,7 +95,7 @@ try {
         "mesh_manager.h",
         "mesh_group_detail.h",
         "mesh.h",
-        "atoms/legacy/atoms_template_facade.h"
+        "workspace/legacy/atoms_template_facade.h"
     )
     $appCppLegacyIncludeBudget = $appCppLegacyIncludeAllowlist.Count
 
@@ -116,12 +116,15 @@ try {
                 )
             }
     )
+    $appCppLegacyFacadeOldPathIncludes = @(
+        $appIncludes | Where-Object { $_ -eq "atoms/legacy/atoms_template_facade.h" }
+    )
 
     $mainText = Get-TextWithoutComments -Path $mainCppPath
     $appText = Get-TextWithoutComments -Path $appCppPath
     $appHText = Get-TextWithoutComments -Path $appHPath
 
-    $singletonPattern = '\b(App|Toolbar|FileLoader|MeshManager|AtomsTemplate|VtkViewer|ModelTree|MeshDetail|MeshGroupDetail|FontManager)::Instance\s*\('
+    $singletonPattern = '\b(App|Toolbar|FileLoader|MeshManager|VtkViewer|ModelTree|MeshDetail|MeshGroupDetail|FontManager)::Instance\s*\('
     $singletonInstanceCount =
         [regex]::Matches($mainText, $singletonPattern).Count +
         [regex]::Matches($appText, $singletonPattern).Count +
@@ -140,6 +143,7 @@ try {
         (New-Result "P17R1.app_h_forbidden_root_include_zero" ($appHForbiddenIncludes.Count -eq 0) $appHForbiddenIncludes.Count 0),
         (New-Result "P17R1.app_cpp_legacy_include_not_increased" ($appCppLegacyIncludes.Count -le $appCppLegacyIncludeBudget) $appCppLegacyIncludes.Count ("<= {0}" -f $appCppLegacyIncludeBudget)),
         (New-Result "P17R1.app_cpp_unexpected_root_include_zero" ($appCppUnexpectedRootIncludes.Count -eq 0) $appCppUnexpectedRootIncludes.Count 0),
+        (New-Result "P17R6.app_cpp_legacy_facade_old_path_include_zero" ($appCppLegacyFacadeOldPathIncludes.Count -eq 0) $appCppLegacyFacadeOldPathIncludes.Count 0),
         (New-Result "P17R1.main_app_forbidden_singleton_instance_zero" ($singletonInstanceCount -eq 0) $singletonInstanceCount 0),
         (New-Result "P17R1.main_forbidden_feature_access_zero" ($mainForbiddenFeatureAccessCount -eq 0) $mainForbiddenFeatureAccessCount 0),
         (New-Result "P17R1.main_apph_forbidden_type_token_zero" ($mainAppHForbiddenTypeCount -eq 0) $mainAppHForbiddenTypeCount 0)
@@ -183,6 +187,14 @@ try {
         Write-Host ""
         Write-Host "[P17R1.app_cpp_unexpected_root_include_zero] Violations:"
         foreach ($entry in ($appCppUnexpectedRootIncludes | Sort-Object -Unique)) {
+            Write-Host (" - {0}" -f $entry)
+        }
+    }
+
+    if ($appCppLegacyFacadeOldPathIncludes.Count -gt 0) {
+        Write-Host ""
+        Write-Host "[P17R6.app_cpp_legacy_facade_old_path_include_zero] Violations:"
+        foreach ($entry in ($appCppLegacyFacadeOldPathIncludes | Sort-Object -Unique)) {
             Write-Host (" - {0}" -f $entry)
         }
     }

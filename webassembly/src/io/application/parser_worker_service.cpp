@@ -1,5 +1,6 @@
-#include "parser_worker_service.h"
+﻿#include "parser_worker_service.h"
 
+#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../config/log_config.h"
 #include "../../shell/runtime/workbench_runtime.h"
 
@@ -44,7 +45,7 @@ void ParserWorkerService::ProcessStructureFile(
         if (ContainsDatagrid3d(filePath)) {
             SPDLOG_INFO("Detected DATAGRID_3D in structure file: {}", fileName);
 
-            atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
+            atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
             loader.SetProgressCallback([this](float progress) {
                 m_ProgressPort.ReportProgress(progress);
             });
@@ -59,7 +60,7 @@ void ParserWorkerService::ProcessStructureFile(
         }
 
         SPDLOG_INFO("Starting XSF structure file processing (background): {}", fileName);
-        atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
+        atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
         loader.SetProgressCallback([this](float progress) {
             m_ProgressPort.ReportProgress(progress);
         });
@@ -80,7 +81,7 @@ void ParserWorkerService::ProcessXsfFile(
         SPDLOG_INFO("Starting XSF file processing (background): {}", fileName);
         const std::string filePath = "/" + fileName;
 
-        atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
+        atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
         loader.SetProgressCallback([this](float progress) {
             m_ProgressPort.ReportProgress(progress);
         });
@@ -101,7 +102,7 @@ void ParserWorkerService::ProcessXsfGridFile(
         SPDLOG_INFO("Starting XSF grid file processing (background): {}", fileName);
         const std::string filePath = "/" + fileName;
 
-        atoms::infrastructure::FileIOManager loader(&GetWorkbenchRuntime().AtomsTemplateFacade());
+        atoms::infrastructure::FileIOManager loader(&AtomsTemplate::Instance());
         loader.SetProgressCallback([this](float progress) {
             m_ProgressPort.ReportProgress(progress);
         });
@@ -137,3 +138,4 @@ void ParserWorkerService::ProcessChgcarFile(
 }
 
 } // namespace io::application
+

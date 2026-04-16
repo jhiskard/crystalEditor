@@ -3,8 +3,8 @@
 #include "progress_port.h"
 #include "worker_port.h"
 
-#include "../../atoms/infrastructure/chgcar_parser.h"
-#include "../../atoms/infrastructure/file_io_manager.h"
+#include "../infrastructure/chgcar_parser.h"
+#include "../infrastructure/file_io_manager.h"
 
 // Standard library
 #include <string>

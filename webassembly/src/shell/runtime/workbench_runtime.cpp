@@ -1,7 +1,7 @@
-#include "workbench_runtime.h"
+﻿#include "workbench_runtime.h"
 
 #include "../../app.h"
-#include "../../atoms/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../io/application/import_entry_service.h"
 #include "../../platform/browser/browser_file_dialog_adapter.h"
 #include "../../platform/worker/emscripten_worker_port.h"
@@ -70,10 +70,6 @@ Toolbar& WorkbenchRuntime::ToolbarPanel() {
 
 VtkViewer& WorkbenchRuntime::Viewer() {
     return render::application::GetLegacyViewerFacade();
-}
-
-AtomsTemplate& WorkbenchRuntime::AtomsTemplateFacade() {
-    return AtomsTemplate::Instance();
 }
 
 structure::application::StructureService& WorkbenchRuntime::StructureFeature() {
@@ -245,5 +241,6 @@ WorkbenchRuntime& GetWorkbenchRuntime() {
 const WorkbenchRuntime& GetWorkbenchRuntimeConst() {
     return WorkbenchRuntime::Instance();
 }
+
 
 

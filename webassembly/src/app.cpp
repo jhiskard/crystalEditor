@@ -1,4 +1,4 @@
-#include "app.h"
+﻿#include "app.h"
 #include "shell/runtime/workbench_runtime.h"
 #include "shell/application/workbench_controller.h"
 #include "shell/application/shell_state_query_service.h"
@@ -12,7 +12,7 @@
 #include "mesh/domain/mesh_entity.h"
 
 // Legacy atoms facade
-#include "atoms/legacy/atoms_template_facade.h"
+#include "workspace/legacy/atoms_template_facade.h"
 
 // ImGui
 #include <imgui.h>
@@ -1024,7 +1024,7 @@ void App::InitImGuiWindows() {
     (void)GetWorkbenchRuntime().ModelTreePanel();
     (void)GetWorkbenchRuntime().MeshDetailPanel();
     (void)GetWorkbenchRuntime().MeshGroupDetailPanel();
-    (void)GetWorkbenchRuntime().AtomsTemplateFacade();
+    (void)AtomsTemplate::Instance();
 }
 
 void App::renderAboutPopup() {
@@ -1106,7 +1106,7 @@ void App::renderImGuiWindows() {
 
     {
         shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateCommand().MutableState();
-        AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+        AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
 
         if (shellState.hasPendingEditorRequest) {
             atomsTemplate.RequestEditorSection(shellState.pendingEditorRequest);
@@ -1133,7 +1133,7 @@ void App::renderImGuiWindows() {
 
             GetWorkbenchRuntime().Viewer().RequestForcedWindowLayout(resetLayout.viewerPos, resetLayout.viewerSize);
 
-            AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+            AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
             atomsTemplate.RequestForcedBuilderWindowLayout(resetLayout.crystalBuilderPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedEditorWindowLayout(resetLayout.crystalEditorPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedAdvancedWindowLayout(resetLayout.advancedViewPos, resetLayout.panelSize);
@@ -1161,7 +1161,7 @@ void App::renderImGuiWindows() {
         GetWorkbenchRuntime().ModelTreePanel().Render(&m_bShowModelTree);
     }
 
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     if (m_bShowPeriodicTableWindow) {
         atomsTemplate.RenderPeriodicTableWindow(&m_bShowPeriodicTableWindow);
     }
@@ -1421,6 +1421,7 @@ void App::setProgressPopupText(const std::string& title, const std::string& text
     m_PopupTitle = title;
     m_PopupText = text;
 }
+
 
 
 

@@ -1,6 +1,6 @@
 #include "../test_harness.h"
 #include "../test_support.h"
-#include "../../src/atoms/infrastructure/chgcar_parser.h"
+#include "../../src/io/infrastructure/chgcar_parser.h"
 
 #include <string>
 

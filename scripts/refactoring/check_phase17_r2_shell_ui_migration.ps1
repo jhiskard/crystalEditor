@@ -128,13 +128,15 @@ try {
     }
     $optionalStateConsistent = $optionalState -ne "mixed_or_missing"
 
-    $cmakePath = "webassembly/cmake/modules/wb_ui.cmake"
-    $cmakeText = if (Test-Path $cmakePath) {
-        Get-Content -Raw -Encoding utf8 $cmakePath
-    }
-    else {
-        ""
-    }
+    $cmakePaths = @(
+        "webassembly/cmake/modules/wb_shell.cmake",
+        "webassembly/cmake/modules/wb_render.cmake"
+    )
+    $cmakeText = @(
+        $cmakePaths |
+            Where-Object { Test-Path $_ } |
+            ForEach-Object { Get-Content -Raw -Encoding utf8 $_ }
+    ) -join "`n"
 
     $requiredCmakeEntries = @(
         "webassembly/src/shell/presentation/widgets/icon_button.cpp",
@@ -224,8 +226,8 @@ try {
         (New-Result "P17R2.required_legacy_root_files_removed" ($requiredLegacyStillPresent.Count -eq 0) $requiredLegacyStillPresent.Count 0),
         (New-Result "P17R2.required_migrated_files_present" ($requiredMigratedMissing.Count -eq 0) $requiredMigratedMissing.Count 0),
         (New-Result "P17R2.optional_image_texture_state_consistent" $optionalStateConsistent $optionalState "legacy_or_migrated_consistent"),
-        (New-Result "P17R2.wb_ui_sources_registered" ($cmakeMissingRequiredEntries.Count -eq 0) $cmakeMissingRequiredEntries.Count 0),
-        (New-Result "P17R2.wb_ui_legacy_sources_zero" ($cmakePresentForbiddenEntries.Count -eq 0) $cmakePresentForbiddenEntries.Count 0),
+        (New-Result "P17R2.shell_render_sources_registered" ($cmakeMissingRequiredEntries.Count -eq 0) $cmakeMissingRequiredEntries.Count 0),
+        (New-Result "P17R2.shell_render_legacy_sources_zero" ($cmakePresentForbiddenEntries.Count -eq 0) $cmakePresentForbiddenEntries.Count 0),
         (New-Result "P17R2.toolbar_singleton_direct_call_zero" ($toolbarSingletonCount -eq 0) $toolbarSingletonCount 0),
         (New-Result "P17R2.app_layout_command_helper_present" $hasLayoutCommandPath $setWindowVisibleCount ">= 1"),
         (New-Result "P17R2.app_menu_open_actions_synced" $menuDelegationSynced $menuDelegationCurrent 0),
@@ -274,7 +276,7 @@ try {
 
     if ($cmakeMissingRequiredEntries.Count -gt 0) {
         Write-Host ""
-        Write-Host "[P17R2.wb_ui_sources_registered] Missing CMake source entries:"
+        Write-Host "[P17R2.shell_render_sources_registered] Missing CMake source entries:"
         foreach ($entry in $cmakeMissingRequiredEntries) {
             Write-Host (" - {0}" -f $entry)
         }
@@ -282,7 +284,7 @@ try {
 
     if ($cmakePresentForbiddenEntries.Count -gt 0) {
         Write-Host ""
-        Write-Host "[P17R2.wb_ui_legacy_sources_zero] Forbidden CMake source entries:"
+        Write-Host "[P17R2.shell_render_legacy_sources_zero] Forbidden CMake source entries:"
         foreach ($entry in $cmakePresentForbiddenEntries) {
             Write-Host (" - {0}" -f $entry)
         }

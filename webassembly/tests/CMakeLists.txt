@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+﻿cmake_minimum_required(VERSION 3.20)
 
 project(wb_native_tests LANGUAGES CXX)
 
@@ -18,10 +18,10 @@ add_executable(wb_native_tests
   io/xsf_parser_test.cpp
   atoms/cell_transform_test.cpp
   atoms/measurement_geometry_test.cpp
-  ../src/atoms/infrastructure/chgcar_parser.cpp
+  ../src/io/infrastructure/chgcar_parser.cpp
   ../src/io/infrastructure/xsf_parser.cpp
-  ../src/atoms/domain/cell_transform.cpp
-  ../src/atoms/domain/measurement_geometry.cpp
+  ../src/structure/domain/atoms/cell_transform.cpp
+  ../src/measurement/domain/measurement_geometry.cpp
 )
 
 target_include_directories(wb_native_tests PRIVATE
@@ -46,3 +46,5 @@ endif()
 
 enable_testing()
 add_test(NAME wb_native_tests COMMAND wb_native_tests)
+
+

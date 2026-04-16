@@ -4,7 +4,6 @@
 #include <string>
 
 class App;
-class AtomsTemplate;
 class FileLoader;
 class FontManager;
 class MeshDetail;
@@ -92,11 +91,6 @@ public:
      * @brief Returns viewer facade.
      */
     VtkViewer& Viewer();
-
-    /**
-     * @brief Returns atoms feature facade.
-     */
-    AtomsTemplate& AtomsTemplateFacade();
 
     /**
      * @brief Returns structure feature service facade.

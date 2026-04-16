@@ -4,24 +4,28 @@
  */
 #pragma once
 
-#include "density_service_port.h"
-
 #include <cstdint>
+
+namespace atoms {
+namespace ui {
+class ChargeDensityUI;
+} // namespace ui
+} // namespace atoms
 
 namespace density {
 namespace application {
 
 /**
  * @brief Density use-case facade extracted from AtomsTemplate.
- * @details During Phase 8 this service delegates to a compatibility port so
- *          call-sites can migrate without behavior changes.
+ * @details R6 단계에서 compatibility port 의존을 제거하고 서비스가 직접
+ *          legacy atoms runtime 경로를 호출하도록 전환했다.
  */
 class DensityService {
 public:
     /**
-     * @brief Creates service bound to the density compatibility port.
+     * @brief Creates density service.
      */
-    explicit DensityService(DensityServicePort* port);
+    DensityService() = default;
 
     bool HasChargeDensity() const;
     bool IsChargeDensityVisible() const;
@@ -40,8 +44,6 @@ public:
     atoms::ui::ChargeDensityUI* ChargeDensityUi();
     const atoms::ui::ChargeDensityUI* ChargeDensityUi() const;
 
-private:
-    DensityServicePort* m_port = nullptr;
 };
 
 } // namespace application

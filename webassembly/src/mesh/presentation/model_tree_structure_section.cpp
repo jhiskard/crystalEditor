@@ -1,10 +1,10 @@
-#include "../../mesh/presentation/model_tree_panel.h"
+﻿#include "../../mesh/presentation/model_tree_panel.h"
 #include "../../shell/presentation/font/font_registry.h"
 #include "../../mesh/domain/lcrs_tree.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
-#include "../../atoms/legacy/atoms_template_facade.h"
-#include "../../atoms/ui/charge_density_ui.h"
-#include "../../atoms/application/structure_read_model.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../density/presentation/charge_density_ui.h"
+#include "../../structure/application/structure_read_model.h"
 #include "../../structure/application/structure_service.h"
 #include "../../density/application/density_service.h"
 #include "../../shell/application/workbench_controller.h"
@@ -49,7 +49,7 @@ void TextCenteredSizeT(size_t value) {
 } // namespace
 
 void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
     structure::application::StructureService& structureService = GetWorkbenchRuntime().StructureFeature();
@@ -1577,6 +1577,9 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
+
+
+
 
 
 

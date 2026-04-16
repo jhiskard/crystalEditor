@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../atoms/infrastructure/file_io_manager.h"
+#include "file_io_manager.h"
 
 #include <functional>
 #include <string>

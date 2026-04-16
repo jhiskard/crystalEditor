@@ -139,6 +139,10 @@ try {
         "app.cpp",
         "app.h"
     )
+    $requiredWorkspaceLegacyFacadeFiles = @(
+        "webassembly/src/workspace/legacy/atoms_template_facade.h",
+        "webassembly/src/workspace/legacy/atoms_template_facade.cpp"
+    )
     $missingFacadeInMap = @(
         $requiredFacadePaths |
             Where-Object {
@@ -147,6 +151,9 @@ try {
     )
     $missingFacadeInCurrent = @(
         $requiredFacadePaths | Where-Object { $_ -notin $currentRootFiles }
+    )
+    $missingWorkspaceLegacyFacadeFiles = @(
+        $requiredWorkspaceLegacyFacadeFiles | Where-Object { -not (Test-Path $_) }
     )
 
     $docExcludedPaths = @(
@@ -181,6 +188,7 @@ try {
         (New-Result "P17R0.ownership_map_entries_classified" ($unclassifiedFiles.Count -eq 0) $unclassifiedFiles.Count 0),
         (New-Result "P17R0.facade_entries_defined_in_map" ($missingFacadeInMap.Count -eq 0) $missingFacadeInMap.Count 0),
         (New-Result "P17R0.required_facade_files_present" ($missingFacadeInCurrent.Count -eq 0) $missingFacadeInCurrent.Count 0),
+        (New-Result "P17R6.workspace_legacy_facade_files_present" ($missingWorkspaceLegacyFacadeFiles.Count -eq 0) $missingWorkspaceLegacyFacadeFiles.Count 0),
         (New-Result "P17R0.doc_material_exclusion_classified" ($docExcludedMisclassified.Count -eq 0) $docExcludedMisclassified.Count 0)
     )
 
@@ -224,6 +232,14 @@ try {
         Write-Host ""
         Write-Host "[P17R0.required_facade_files_present] Missing facade files in current tree:"
         foreach ($entry in $missingFacadeInCurrent) {
+            Write-Host (" - {0}" -f $entry)
+        }
+    }
+
+    if ($missingWorkspaceLegacyFacadeFiles.Count -gt 0) {
+        Write-Host ""
+        Write-Host "[P17R6.workspace_legacy_facade_files_present] Missing workspace legacy facade files:"
+        foreach ($entry in $missingWorkspaceLegacyFacadeFiles) {
             Write-Host (" - {0}" -f $entry)
         }
     }
