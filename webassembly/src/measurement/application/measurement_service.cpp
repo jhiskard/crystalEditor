@@ -1,6 +1,6 @@
-#include "measurement_service.h"
+﻿#include "measurement_service.h"
 
-#include "../../atoms/atoms_template.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
 
 namespace {
 measurement::application::MeasurementMode ToMeasurementMode(AtomsTemplate::MeasurementMode mode) {
@@ -43,101 +43,62 @@ AtomsTemplate::MeasurementMode ToLegacyMeasurementMode(measurement::application:
 namespace measurement {
 namespace application {
 
-MeasurementService::MeasurementService(AtomsTemplate* atomsTemplate)
-    : m_atomsTemplate(atomsTemplate) {}
-
 MeasurementMode MeasurementService::GetMode() const {
-    if (!m_atomsTemplate) {
-        return MeasurementMode::None;
-    }
-    return ToMeasurementMode(m_atomsTemplate->GetMeasurementMode());
+    return ToMeasurementMode(AtomsTemplate::Instance().GetMeasurementMode());
 }
 
 bool MeasurementService::IsModeActive() const {
-    if (!m_atomsTemplate) {
-        return false;
-    }
-    return m_atomsTemplate->IsMeasurementModeActive();
+    return AtomsTemplate::Instance().IsMeasurementModeActive();
 }
 
 void MeasurementService::EnterMode(MeasurementMode mode) {
-    if (!m_atomsTemplate) {
-        return;
-    }
-    m_atomsTemplate->EnterMeasurementMode(ToLegacyMeasurementMode(mode));
+    AtomsTemplate::Instance().EnterMeasurementMode(ToLegacyMeasurementMode(mode));
 }
 
 void MeasurementService::ExitMode() {
-    if (!m_atomsTemplate) {
-        return;
-    }
-    m_atomsTemplate->ExitMeasurementMode();
+    AtomsTemplate::Instance().ExitMeasurementMode();
 }
 
 std::vector<MeasurementListItem> MeasurementService::GetMeasurementsForStructure(int32_t structureId) const {
     std::vector<MeasurementListItem> output;
-    if (!m_atomsTemplate) {
-        return output;
-    }
-
-    const auto source = m_atomsTemplate->GetMeasurementsForStructure(structureId);
+    const auto source = AtomsTemplate::Instance().GetMeasurementsForStructure(structureId);
     output.reserve(source.size());
     for (const auto& item : source) {
-        output.push_back(MeasurementListItem { item.id, item.displayName, item.visible });
+        output.push_back({item.id, item.displayName, item.visible});
     }
     return output;
 }
 
 void MeasurementService::SetMeasurementVisible(uint32_t measurementId, bool visible) {
-    if (!m_atomsTemplate) {
-        return;
-    }
-    m_atomsTemplate->SetMeasurementVisible(measurementId, visible);
+    AtomsTemplate::Instance().SetMeasurementVisible(measurementId, visible);
 }
 
 void MeasurementService::RemoveMeasurement(uint32_t measurementId) {
-    if (!m_atomsTemplate) {
-        return;
-    }
-    m_atomsTemplate->RemoveMeasurement(measurementId);
+    AtomsTemplate::Instance().RemoveMeasurement(measurementId);
 }
 
 void MeasurementService::RemoveMeasurementsByStructure(int32_t structureId) {
-    if (!m_atomsTemplate) {
-        return;
-    }
-    m_atomsTemplate->RemoveMeasurementsByStructure(structureId);
+    AtomsTemplate::Instance().RemoveMeasurementsByStructure(structureId);
 }
 
 std::vector<DistanceMeasurementListItem> MeasurementService::GetDistanceMeasurementsForStructure(
     int32_t structureId) const {
     std::vector<DistanceMeasurementListItem> output;
-    if (!m_atomsTemplate) {
-        return output;
-    }
-
-    const auto source = m_atomsTemplate->GetDistanceMeasurementsForStructure(structureId);
+    const auto source = AtomsTemplate::Instance().GetDistanceMeasurementsForStructure(structureId);
     output.reserve(source.size());
     for (const auto& item : source) {
-        output.push_back(DistanceMeasurementListItem { item.id, item.displayName, item.visible });
+        output.push_back({item.id, item.displayName, item.visible});
     }
     return output;
 }
 
 void MeasurementService::SetDistanceMeasurementVisible(uint32_t measurementId, bool visible) {
-    if (!m_atomsTemplate) {
-        return;
-    }
-    m_atomsTemplate->SetDistanceMeasurementVisible(measurementId, visible);
+    AtomsTemplate::Instance().SetDistanceMeasurementVisible(measurementId, visible);
 }
 
 void MeasurementService::RemoveDistanceMeasurement(uint32_t measurementId) {
-    if (!m_atomsTemplate) {
-        return;
-    }
-    m_atomsTemplate->RemoveDistanceMeasurement(measurementId);
+    AtomsTemplate::Instance().RemoveDistanceMeasurement(measurementId);
 }
 
 } // namespace application
 } // namespace measurement
-

@@ -1,5 +1,6 @@
-﻿#include "../../model_tree.h"
-#include "../../atoms/atoms_template.h"
+﻿#include "../../mesh/presentation/model_tree_panel.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../shell/runtime/workbench_runtime.h"
 #include "../application/mesh_command_service.h"
 #include "../application/mesh_query_service.h"
 
@@ -108,5 +109,7 @@ void ModelTree::renderClearMeasurementsConfirmPopup() {
         ImGui::EndPopup();
     }
 }
+
+
 
 

@@ -1,10 +1,10 @@
-/**
+﻿/**
  * @file mesh_command_service.h
  * @brief Mesh mutation command service.
  */
 #pragma once
 
-#include "../../mesh.h"
+#include "../domain/mesh_entity.h"
 
 #include <cstdint>
 #include <string>
@@ -56,3 +56,5 @@ MeshCommandService& GetMeshCommandService();
 
 } // namespace application
 } // namespace mesh
+
+

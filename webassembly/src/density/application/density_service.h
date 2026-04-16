@@ -5,9 +5,6 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
-
-class AtomsTemplate;
 
 namespace atoms {
 namespace ui {
@@ -20,19 +17,20 @@ namespace application {
 
 /**
  * @brief Density use-case facade extracted from AtomsTemplate.
- * @details During Phase 8 this class delegates to existing AtomsTemplate APIs
- *          to preserve behavior while call-sites migrate to module boundaries.
+ * @details R6 단계에서 compatibility port 의존을 제거하고 서비스가 직접
+ *          legacy atoms runtime 경로를 호출하도록 전환했다.
  */
 class DensityService {
 public:
     /**
-     * @brief Creates service bound to the atoms compatibility facade.
+     * @brief Creates density service.
      */
-    explicit DensityService(AtomsTemplate* atomsTemplate);
+    DensityService() = default;
 
     bool HasChargeDensity() const;
     bool IsChargeDensityVisible() const;
     void SetChargeDensityVisible(bool visible);
+    bool IsSimpleViewActive() const;
     void SyncChargeDensityViewTypeState();
 
     int32_t GetChargeDensityStructureId() const;
@@ -46,8 +44,6 @@ public:
     atoms::ui::ChargeDensityUI* ChargeDensityUi();
     const atoms::ui::ChargeDensityUI* ChargeDensityUi() const;
 
-private:
-    AtomsTemplate* m_atomsTemplate = nullptr;
 };
 
 } // namespace application

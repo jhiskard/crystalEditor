@@ -1,6 +1,6 @@
-#include "import_workflow_service.h"
+﻿#include "import_workflow_service.h"
 
-#include "../../atoms/atoms_template.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../mesh/application/mesh_query_service.h"
 #include "../../shell/runtime/workbench_runtime.h"
@@ -59,7 +59,7 @@ void ImportWorkflowService::CleanupImportedStructure(int32_t importedStructureId
 
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
 
     const Mesh* importedMesh = meshQuery.FindMeshById(importedStructureId);
     if (importedMesh == nullptr) {
@@ -80,4 +80,5 @@ void ImportWorkflowService::ClearReplaceSceneImportTransaction() {
 }
 
 } // namespace io::application
+
 

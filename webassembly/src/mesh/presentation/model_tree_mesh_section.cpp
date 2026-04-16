@@ -1,10 +1,11 @@
-﻿#include "../../model_tree.h"
+﻿#include "../../mesh/presentation/model_tree_panel.h"
 #include "../../app.h"
-#include "../../font_manager.h"
-#include "../../mesh_detail.h"
-#include "../../lcrs_tree.h"
+#include "../../shell/presentation/font/font_registry.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
+#include "../../mesh/domain/lcrs_tree.h"
 #include "../../config/log_config.h"
-#include "../../atoms/atoms_template.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../shell/runtime/workbench_runtime.h"
 #include "../application/mesh_command_service.h"
 #include "../application/mesh_query_service.h"
 
@@ -271,4 +272,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         renderMeshTree(node->GetRightSiblingMutable());
     }
 }
+
+
+
 

@@ -1,6 +1,8 @@
-#include "mesh_repository.h"
+﻿#include "mesh_repository.h"
 
-#include "../../mesh_manager.h"
+#include "mesh_repository_core.h"
+
+#include <iostream>
 
 namespace {
 MeshManager& Manager() {
@@ -8,7 +10,7 @@ MeshManager& Manager() {
 }
 
 const MeshManager& ManagerConst() {
-    return MeshManager::Instance();
+    return Manager();
 }
 } // namespace
 
@@ -32,16 +34,32 @@ const LcrsTreeUPtr& MeshRepository::MeshTree() const {
     return ManagerConst().GetMeshTree();
 }
 
+const LcrsTreeUPtr& MeshRepository::GetMeshTree() const {
+    return MeshTree();
+}
+
 size_t MeshRepository::MeshCount() const {
     return ManagerConst().GetMeshCount();
+}
+
+size_t MeshRepository::GetMeshCount() const {
+    return MeshCount();
 }
 
 const Mesh* MeshRepository::FindMeshById(int32_t id) const {
     return ManagerConst().GetMeshById(id);
 }
 
+const Mesh* MeshRepository::GetMeshById(int32_t id) const {
+    return FindMeshById(id);
+}
+
 Mesh* MeshRepository::FindMeshByIdMutable(int32_t id) {
     return Manager().GetMeshByIdMutable(id);
+}
+
+Mesh* MeshRepository::GetMeshByIdMutable(int32_t id) {
+    return FindMeshByIdMutable(id);
 }
 
 void MeshRepository::ShowMesh(int32_t id) {
@@ -80,9 +98,49 @@ bool MeshRepository::HasXsfStructures() const {
     return ManagerConst().HasXsfStructures();
 }
 
+void MeshRepository::SetParentIconState(TreeNode* node) const {
+    MeshManager::SetParentIconState(node);
+}
+
 bool MeshRepository::GetGlobalVolumeDataRange(double& minOut, double& maxOut) const {
     return ManagerConst().GetGlobalVolumeDataRange(minOut, maxOut);
 }
+
+bool MeshRepository::HasSharedVolumeDisplaySettings() const {
+    return ManagerConst().HasSharedVolumeDisplaySettings();
+}
+
+const MeshRepository::VolumeDisplaySettings& MeshRepository::GetSharedVolumeDisplaySettings() const {
+    return ManagerConst().GetSharedVolumeDisplaySettings();
+}
+
+void MeshRepository::SetSharedVolumeDisplaySettings(const VolumeDisplaySettings& settings) {
+    Manager().SetSharedVolumeDisplaySettings(settings);
+}
+
+void MeshRepository::EnsureSharedVolumeDisplaySettingsFromMesh(const Mesh& mesh) {
+    Manager().EnsureSharedVolumeDisplaySettingsFromMesh(mesh);
+}
+
+void MeshRepository::ApplySharedVolumeDisplaySettingsToAllMeshes() {
+    Manager().ApplySharedVolumeDisplaySettingsToAllMeshes();
+}
+
+#ifdef DEBUG_BUILD
+void MeshRepository::PrintMeshTree() const {
+    ManagerConst().GetMeshTree()->TraverseTree([](const TreeNode* node, void*) {
+        for (int i = 0; i < node->GetDepth(); ++i) {
+            std::cout << "--";
+        }
+        std::cout << "[Node]: " << node->GetLabel() << ", [ID]: " << node->GetId();
+        std::cout << ", [Parent]: " << (node->GetParent() ? node->GetParent()->GetLabel() : "NULL");
+        std::cout << ", [Left Child]: " << (node->GetLeftChild() ? node->GetLeftChild()->GetLabel() : "NULL");
+        std::cout << ", [Right Sibling]: " << (node->GetRightSibling() ? node->GetRightSibling()->GetLabel() : "NULL");
+        std::cout << ", [Left Sibling]: " << (node->GetLeftSibling() ? node->GetLeftSibling()->GetLabel() : "NULL");
+        std::cout << std::endl;
+    });
+}
+#endif
 
 MeshRepository& GetMeshRepository() {
     return MeshRepository::Instance();
@@ -90,4 +148,7 @@ MeshRepository& GetMeshRepository() {
 
 } // namespace domain
 } // namespace mesh
+
+
+
 

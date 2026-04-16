@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "../../common/panel_request_types.h"
+
 namespace shell {
 namespace domain {
 
@@ -82,6 +84,13 @@ struct ShellUiState {
     ShellFocusTarget pendingFocusTarget = ShellFocusTarget::None;
     int pendingFocusPassesRemaining = 0;
     int resetWindowGeometryPassesRemaining = 0;
+
+    bool hasPendingEditorRequest = false;
+    bool hasPendingBuilderRequest = false;
+    bool hasPendingDataRequest = false;
+    workbench::panel::EditorRequest pendingEditorRequest = workbench::panel::EditorRequest::Atoms;
+    workbench::panel::BuilderRequest pendingBuilderRequest = workbench::panel::BuilderRequest::AddAtoms;
+    workbench::panel::DataRequest pendingDataRequest = workbench::panel::DataRequest::Isosurface;
 };
 
 /**

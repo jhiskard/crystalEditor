@@ -1,13 +1,14 @@
-﻿#include "../../model_tree.h"
-#include "../../app.h"
-#include "../../font_manager.h"
-#include "../../lcrs_tree.h"
-#include "../../mesh_detail.h"
-#include "../../atoms/atoms_template.h"
-#include "../../atoms/ui/charge_density_ui.h"
-#include "../../atoms/application/structure_read_model.h"
+﻿#include "../../mesh/presentation/model_tree_panel.h"
+#include "../../shell/presentation/font/font_registry.h"
+#include "../../mesh/domain/lcrs_tree.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../density/presentation/charge_density_ui.h"
+#include "../../structure/application/structure_read_model.h"
 #include "../../structure/application/structure_service.h"
 #include "../../density/application/density_service.h"
+#include "../../shell/application/workbench_controller.h"
+#include "../../shell/runtime/workbench_runtime.h"
 #include "../application/mesh_command_service.h"
 #include "../application/mesh_query_service.h"
 
@@ -51,8 +52,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
     AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    structure::application::StructureService& structureService = atomsTemplate.structureService();
-    density::application::DensityService& densityService = atomsTemplate.densityService();
+    structure::application::StructureService& structureService = GetWorkbenchRuntime().StructureFeature();
+    density::application::DensityService& densityService = GetWorkbenchRuntime().DensityFeature();
     auto structures = structureService.GetStructures();
     const auto& createdAtoms = atoms::application::StructureReadModel::GetCreatedAtoms();
     const auto& surroundingAtoms = atoms::application::StructureReadModel::GetSurroundingAtoms();
@@ -79,16 +80,14 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         structureService.SetCurrentStructureId(structureId);
         densityService.SetChargeDensityStructureId(structureId);
     };
-    auto openChargeDensityViewer = [&](int32_t structureId, AtomsTemplate::DataMenuRequest request) {
+    auto openChargeDensityViewer = [&](int32_t structureId, workbench::panel::DataRequest request) {
         setChargeDensityContext(structureId);
-        App::ShowAdvancedViewWindow(true);
-        atomsTemplate.RequestDataMenu(request);
+        GetWorkbenchRuntime().ShellController().OpenDataPanel(request);
         hasChargeDensityVisibilityChange = true;
     };
     auto openSliceViewer = [&](int32_t structureId) {
         setChargeDensityContext(structureId);
-        App::ShowSliceViewerWindow(true);
-        atomsTemplate.RequestDataMenu(AtomsTemplate::DataMenuRequest::Plane);
+        GetWorkbenchRuntime().ShellController().OpenDataPanel(workbench::panel::DataRequest::Plane);
         hasChargeDensityVisibilityChange = true;
     };
     auto renderLabelState = [&](bool allVisible, bool anyVisible, auto&& onToggle) {
@@ -1298,7 +1297,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     if (ImGui::IsItemHovered() &&
                                         ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) &&
                                         chargeDensityUI) {
-                                        openChargeDensityViewer(entry.id, AtomsTemplate::DataMenuRequest::Isosurface);
+                                        openChargeDensityViewer(entry.id, workbench::panel::DataRequest::Isosurface);
                                         chargeDensityUI->setSimpleGridVisible(simpleEntry.name, true);
                                         chargeDensityUI->selectSimpleGridByName(simpleEntry.name);
                                     }
@@ -1339,9 +1338,9 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                                                bool volumeMode,
                                                                bool anyGridVisible,
                                                                bool allGridVisible) {
-                                const AtomsTemplate::DataMenuRequest request = volumeMode
-                                    ? AtomsTemplate::DataMenuRequest::Volumetric
-                                    : AtomsTemplate::DataMenuRequest::Surface;
+                                const workbench::panel::DataRequest request = volumeMode
+                                    ? workbench::panel::DataRequest::Volumetric
+                                    : workbench::panel::DataRequest::Surface;
                                 ImGui::TableNextRow();
                                 ImGui::TableSetColumnIndex(0);
                                 ImGuiTreeNodeFlags groupFlags = ImGuiTreeNodeFlags_OpenOnArrow |
@@ -1578,6 +1577,11 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
+
+
+
+
+
 
 
 

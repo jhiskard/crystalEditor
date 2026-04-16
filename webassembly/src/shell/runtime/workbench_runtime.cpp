@@ -1,15 +1,18 @@
-#include "workbench_runtime.h"
+﻿#include "workbench_runtime.h"
 
 #include "../../app.h"
-#include "../../atoms/atoms_template.h"
-#include "../../file_loader.h"
-#include "../../font_manager.h"
-#include "../../mesh_detail.h"
-#include "../../mesh_group_detail.h"
-#include "../../mesh_manager.h"
-#include "../../model_tree.h"
-#include "../../test_window.h"
-#include "../../toolbar.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../io/application/import_entry_service.h"
+#include "../../platform/browser/browser_file_dialog_adapter.h"
+#include "../../platform/worker/emscripten_worker_port.h"
+#include "../../platform/worker/runtime_progress_port.h"
+#include "../presentation/font/font_registry.h"
+#include "../../mesh/presentation/mesh_detail_panel.h"
+#include "../../mesh/presentation/mesh_group_detail_panel.h"
+#include "../../mesh/domain/mesh_repository.h"
+#include "../../mesh/presentation/model_tree_panel.h"
+#include "../presentation/debug/test_window_panel.h"
+#include "../presentation/toolbar/viewer_toolbar_presenter.h"
 #include "../../render/application/legacy_viewer_facade.h"
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
@@ -69,20 +72,16 @@ VtkViewer& WorkbenchRuntime::Viewer() {
     return render::application::GetLegacyViewerFacade();
 }
 
-AtomsTemplate& WorkbenchRuntime::AtomsTemplateFacade() {
-    return AtomsTemplate::Instance();
-}
-
 structure::application::StructureService& WorkbenchRuntime::StructureFeature() {
-    return AtomsTemplateFacade().structureService();
+    return AtomsTemplate::Instance().structureService();
 }
 
 measurement::application::MeasurementService& WorkbenchRuntime::MeasurementFeature() {
-    return AtomsTemplateFacade().measurementService();
+    return AtomsTemplate::Instance().measurementService();
 }
 
 density::application::DensityService& WorkbenchRuntime::DensityFeature() {
-    return AtomsTemplateFacade().densityService();
+    return AtomsTemplate::Instance().densityService();
 }
 
 ModelTree& WorkbenchRuntime::ModelTreePanel() {
@@ -97,12 +96,15 @@ MeshGroupDetail& WorkbenchRuntime::MeshGroupDetailPanel() {
     return runtimeMeshGroupDetailPanel();
 }
 
-MeshManager& WorkbenchRuntime::MeshRepository() {
-    return MeshManager::Instance();
+mesh::domain::MeshRepository& WorkbenchRuntime::MeshRepository() {
+    return mesh::domain::GetMeshRepository();
 }
 
 FileLoader& WorkbenchRuntime::FileLoaderService() {
-    static FileLoader fileLoaderService;
+    static platform::browser::BrowserFileDialogAdapter fileDialogAdapter;
+    static platform::worker::EmscriptenWorkerPort workerPort;
+    static platform::worker::RuntimeProgressPort progressPort;
+    static FileLoader fileLoaderService(fileDialogAdapter, workerPort, progressPort);
     return fileLoaderService;
 }
 
@@ -228,7 +230,7 @@ bool WorkbenchRuntime::HasChargeDensity() {
 
 void WorkbenchRuntime::PrintMeshTree() {
 #ifdef DEBUG_BUILD
-    MeshManager::PrintMeshTree();
+    MeshRepository().PrintMeshTree();
 #endif
 }
 
@@ -239,3 +241,6 @@ WorkbenchRuntime& GetWorkbenchRuntime() {
 const WorkbenchRuntime& GetWorkbenchRuntimeConst() {
     return WorkbenchRuntime::Instance();
 }
+
+
+

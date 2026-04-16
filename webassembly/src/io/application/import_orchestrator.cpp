@@ -1,6 +1,6 @@
-#include "import_orchestrator.h"
+﻿#include "import_orchestrator.h"
 
-#include "../../atoms/atoms_template.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../mesh/application/mesh_query_service.h"
 #include "../../shell/runtime/workbench_runtime.h"
@@ -20,7 +20,7 @@ bool ImportOrchestrator::HasSceneDataForStructureImport() const {
         return true;
     }
 
-    const AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    const AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     if (atomsTemplate.HasStructures()) {
         return true;
     }
@@ -64,7 +64,7 @@ ReplaceSceneImportSnapshot ImportOrchestrator::BeginReplaceSceneImportTransactio
     ReplaceSceneImportSnapshot snapshot;
     snapshot.rootMeshIds = CollectRootMeshIds();
 
-    const AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    const AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     snapshot.currentStructureId = atomsTemplate.GetCurrentStructureId();
     snapshot.chargeDensityStructureId = atomsTemplate.GetChargeDensityStructureId();
     snapshot.loadedFileName = atomsTemplate.GetLoadedFileName();
@@ -76,7 +76,7 @@ void ImportOrchestrator::FinalizeReplaceSceneImportSuccess(
     int32_t importedStructureId) const {
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
 
     for (int32_t rootMeshId : snapshot.rootMeshIds) {
         if (rootMeshId == importedStructureId) {
@@ -107,7 +107,7 @@ void ImportOrchestrator::RollbackFailedStructureImport(
     int32_t importedStructureId) const {
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
 
     if (importedStructureId >= 0) {
         const Mesh* importedMesh = meshQuery.FindMeshById(importedStructureId);
@@ -145,3 +145,4 @@ void ImportOrchestrator::RollbackFailedStructureImport(
 }
 
 } // namespace io::application
+

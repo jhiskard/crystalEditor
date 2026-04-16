@@ -3,17 +3,16 @@
 #include "shell/application/workbench_controller.h"
 #include "shell/application/shell_state_query_service.h"
 #include "shell/application/shell_state_command_service.h"
-#include "font_manager.h"
-#include "vtk_viewer.h"
-#include "model_tree.h"
-#include "mesh_detail.h"
-#include "mesh_manager.h"
-#include "mesh_group_detail.h"
-#include "mesh.h"
+#include "shell/presentation/font/font_registry.h"
+#include "render/presentation/viewer_window.h"
+#include "mesh/presentation/model_tree_panel.h"
+#include "mesh/presentation/mesh_detail_panel.h"
+#include "mesh/application/mesh_query_service.h"
+#include "mesh/presentation/mesh_group_detail_panel.h"
+#include "mesh/domain/mesh_entity.h"
 
-// Add AtomsTemplate
-// #include "atoms_template.h"
-#include "atoms/atoms_template.h"
+// Legacy atoms facade
+#include "workspace/legacy/atoms_template_facade.h"
 
 // ImGui
 #include <imgui.h>
@@ -643,12 +642,78 @@ void App::renderDockSpaceAndMenu() {
         ImGui::DockBuilderDockWindow(kBrillouinZonePlotWindowName, dockNodeId);
     };
 
+    auto applyLayoutVisibilityPreset = [&](LayoutPreset preset) {
+        shell::application::ShellStateCommandService& command = GetWorkbenchRuntime().ShellStateCommand();
+
+        auto setVisible = [&](shell::domain::ShellWindowId windowId, bool visible) {
+            command.SetWindowVisible(windowId, visible);
+        };
+
+        auto setDefaultsToHidden = [&]() {
+            setVisible(shell::domain::ShellWindowId::Viewer, true);
+            setVisible(shell::domain::ShellWindowId::ModelTree, false);
+            setVisible(shell::domain::ShellWindowId::PeriodicTable, false);
+            setVisible(shell::domain::ShellWindowId::CrystalTemplates, false);
+            setVisible(shell::domain::ShellWindowId::BrillouinZonePlot, false);
+            setVisible(shell::domain::ShellWindowId::CreatedAtoms, false);
+            setVisible(shell::domain::ShellWindowId::BondsManagement, false);
+            setVisible(shell::domain::ShellWindowId::CellInformation, false);
+            setVisible(shell::domain::ShellWindowId::ChargeDensityViewer, false);
+            setVisible(shell::domain::ShellWindowId::SliceViewer, false);
+        };
+
+        shell::domain::ShellUiState& shellState = command.MutableState();
+        shellState.requestModelTreeFocus = false;
+        shellState.shouldApplyInitialLayout = false;
+        command.RequestFocus(shell::domain::ShellFocusTarget::None, 0);
+
+        switch (preset) {
+        case LayoutPreset::DefaultFloating:
+            setDefaultsToHidden();
+            break;
+        case LayoutPreset::DockRight:
+            setDefaultsToHidden();
+            setVisible(shell::domain::ShellWindowId::ModelTree, true);
+            setVisible(shell::domain::ShellWindowId::ChargeDensityViewer, true);
+            setVisible(shell::domain::ShellWindowId::SliceViewer, true);
+            shellState.requestModelTreeFocus = true;
+            command.RequestFocus(shell::domain::ShellFocusTarget::ModelTree, 2);
+            break;
+        case LayoutPreset::DockBottom:
+            setDefaultsToHidden();
+            setVisible(shell::domain::ShellWindowId::ModelTree, true);
+            shellState.requestModelTreeFocus = true;
+            command.RequestFocus(shell::domain::ShellFocusTarget::ModelTree, 2);
+            break;
+        case LayoutPreset::ResetDocking:
+            setVisible(shell::domain::ShellWindowId::Viewer, true);
+            setVisible(shell::domain::ShellWindowId::ModelTree, true);
+            setVisible(shell::domain::ShellWindowId::PeriodicTable, true);
+            setVisible(shell::domain::ShellWindowId::CrystalTemplates, true);
+            setVisible(shell::domain::ShellWindowId::BrillouinZonePlot, true);
+            setVisible(shell::domain::ShellWindowId::CreatedAtoms, true);
+            setVisible(shell::domain::ShellWindowId::BondsManagement, true);
+            setVisible(shell::domain::ShellWindowId::CellInformation, true);
+            setVisible(shell::domain::ShellWindowId::ChargeDensityViewer, true);
+            setVisible(shell::domain::ShellWindowId::SliceViewer, false);
+            break;
+        case LayoutPreset::None:
+            break;
+        }
+
+        // Keep App mirror and shell store in sync within the same frame.
+        syncShellStateFromStore();
+    };
+
     if (m_ShouldApplyInitialLayout && m_PendingLayoutPreset == LayoutPreset::None) {
         m_PendingLayoutPreset = LayoutPreset::DefaultFloating;
         m_ShouldApplyInitialLayout = false;
     }
 
     if (m_PendingLayoutPreset != LayoutPreset::None) {
+        // Any explicit layout request consumes the one-time bootstrap layout signal.
+        m_ShouldApplyInitialLayout = false;
+        GetWorkbenchRuntime().ShellStateCommand().MutableState().shouldApplyInitialLayout = false;
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
             // 레이아웃 전환 시 기존 메뉴 기반 포커스 요청은 초기화한다.
             m_PendingFocusTarget = FocusTarget::None;
@@ -671,17 +736,7 @@ void App::renderDockSpaceAndMenu() {
                     node->SelectedTabId = ImGui::GetID(kModelTreeWindowName);
                 }
 
-                m_bShowVtkViewer = true;
-                m_bShowModelTree = false;
-                m_bShowPeriodicTableWindow = false;
-                m_bShowCrystalTemplatesWindow = false;
-                m_bShowBrillouinZonePlotWindow = false;
-                m_bShowCreatedAtomsWindow = false;
-                m_bShowBondsManagementWindow = false;
-                m_bShowCellInformationWindow = false;
-                m_bShowChargeDensityViewerWindow = false;
-                m_bShowSliceViewerWindow = false;
-                m_RequestModelTreeFocus = false;
+                applyLayoutVisibilityPreset(LayoutPreset::DefaultFloating);
             }
             else if (m_PendingLayoutPreset == LayoutPreset::DockRight) {
                 // Layout 2:
@@ -689,17 +744,7 @@ void App::renderDockSpaceAndMenu() {
                 // - Right 15% (top): Charge Density Viewer
                 // - Right 15% (bottom): 2D Slice Viewer
                 // - Center: Viewer
-                m_bShowVtkViewer = true;
-                m_bShowModelTree = true;
-                m_bShowPeriodicTableWindow = false;
-                m_bShowCrystalTemplatesWindow = false;
-                m_bShowBrillouinZonePlotWindow = false;
-                m_bShowCreatedAtomsWindow = false;
-                m_bShowBondsManagementWindow = false;
-                m_bShowCellInformationWindow = false;
-                m_bShowChargeDensityViewerWindow = true;
-                m_bShowSliceViewerWindow = true;
-                m_RequestModelTreeFocus = true;
+                applyLayoutVisibilityPreset(LayoutPreset::DockRight);
 
                 ImGuiID dock_main_id = dockspace_id;
                 ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(
@@ -727,17 +772,7 @@ void App::renderDockSpaceAndMenu() {
             }
             else if (m_PendingLayoutPreset == LayoutPreset::DockBottom) {
                 // Layout 3: Viewer 60% 위, 좌측 패널 창 40% 아래
-                m_bShowVtkViewer = true;
-                m_bShowModelTree = true;
-                m_bShowPeriodicTableWindow = false;
-                m_bShowCrystalTemplatesWindow = false;
-                m_bShowBrillouinZonePlotWindow = false;
-                m_bShowCreatedAtomsWindow = false;
-                m_bShowBondsManagementWindow = false;
-                m_bShowCellInformationWindow = false;
-                m_bShowChargeDensityViewerWindow = false;
-                m_bShowSliceViewerWindow = false;
-                m_RequestModelTreeFocus = true;
+                applyLayoutVisibilityPreset(LayoutPreset::DockBottom);
 
                 ImGuiID dock_main_id = dockspace_id;
                 ImGuiID dock_bottom_id = ImGui::DockBuilderSplitNode(
@@ -752,17 +787,7 @@ void App::renderDockSpaceAndMenu() {
                 // Reset: 모든 창 도킹 상태 초기화 + 창 기본 배치 적용.
                 // DockBuilderRemoveNode/AddNode 이후 추가 도킹을 수행하지 않으면
                 // 기존 창은 도킹 해제되어 floating 상태로 복원된다.
-                m_bShowVtkViewer = true;
-                m_bShowModelTree = true;
-                m_bShowPeriodicTableWindow = true;
-                m_bShowCrystalTemplatesWindow = true;
-                m_bShowBrillouinZonePlotWindow = true;
-                m_bShowCreatedAtomsWindow = true;
-                m_bShowBondsManagementWindow = true;
-                m_bShowCellInformationWindow = true;
-                m_bShowChargeDensityViewerWindow = true;
-                m_bShowSliceViewerWindow = false;
-                m_RequestModelTreeFocus = false;
+                applyLayoutVisibilityPreset(LayoutPreset::ResetDocking);
                 m_ResetWindowGeometryPassesRemaining = 2;
             }
             ImGui::DockBuilderFinish(dockspace_id);
@@ -781,59 +806,17 @@ void App::renderDockSpaceAndMenu() {
 
     if (ImGui::BeginMenuBar()) {
         shell::application::WorkbenchController& controller = GetWorkbenchRuntime().ShellController();
-        auto requestLocalFocus = [&](FocusTarget target) {
-            m_PendingFocusTarget = target;
-            m_PendingFocusPassesRemaining = 2;
-        };
         auto openEditorPanel = [&](shell::application::EditorPanelAction action) {
             controller.OpenEditorPanel(action);
-            switch (action) {
-            case shell::application::EditorPanelAction::Atoms:
-                m_bShowCreatedAtomsWindow = true;
-                requestLocalFocus(FocusTarget::CreatedAtoms);
-                break;
-            case shell::application::EditorPanelAction::Bonds:
-                m_bShowBondsManagementWindow = true;
-                requestLocalFocus(FocusTarget::BondsManagement);
-                break;
-            case shell::application::EditorPanelAction::Cell:
-                m_bShowCellInformationWindow = true;
-                requestLocalFocus(FocusTarget::CellInformation);
-                break;
-            }
+            syncShellStateFromStore();
         };
         auto openBuilderPanel = [&](shell::application::BuilderPanelAction action) {
             controller.OpenBuilderPanel(action);
-            switch (action) {
-            case shell::application::BuilderPanelAction::AddAtoms:
-                m_bShowPeriodicTableWindow = true;
-                requestLocalFocus(FocusTarget::PeriodicTable);
-                break;
-            case shell::application::BuilderPanelAction::BravaisLatticeTemplates:
-                m_bShowCrystalTemplatesWindow = true;
-                requestLocalFocus(FocusTarget::CrystalTemplates);
-                break;
-            case shell::application::BuilderPanelAction::BrillouinZone:
-                m_bShowBrillouinZonePlotWindow = true;
-                requestLocalFocus(FocusTarget::BrillouinZonePlot);
-                break;
-            }
+            syncShellStateFromStore();
         };
         auto openDataPanel = [&](shell::application::DataPanelAction action) {
             controller.OpenDataPanel(action);
-            m_bShowModelTree = true;
-            switch (action) {
-            case shell::application::DataPanelAction::Isosurface:
-            case shell::application::DataPanelAction::Surface:
-            case shell::application::DataPanelAction::Volumetric:
-                m_bShowChargeDensityViewerWindow = true;
-                requestLocalFocus(FocusTarget::ChargeDensityViewer);
-                break;
-            case shell::application::DataPanelAction::Plane:
-                m_bShowSliceViewerWindow = true;
-                requestLocalFocus(FocusTarget::SliceViewer);
-                break;
-            }
+            syncShellStateFromStore();
         };
 
         if (ImGui::BeginMenu("  Crystal Viewer")) {
@@ -1041,7 +1024,7 @@ void App::InitImGuiWindows() {
     (void)GetWorkbenchRuntime().ModelTreePanel();
     (void)GetWorkbenchRuntime().MeshDetailPanel();
     (void)GetWorkbenchRuntime().MeshGroupDetailPanel();
-    (void)GetWorkbenchRuntime().AtomsTemplateFacade();
+    (void)AtomsTemplate::Instance();
 }
 
 void App::renderAboutPopup() {
@@ -1121,6 +1104,24 @@ void App::renderImGuiWindows() {
         renderAboutPopup();
     }
 
+    {
+        shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateCommand().MutableState();
+        AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+
+        if (shellState.hasPendingEditorRequest) {
+            atomsTemplate.RequestEditorSection(shellState.pendingEditorRequest);
+            shellState.hasPendingEditorRequest = false;
+        }
+        if (shellState.hasPendingBuilderRequest) {
+            atomsTemplate.RequestBuilderSection(shellState.pendingBuilderRequest);
+            shellState.hasPendingBuilderRequest = false;
+        }
+        if (shellState.hasPendingDataRequest) {
+            atomsTemplate.RequestDataMenu(shellState.pendingDataRequest);
+            shellState.hasPendingDataRequest = false;
+        }
+    }
+
     const bool applyResetLayoutThisFrame = m_ResetWindowGeometryPassesRemaining > 0;
     bool hasResetLayout = false;
     ResetWindowLayout resetLayout {};
@@ -1132,7 +1133,7 @@ void App::renderImGuiWindows() {
 
             GetWorkbenchRuntime().Viewer().RequestForcedWindowLayout(resetLayout.viewerPos, resetLayout.viewerSize);
 
-            AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+            AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
             atomsTemplate.RequestForcedBuilderWindowLayout(resetLayout.crystalBuilderPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedEditorWindowLayout(resetLayout.crystalEditorPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedAdvancedWindowLayout(resetLayout.advancedViewPos, resetLayout.panelSize);
@@ -1160,7 +1161,7 @@ void App::renderImGuiWindows() {
         GetWorkbenchRuntime().ModelTreePanel().Render(&m_bShowModelTree);
     }
 
-    AtomsTemplate& atomsTemplate = GetWorkbenchRuntime().AtomsTemplateFacade();
+    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
     if (m_bShowPeriodicTableWindow) {
         atomsTemplate.RenderPeriodicTableWindow(&m_bShowPeriodicTableWindow);
     }
@@ -1190,7 +1191,7 @@ void App::renderImGuiWindows() {
     if (selectedMeshId != -1 && m_bShowMeshDetail) {
         GetWorkbenchRuntime().MeshDetailPanel().Render(selectedMeshId, &m_bShowMeshDetail);
     }
-    const Mesh* mesh = GetWorkbenchRuntime().MeshRepository().GetMeshById(selectedMeshId);
+    const Mesh* mesh = mesh::application::GetMeshQueryService().FindMeshById(selectedMeshId);
     if (mesh != nullptr) {
         if (mesh->GetMeshGroupCount() > 0) {
             GetWorkbenchRuntime().MeshGroupDetailPanel().Render(selectedMeshId);
@@ -1375,6 +1376,7 @@ void App::SetProgressPopupText(const std::string& title, const std::string& text
 void App::ShowCrystalBuilderWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowPeriodicTableWindow = show;
     app.syncShellStateToStore();
 }
@@ -1382,6 +1384,7 @@ void App::ShowCrystalBuilderWindow(bool show) {
 void App::ShowCrystalEditorWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowCreatedAtomsWindow = show;
     app.syncShellStateToStore();
 }
@@ -1389,6 +1392,7 @@ void App::ShowCrystalEditorWindow(bool show) {
 void App::ShowAdvancedViewWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowChargeDensityViewerWindow = show;
     app.syncShellStateToStore();
 }
@@ -1396,6 +1400,7 @@ void App::ShowAdvancedViewWindow(bool show) {
 void App::ShowSliceViewerWindow(bool show) {
     App& app = GetWorkbenchRuntime().AppController();
     app.syncShellStateFromStore();
+    app.m_ShouldApplyInitialLayout = false;
     app.m_bShowSliceViewerWindow = show;
     app.syncShellStateToStore();
 }
@@ -1416,5 +1421,8 @@ void App::setProgressPopupText(const std::string& title, const std::string& text
     m_PopupTitle = title;
     m_PopupText = text;
 }
+
+
+
 
 

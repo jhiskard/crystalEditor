@@ -1,6 +1,6 @@
-#include "../../vtk_viewer.h"
+﻿#include "../presentation/viewer_window.h"
 
-#include "../../atoms/domain/cell_manager.h"
+#include "../../structure/domain/atoms/cell_manager.h"
 #include "../../config/log_config.h"
 
 #include <vtkCamera.h>
@@ -179,4 +179,5 @@ void VtkViewer::AlignCameraToIcellAxis(int axisIndex) {
         RequestRender();
     }
 }
+
 

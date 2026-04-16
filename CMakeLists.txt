@@ -122,7 +122,18 @@ target_link_libraries(wb_external_deps INTERFACE
 )
 
 set(WB_MODULE_DIR "${CMAKE_SOURCE_DIR}/webassembly/cmake/modules")
-set(WB_MODULE_TARGETS wb_core wb_render wb_mesh wb_atoms wb_io wb_ui)
+set(WB_MODULE_TARGETS
+  wb_common
+  wb_platform
+  wb_workspace
+  wb_render
+  wb_mesh
+  wb_structure
+  wb_measurement
+  wb_density
+  wb_io
+  wb_shell
+)
 
 foreach (module IN LISTS WB_MODULE_TARGETS)
   add_library(${module} STATIC)
@@ -133,17 +144,32 @@ foreach (module IN LISTS WB_MODULE_TARGETS)
   endif ()
 endforeach ()
 
-target_link_libraries(wb_render PUBLIC wb_core)
-target_link_libraries(wb_mesh PUBLIC wb_core wb_render)
-target_link_libraries(wb_atoms PUBLIC wb_core wb_render wb_mesh)
-target_link_libraries(wb_io PUBLIC wb_core wb_render wb_mesh wb_atoms)
-target_link_libraries(wb_ui PUBLIC wb_core wb_render wb_mesh wb_atoms wb_io)
-
 add_executable(${PROJECT_NAME}
   webassembly/src/main.cpp
   webassembly/src/platform/wasm/workbench_bindings.cpp
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE wb_ui wb_io wb_atoms wb_mesh wb_render wb_core)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  wb_shell
+  wb_io
+  wb_density
+  wb_measurement
+  wb_structure
+  wb_mesh
+  wb_render
+  wb_workspace
+  wb_platform
+  wb_common
+  wb_shell
+  wb_io
+  wb_density
+  wb_measurement
+  wb_structure
+  wb_mesh
+  wb_render
+  wb_workspace
+  wb_platform
+  wb_common
+)
 target_link_options(${PROJECT_NAME} PRIVATE
   ${EMSCRIPTEN_LINK_OPTIONS}
   ${EMSCRIPTEN_OPTIMIZATIONS}

@@ -1,7 +1,7 @@
-#include "import_apply_service.h"
+﻿#include "import_apply_service.h"
 
-#include "../../atoms/atoms_template.h"
-#include "../../atoms/ui/charge_density_ui.h"
+#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../density/presentation/charge_density_ui.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../shell/runtime/workbench_runtime.h"
@@ -27,7 +27,7 @@ namespace io::application {
 namespace {
 
 AtomsTemplate& atomsTemplateFacade() {
-    return GetWorkbenchRuntime().AtomsTemplateFacade();
+    return AtomsTemplate::Instance();
 }
 
 mesh::application::MeshCommandService& meshCommandService() {
@@ -448,3 +448,5 @@ bool ImportApplyService::ApplyXsfGridAtomsPayload(
 }
 
 } // namespace io::application
+
+
