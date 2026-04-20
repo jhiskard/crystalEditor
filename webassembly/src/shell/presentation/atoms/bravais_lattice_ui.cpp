@@ -7,7 +7,7 @@
 #include "../../../structure/domain/structure_repository.h"
 #include "../../../app.h"
 #include "../../../config/log_config.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -598,6 +598,7 @@ void BravaisLatticeUI::clearSelection() {
 
 } // namespace ui
 } // namespace atoms
+
 
 
 

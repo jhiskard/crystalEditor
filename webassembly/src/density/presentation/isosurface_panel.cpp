@@ -1,6 +1,6 @@
 ﻿#include "../../density/presentation/charge_density_ui.h"
 
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../density/infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"
@@ -218,6 +218,7 @@ void ChargeDensityUI::rebuildMultipleIsosurfaces() {
 
 }  // namespace ui
 }  // namespace atoms
+
 
 
 

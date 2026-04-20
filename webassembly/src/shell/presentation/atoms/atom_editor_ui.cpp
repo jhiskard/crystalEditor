@@ -1,7 +1,7 @@
 ﻿// webassembly/src/atoms/ui/atom_editor_ui.cpp
 #include "atom_editor_ui.h"
 #include "ui_color_utils.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/atom_manager.h"
 #include "../../../structure/domain/atoms/bond_manager.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
@@ -897,6 +897,7 @@ void AtomEditorUI::renderSelectionPanel(bool editMode, bool useFractionalCoords,
 
 } // ui
 } // atoms
+
 
 
 

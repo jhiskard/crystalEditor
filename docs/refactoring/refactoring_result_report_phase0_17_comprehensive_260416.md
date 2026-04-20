@@ -202,3 +202,14 @@
 - **운영 판정:** `Phase 17-Root Closed (자동 검증 기준 GO)`  
 - **조건:** 수동 UI 회귀 체크리스트 최종 사인오프 필요
 
+
+## 10. Phase18 후속 보완 반영 (`2026-04-20`)
+
+Phase18에서 Phase17 보고서의 한계 항목을 보완하여 아래를 추가 달성했다.
+
+1. Phase18 전용 게이트 7종 추가 및 final closure 게이트 PASS
+2. W8 필수 검증(`build-wasm:release`, `test:cpp`, `test:smoke`) 최신 PASS 증빙 확보
+3. 문서 계약/미사용 자산/UI 회귀 증빙 로그를 Phase18 경로로 봉인
+
+이 업데이트를 반영한 최신 최종 보고서는
+`docs/refactoring/refactoring_result_report_phase18_final_closure_260420.md`를 기준으로 관리한다.

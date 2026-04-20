@@ -1,6 +1,6 @@
 ﻿#include "surrounding_atom_manager.h"
 
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "atom_manager.h"
 #include "bond_manager.h"
 #include "cell_manager.h"
@@ -388,6 +388,7 @@ void SurroundingAtomManager::setVisible(bool visible) {
 }
 
 } // namespace atoms::domain
+
 
 
 

@@ -913,14 +913,14 @@ void initializeAtomGroup(const std::string& symbol, float radius) {
     atoms::domain::initializeAtomGroup(symbol, radius);
 
     // ?ㅼ??ㅽ듃?덉씠?? ?뚮뜑留??뚯씠?꾨씪??珥덇린?붾뒗 AtomsTemplate媛 ?대떦
-    AtomsTemplate::Instance().initializeUnifiedAtomGroupVTK(symbol, radius);
+    workspace::legacy::LegacyAtomsRuntime().initializeUnifiedAtomGroupVTK(symbol, radius);
 }
 
 /**
  * 諛곗튂?낅뜲?댄듃 ?쒖뒪?쒖뿉???ъ슜?? * m_vtkRenderer ?묎렐???꾪븳 wrapper
  */
 void updateUnifiedAtomGroupVTK(const std::string& symbol) {
-    AtomsTemplate::Instance().updateUnifiedAtomGroupVTK(symbol);
+    workspace::legacy::LegacyAtomsRuntime().updateUnifiedAtomGroupVTK(symbol);
 }
 
 /*
@@ -934,7 +934,7 @@ void removeAtomFromGroup(const std::string& symbol, uint32_t atomId) {
 
     // ?ㅼ??ㅽ듃?덉씠?? VTK ?낅뜲?댄듃??AtomsTemplate媛 ?ㅼ?以꾨쭅
     if (removed) {
-        if (auto* batch = AtomsTemplate::Instance().batchSystem()) {
+        if (auto* batch = workspace::legacy::LegacyAtomsRuntime().batchSystem()) {
             batch->scheduleAtomGroupUpdate(symbol);
         }
     }
@@ -962,7 +962,7 @@ void initializeBondGroup(const std::string& key, float radius) {
     atoms::domain::initializeBondGroup(key, radius);
 
     // ?ㅼ??ㅽ듃?덉씠?? ?뚮뜑留??뚯씠?꾨씪??珥덇린?붾뒗 AtomsTemplate媛 ?대떦
-    AtomsTemplate::Instance().initializeBondGroupVTK(key, radius);
+    workspace::legacy::LegacyAtomsRuntime().initializeBondGroupVTK(key, radius);
 }
 
 /**
@@ -973,7 +973,7 @@ void clearAllBondGroups() {
     
     try {
         // VTKRenderer瑜??듯븳 VTK ?뚯씠?꾨씪???뺣━
-        AtomsTemplate::Instance().clearAllBondGroupsVTK();
+        workspace::legacy::LegacyAtomsRuntime().clearAllBondGroupsVTK();
         
         // bondGroups ?곗씠??援ъ“ ?뺣━
         atoms::domain::clearAllBondGroups();
@@ -5794,6 +5794,7 @@ bool AtomsTemplate::getBondStructureId(uint32_t bondId, int32_t& structureId) {
     }
     return false;
 }
+
 
 
 

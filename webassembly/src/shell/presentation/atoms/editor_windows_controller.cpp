@@ -1,4 +1,4 @@
-﻿#include "../../../workspace/legacy/atoms_template_facade.h"
+﻿#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 
 #include "atom_editor_ui.h"
 #include "bond_ui.h"
@@ -63,6 +63,7 @@ void AtomsTemplate::RenderCellInformationWindow(bool* openWindow) {
     }
     ImGui::End();
 }
+
 
 
 

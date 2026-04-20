@@ -1,9 +1,8 @@
 ﻿#include "import_workflow_service.h"
 
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "import_runtime_port.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../mesh/application/mesh_query_service.h"
-#include "../../shell/runtime/workbench_runtime.h"
 #include "../../workspace/application/workspace_command_service.h"
 
 namespace io::application {
@@ -59,7 +58,7 @@ void ImportWorkflowService::CleanupImportedStructure(int32_t importedStructureId
 
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    ImportRuntimePort& importRuntime = GetImportRuntimePort();
 
     const Mesh* importedMesh = meshQuery.FindMeshById(importedStructureId);
     if (importedMesh == nullptr) {
@@ -67,7 +66,7 @@ void ImportWorkflowService::CleanupImportedStructure(int32_t importedStructureId
     }
 
     if (importedMesh->IsXsfStructure()) {
-        atomsTemplate.RemoveStructure(importedStructureId);
+        importRuntime.RemoveStructure(importedStructureId);
         meshCommand.DeleteXsfStructure(importedStructureId);
     } else {
         meshCommand.DeleteMesh(importedStructureId);
@@ -80,5 +79,4 @@ void ImportWorkflowService::ClearReplaceSceneImportTransaction() {
 }
 
 } // namespace io::application
-
 

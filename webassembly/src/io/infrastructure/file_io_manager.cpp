@@ -1,12 +1,12 @@
 ﻿// render/infrastructure/atoms/file_io_manager.cpp (신규, merge-style progress parser)
 #include "file_io_manager.h"
-#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../config/log_config.h"
 #include "../../io/infrastructure/xsf_parser.h"
 #include "../../structure/domain/structure_repository.h"
 #include "../../structure/domain/atoms/element_database.h"
 #include "../../structure/domain/atoms/atom_manager.h"
 #include "../../structure/domain/atoms/cell_manager.h"
+#include "../../workspace/legacy/legacy_atoms_runtime.h"
 
 #include <fstream>
 #include <sstream>
@@ -853,4 +853,6 @@ bool FileIOManager::parseAtomLine(const std::string& line,
 
 } // namespace infrastructure
 } // namespace atoms
+
+
 

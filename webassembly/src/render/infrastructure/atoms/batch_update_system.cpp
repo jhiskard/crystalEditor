@@ -1,6 +1,6 @@
 ﻿// render/infrastructure/atoms/batch_update_system.cpp
 #include "batch_update_system.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../application/render_gateway.h"
 #include <spdlog/spdlog.h>
 
@@ -162,6 +162,7 @@ BatchUpdateSystem::BatchGuard::~BatchGuard() {
 
 } // namespace infrastructure
 } // namespace atoms
+
 
 
 

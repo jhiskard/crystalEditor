@@ -1,5 +1,5 @@
 ﻿#include "atom_manager.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "bond_manager.h"
 #include "element_database.h"
 #include "cell_manager.h"
@@ -459,5 +459,6 @@ bool getAtomPositionAndRadius(
 
 } // atoms
 } // domain 
+
 
 

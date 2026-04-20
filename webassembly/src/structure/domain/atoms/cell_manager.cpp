@@ -1,7 +1,7 @@
 ﻿#include "cell_manager.h"
 #include "cell_transform.h"
 #include "../../../config/log_config.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "atom_manager.h"
 #include "../structure_repository.h"
 
@@ -95,6 +95,7 @@ void applyCellChanges(::AtomsTemplate* parent) {
     SPDLOG_INFO("Cell matrix update completed within batch");
 }
 } // namespace atoms::domain
+
 
 
 

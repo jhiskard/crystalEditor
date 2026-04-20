@@ -1,4 +1,4 @@
-﻿#include "../../../workspace/legacy/atoms_template_facade.h"
+﻿#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 
 #include "bravais_lattice_ui.h"
 #include "bz_plot_ui.h"
@@ -63,6 +63,7 @@ void AtomsTemplate::RenderBrillouinZonePlotWindow(bool* openWindow) {
     }
     ImGui::End();
 }
+
 
 
 

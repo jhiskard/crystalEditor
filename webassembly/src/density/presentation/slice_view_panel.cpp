@@ -1,6 +1,6 @@
 ﻿#include "../../density/presentation/charge_density_ui.h"
 
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../density/infrastructure/charge_density_renderer.h"
 
 #ifdef __EMSCRIPTEN__
@@ -565,6 +565,7 @@ void ChargeDensityUI::updateSlicePreview() {
 
 }  // namespace ui
 }  // namespace atoms
+
 
 
 

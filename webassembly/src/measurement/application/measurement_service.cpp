@@ -1,103 +1,66 @@
-﻿#include "measurement_service.h"
+#include "measurement_service.h"
 
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../infrastructure/legacy/legacy_measurement_service_port.h"
 
 namespace {
-measurement::application::MeasurementMode ToMeasurementMode(AtomsTemplate::MeasurementMode mode) {
-    switch (mode) {
-    case AtomsTemplate::MeasurementMode::Distance:
-        return measurement::application::MeasurementMode::Distance;
-    case AtomsTemplate::MeasurementMode::Angle:
-        return measurement::application::MeasurementMode::Angle;
-    case AtomsTemplate::MeasurementMode::Dihedral:
-        return measurement::application::MeasurementMode::Dihedral;
-    case AtomsTemplate::MeasurementMode::GeometricCenter:
-        return measurement::application::MeasurementMode::GeometricCenter;
-    case AtomsTemplate::MeasurementMode::CenterOfMass:
-        return measurement::application::MeasurementMode::CenterOfMass;
-    case AtomsTemplate::MeasurementMode::None:
-    default:
-        return measurement::application::MeasurementMode::None;
-    }
-}
-
-AtomsTemplate::MeasurementMode ToLegacyMeasurementMode(measurement::application::MeasurementMode mode) {
-    switch (mode) {
-    case measurement::application::MeasurementMode::Distance:
-        return AtomsTemplate::MeasurementMode::Distance;
-    case measurement::application::MeasurementMode::Angle:
-        return AtomsTemplate::MeasurementMode::Angle;
-    case measurement::application::MeasurementMode::Dihedral:
-        return AtomsTemplate::MeasurementMode::Dihedral;
-    case measurement::application::MeasurementMode::GeometricCenter:
-        return AtomsTemplate::MeasurementMode::GeometricCenter;
-    case measurement::application::MeasurementMode::CenterOfMass:
-        return AtomsTemplate::MeasurementMode::CenterOfMass;
-    case measurement::application::MeasurementMode::None:
-    default:
-        return AtomsTemplate::MeasurementMode::None;
-    }
+measurement::application::MeasurementServicePort& defaultMeasurementServicePort() {
+    static measurement::infrastructure::legacy::LegacyMeasurementServicePort port;
+    return port;
 }
 } // namespace
 
 namespace measurement {
 namespace application {
 
+MeasurementService::MeasurementService()
+    : MeasurementService(defaultMeasurementServicePort()) {}
+
+MeasurementService::MeasurementService(MeasurementServicePort& port)
+    : m_Port(&port) {}
+
 MeasurementMode MeasurementService::GetMode() const {
-    return ToMeasurementMode(AtomsTemplate::Instance().GetMeasurementMode());
+    return m_Port->GetMode();
 }
 
 bool MeasurementService::IsModeActive() const {
-    return AtomsTemplate::Instance().IsMeasurementModeActive();
+    return m_Port->IsModeActive();
 }
 
 void MeasurementService::EnterMode(MeasurementMode mode) {
-    AtomsTemplate::Instance().EnterMeasurementMode(ToLegacyMeasurementMode(mode));
+    m_Port->EnterMode(mode);
 }
 
 void MeasurementService::ExitMode() {
-    AtomsTemplate::Instance().ExitMeasurementMode();
+    m_Port->ExitMode();
 }
 
 std::vector<MeasurementListItem> MeasurementService::GetMeasurementsForStructure(int32_t structureId) const {
-    std::vector<MeasurementListItem> output;
-    const auto source = AtomsTemplate::Instance().GetMeasurementsForStructure(structureId);
-    output.reserve(source.size());
-    for (const auto& item : source) {
-        output.push_back({item.id, item.displayName, item.visible});
-    }
-    return output;
+    return m_Port->GetMeasurementsForStructure(structureId);
 }
 
 void MeasurementService::SetMeasurementVisible(uint32_t measurementId, bool visible) {
-    AtomsTemplate::Instance().SetMeasurementVisible(measurementId, visible);
+    m_Port->SetMeasurementVisible(measurementId, visible);
 }
 
 void MeasurementService::RemoveMeasurement(uint32_t measurementId) {
-    AtomsTemplate::Instance().RemoveMeasurement(measurementId);
+    m_Port->RemoveMeasurement(measurementId);
 }
 
 void MeasurementService::RemoveMeasurementsByStructure(int32_t structureId) {
-    AtomsTemplate::Instance().RemoveMeasurementsByStructure(structureId);
+    m_Port->RemoveMeasurementsByStructure(structureId);
 }
 
 std::vector<DistanceMeasurementListItem> MeasurementService::GetDistanceMeasurementsForStructure(
     int32_t structureId) const {
-    std::vector<DistanceMeasurementListItem> output;
-    const auto source = AtomsTemplate::Instance().GetDistanceMeasurementsForStructure(structureId);
-    output.reserve(source.size());
-    for (const auto& item : source) {
-        output.push_back({item.id, item.displayName, item.visible});
-    }
-    return output;
+    return m_Port->GetDistanceMeasurementsForStructure(structureId);
 }
 
 void MeasurementService::SetDistanceMeasurementVisible(uint32_t measurementId, bool visible) {
-    AtomsTemplate::Instance().SetDistanceMeasurementVisible(measurementId, visible);
+    m_Port->SetDistanceMeasurementVisible(measurementId, visible);
 }
 
 void MeasurementService::RemoveDistanceMeasurement(uint32_t measurementId) {
-    AtomsTemplate::Instance().RemoveDistanceMeasurement(measurementId);
+    m_Port->RemoveDistanceMeasurement(measurementId);
 }
 
 } // namespace application

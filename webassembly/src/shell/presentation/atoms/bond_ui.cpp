@@ -1,6 +1,6 @@
 ﻿// webassembly/src/atoms/ui/bond_ui.cpp
 #include "bond_ui.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/bond_manager.h"
 #include "../../../config/log_config.h"
 
@@ -218,6 +218,7 @@ void BondUI::renderPerformanceSection() {
 
 } // namespace ui
 } // namespace atoms
+
 
 
 

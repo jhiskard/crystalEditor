@@ -1,5 +1,5 @@
 ﻿#include "cell_info_ui.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/cell_manager.h"   // cellInfo, calculateInverseMatrix, cartesianToFractional
 #include "../../../config/log_config.h"
 #include <cstdio>  // snprintf
@@ -99,6 +99,7 @@ void CellInfoUI::render() {
 
 } // namespace ui
 } // namespace atoms
+
 
 
 

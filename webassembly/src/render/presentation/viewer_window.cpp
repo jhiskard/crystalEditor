@@ -37,7 +37,7 @@
 #include <vtkCameraOrientationRepresentation.h>
 #include <vtkCamera.h>
 #include <vtkCommand.h>
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/legacy_atoms_runtime.h"
 
 namespace {
 constexpr int kInteractionSampleDistanceIndex = 5;
@@ -1455,7 +1455,7 @@ void VtkViewer::Render(bool* openWindow) {
         ImVec2(0, 1), ImVec2(1, 0));
     
     GetWorkbenchRuntime().ToolbarPanel().Render(windowSize);
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
     atomsTemplate.RenderMeasurementModeOverlay();
 
     ImGuiIO& io = ImGui::GetIO();
@@ -2179,6 +2179,8 @@ void VtkViewer::SetArrowRotateStepDeg(float stepDeg) {
     const float roundedStepDeg = std::round(stepDeg);
     m_ArrowRotateStepDeg = std::clamp(roundedStepDeg, kMinStepDeg, kMaxStepDeg);
 }
+
+
 
 
 

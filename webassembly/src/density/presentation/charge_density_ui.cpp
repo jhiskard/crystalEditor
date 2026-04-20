@@ -1,6 +1,6 @@
 ﻿// atoms/ui/charge_density_ui.cpp
 #include "charge_density_ui.h"
-#include "../../workspace/legacy/atoms_template_facade.h"  // Keep full AtomsTemplate type for UI interactions.
+#include "../../workspace/legacy/legacy_atoms_runtime.h"  // Keep full AtomsTemplate type for UI interactions.
 #include "../infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"
@@ -1774,6 +1774,7 @@ void ChargeDensityUI::updateAnimation() {
 
 } // namespace ui
 } // namespace atoms
+
 
 
 

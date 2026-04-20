@@ -1,7 +1,7 @@
 ﻿// webassembly/src/atoms/ui/periodic_table_ui.cpp
 #include "periodic_table_ui.h"
 #include "ui_color_utils.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/element_database.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
 #include "../../../config/log_config.h"
@@ -451,6 +451,7 @@ void PeriodicTableUI::clearSelection() {
 
 } // namespace ui
 } // namespace atoms
+
 
 
 

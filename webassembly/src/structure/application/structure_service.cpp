@@ -1,65 +1,70 @@
-﻿#include "structure_service.h"
+#include "structure_service.h"
 
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../infrastructure/legacy/legacy_structure_service_port.h"
+
+namespace {
+structure::application::StructureServicePort& defaultStructureServicePort() {
+    static structure::infrastructure::legacy::LegacyStructureServicePort port;
+    return port;
+}
+} // namespace
 
 namespace structure {
 namespace application {
 
+StructureService::StructureService()
+    : StructureService(defaultStructureServicePort()) {}
+
+StructureService::StructureService(StructureServicePort& port)
+    : m_Port(&port) {}
+
 int StructureService::GetStructureCount() const {
-    return static_cast<int>(AtomsTemplate::Instance().GetStructures().size());
+    return m_Port->GetStructureCount();
 }
 
 int32_t StructureService::GetCurrentStructureId() const {
-    return AtomsTemplate::Instance().GetCurrentStructureId();
+    return m_Port->GetCurrentStructureId();
 }
 
 void StructureService::SetCurrentStructureId(int32_t structureId) {
-    AtomsTemplate::Instance().SetCurrentStructureId(structureId);
+    m_Port->SetCurrentStructureId(structureId);
 }
 
 std::vector<StructureEntryView> StructureService::GetStructures() const {
-    std::vector<StructureEntryView> output;
-    const auto entries = AtomsTemplate::Instance().GetStructures();
-    output.reserve(entries.size());
-    for (const auto& entry : entries) {
-        output.push_back({entry.id, entry.name, entry.visible});
-    }
-    return output;
+    return m_Port->GetStructures();
 }
 
 bool StructureService::IsStructureVisible(int32_t structureId) const {
-    return AtomsTemplate::Instance().IsStructureVisible(structureId);
+    return m_Port->IsStructureVisible(structureId);
 }
 
 void StructureService::SetStructureVisible(int32_t structureId, bool visible) {
-    AtomsTemplate::Instance().SetStructureVisible(structureId, visible);
+    m_Port->SetStructureVisible(structureId, visible);
 }
 
 void StructureService::RegisterStructure(int32_t structureId, const std::string& name) {
-    AtomsTemplate::Instance().RegisterStructure(structureId, name);
+    m_Port->RegisterStructure(structureId, name);
 }
 
 void StructureService::RemoveStructure(int32_t structureId) {
-    AtomsTemplate::Instance().RemoveStructure(structureId);
+    m_Port->RemoveStructure(structureId);
 }
 
 void StructureService::RemoveUnassignedData() {
-    AtomsTemplate::Instance().RemoveUnassignedData();
+    m_Port->RemoveUnassignedData();
 }
 
 size_t StructureService::GetAtomCountForStructure(int32_t structureId) const {
-    return AtomsTemplate::Instance().GetAtomCountForStructure(structureId);
+    return m_Port->GetAtomCountForStructure(structureId);
 }
 
 bool StructureService::IsBoundaryAtomsEnabled() const {
-    return AtomsTemplate::Instance().isSurroundingsVisible();
+    return m_Port->IsBoundaryAtomsEnabled();
 }
 
 void StructureService::SetBoundaryAtomsEnabled(bool enabled) {
-    AtomsTemplate::Instance().SetBoundaryAtomsEnabled(enabled);
+    m_Port->SetBoundaryAtomsEnabled(enabled);
 }
 
 } // namespace application
 } // namespace structure
-
-
