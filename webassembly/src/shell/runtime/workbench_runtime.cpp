@@ -1,7 +1,6 @@
-﻿#include "workbench_runtime.h"
+#include "workbench_runtime.h"
 
 #include "../../app.h"
-#include "../../workspace/legacy/atoms_template_facade.h"
 #include "../../io/application/import_entry_service.h"
 #include "../../platform/browser/browser_file_dialog_adapter.h"
 #include "../../platform/worker/emscripten_worker_port.h"
@@ -15,8 +14,11 @@
 #include "../presentation/toolbar/viewer_toolbar_presenter.h"
 #include "../../render/application/legacy_viewer_facade.h"
 #include "../../structure/application/structure_service.h"
+#include "../../structure/infrastructure/legacy/legacy_structure_service_port.h"
 #include "../../measurement/application/measurement_service.h"
+#include "../../measurement/infrastructure/legacy/legacy_measurement_service_port.h"
 #include "../../density/application/density_service.h"
+#include "../../density/infrastructure/legacy/legacy_density_service_port.h"
 #include "../../workspace/application/workspace_query_service.h"
 #include "../../workspace/application/workspace_command_service.h"
 #include "../application/shell_state_query_service.h"
@@ -42,6 +44,24 @@ MeshGroupDetail& runtimeMeshGroupDetailPanel() {
 TestWindow& runtimeTestWindowPanel() {
     static TestWindow panel;
     return panel;
+}
+
+structure::application::StructureService& runtimeStructureFeature() {
+    static structure::infrastructure::legacy::LegacyStructureServicePort port;
+    static structure::application::StructureService service(port);
+    return service;
+}
+
+measurement::application::MeasurementService& runtimeMeasurementFeature() {
+    static measurement::infrastructure::legacy::LegacyMeasurementServicePort port;
+    static measurement::application::MeasurementService service(port);
+    return service;
+}
+
+density::application::DensityService& runtimeDensityFeature() {
+    static density::infrastructure::legacy::LegacyDensityServicePort port;
+    static density::application::DensityService service(port);
+    return service;
 }
 } // namespace
 
@@ -73,15 +93,15 @@ VtkViewer& WorkbenchRuntime::Viewer() {
 }
 
 structure::application::StructureService& WorkbenchRuntime::StructureFeature() {
-    return AtomsTemplate::Instance().structureService();
+    return runtimeStructureFeature();
 }
 
 measurement::application::MeasurementService& WorkbenchRuntime::MeasurementFeature() {
-    return AtomsTemplate::Instance().measurementService();
+    return runtimeMeasurementFeature();
 }
 
 density::application::DensityService& WorkbenchRuntime::DensityFeature() {
-    return AtomsTemplate::Instance().densityService();
+    return runtimeDensityFeature();
 }
 
 ModelTree& WorkbenchRuntime::ModelTreePanel() {
@@ -228,6 +248,42 @@ bool WorkbenchRuntime::HasChargeDensity() {
     return DensityFeature().HasChargeDensity();
 }
 
+void WorkbenchRuntime::RequestLayoutPreset(shell::domain::ShellLayoutPreset preset) {
+    ShellController().RequestLayoutPreset(preset);
+}
+
+void WorkbenchRuntime::OpenEditorPanel(workbench::panel::EditorRequest request) {
+    ShellController().OpenEditorPanel(static_cast<shell::application::EditorPanelAction>(request));
+}
+
+void WorkbenchRuntime::OpenBuilderPanel(workbench::panel::BuilderRequest request) {
+    ShellController().OpenBuilderPanel(static_cast<shell::application::BuilderPanelAction>(request));
+}
+
+void WorkbenchRuntime::OpenDataPanel(workbench::panel::DataRequest request) {
+    ShellController().OpenDataPanel(static_cast<shell::application::DataPanelAction>(request));
+}
+
+bool WorkbenchRuntime::IsShellWindowVisible(shell::domain::ShellWindowId windowId) {
+    return ShellStateQuery().IsWindowVisible(windowId);
+}
+
+int WorkbenchRuntime::GetPendingLayoutPreset() {
+    return static_cast<int>(ShellStateQuery().State().pendingLayoutPreset);
+}
+
+bool WorkbenchRuntime::HasPendingEditorRequest() {
+    return ShellStateQuery().State().hasPendingEditorRequest;
+}
+
+bool WorkbenchRuntime::HasPendingBuilderRequest() {
+    return ShellStateQuery().State().hasPendingBuilderRequest;
+}
+
+bool WorkbenchRuntime::HasPendingDataRequest() {
+    return ShellStateQuery().State().hasPendingDataRequest;
+}
+
 void WorkbenchRuntime::PrintMeshTree() {
 #ifdef DEBUG_BUILD
     MeshRepository().PrintMeshTree();
@@ -241,6 +297,3 @@ WorkbenchRuntime& GetWorkbenchRuntime() {
 const WorkbenchRuntime& GetWorkbenchRuntimeConst() {
     return WorkbenchRuntime::Instance();
 }
-
-
-

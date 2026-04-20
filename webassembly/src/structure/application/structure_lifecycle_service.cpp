@@ -1,4 +1,4 @@
-﻿#include "../../workspace/legacy/atoms_template_facade.h"
+﻿#include "../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../domain/structure_repository.h"
 
 #include <algorithm>
@@ -472,6 +472,7 @@ void AtomsTemplate::RemoveUnassignedData() {
 
     refreshRenderedGroups();
 }
+
 
 
 

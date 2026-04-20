@@ -29,6 +29,15 @@ type VtkWasmModule = {
   setStructureVisible?: (id: number, visible: boolean) => void;
   getMeshCount?: () => number;
   hasChargeDensity?: () => boolean;
+  requestLayoutPreset?: (preset: number) => void;
+  openEditorPanel?: (request: number) => void;
+  openBuilderPanel?: (request: number) => void;
+  openDataPanel?: (request: number) => void;
+  isShellWindowVisible?: (windowId: number) => boolean;
+  getPendingLayoutPreset?: () => number;
+  hasPendingEditorRequest?: () => boolean;
+  hasPendingBuilderRequest?: () => boolean;
+  hasPendingDataRequest?: () => boolean;
   resize?: (width: number, height: number) => void;
 };
 // 전역 보강 대신 안전한 캐스팅을 위한 로컬 인터페이스
@@ -44,6 +53,25 @@ type PendingImport = {
   kind: PendingImportKind;
 };
 
+type ShellLayoutPresetCode = 0 | 1 | 2 | 3 | 4;
+type ShellWindowIdCode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+type EditorPanelCode = 0 | 1 | 2;
+type BuilderPanelCode = 0 | 1 | 2;
+type DataPanelCode = 0 | 1 | 2 | 3;
+
+type ShellStateSnapshot = {
+  pendingLayoutPreset: ShellLayoutPresetCode;
+  hasPendingEditorRequest: boolean;
+  hasPendingBuilderRequest: boolean;
+  hasPendingDataRequest: boolean;
+};
+
+/**
+ * Phase18 UI 회귀 자동화를 위한 테스트 seam.
+ * - Layout/Reset 단발성 적용
+ * - Edit/Build/Data/Utilities 창 오픈 요청
+ * - Shell 상태 동기화 플래그 조회
+ */
 type WorkbenchTestApi = {
   importXsfText: (fileName: string, text: string) => void;
   importChgcarText: (fileName: string, text: string) => void;
@@ -53,6 +81,12 @@ type WorkbenchTestApi = {
   setStructureVisible: (id: number, visible: boolean) => void;
   getMeshCount: () => number;
   hasChargeDensity: () => boolean;
+  requestLayoutPreset: (preset: ShellLayoutPresetCode) => void;
+  openEditorPanel: (request: EditorPanelCode) => void;
+  openBuilderPanel: (request: BuilderPanelCode) => void;
+  openDataPanel: (request: DataPanelCode) => void;
+  isShellWindowVisible: (windowId: ShellWindowIdCode) => boolean;
+  getShellStateSnapshot: () => ShellStateSnapshot;
 };
 
 interface WindowWithVtk {
@@ -404,6 +438,26 @@ export default function Workbench() {
           vtkModule.setStructureVisible?.(id, visible),
         getMeshCount: () => vtkModule.getMeshCount?.() ?? 0,
         hasChargeDensity: () => vtkModule.hasChargeDensity?.() ?? false,
+        requestLayoutPreset: (preset: ShellLayoutPresetCode) =>
+          vtkModule.requestLayoutPreset?.(preset),
+        openEditorPanel: (request: EditorPanelCode) =>
+          vtkModule.openEditorPanel?.(request),
+        openBuilderPanel: (request: BuilderPanelCode) =>
+          vtkModule.openBuilderPanel?.(request),
+        openDataPanel: (request: DataPanelCode) =>
+          vtkModule.openDataPanel?.(request),
+        isShellWindowVisible: (windowId: ShellWindowIdCode) =>
+          vtkModule.isShellWindowVisible?.(windowId) ?? false,
+        getShellStateSnapshot: () => ({
+          pendingLayoutPreset:
+            (vtkModule.getPendingLayoutPreset?.() ?? 0) as ShellLayoutPresetCode,
+          hasPendingEditorRequest:
+            vtkModule.hasPendingEditorRequest?.() ?? false,
+          hasPendingBuilderRequest:
+            vtkModule.hasPendingBuilderRequest?.() ?? false,
+          hasPendingDataRequest:
+            vtkModule.hasPendingDataRequest?.() ?? false,
+        }),
       };
 
       // 모듈 초기화 이후, 대기 중이던 XSF가 있으면 즉시 임포트

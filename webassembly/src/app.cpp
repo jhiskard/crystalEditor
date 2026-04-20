@@ -12,7 +12,7 @@
 #include "mesh/domain/mesh_entity.h"
 
 // Legacy atoms facade
-#include "workspace/legacy/atoms_template_facade.h"
+#include "workspace/legacy/legacy_atoms_runtime.h"
 
 // ImGui
 #include <imgui.h>
@@ -1024,7 +1024,7 @@ void App::InitImGuiWindows() {
     (void)GetWorkbenchRuntime().ModelTreePanel();
     (void)GetWorkbenchRuntime().MeshDetailPanel();
     (void)GetWorkbenchRuntime().MeshGroupDetailPanel();
-    (void)AtomsTemplate::Instance();
+    (void)workspace::legacy::LegacyAtomsRuntime();
 }
 
 void App::renderAboutPopup() {
@@ -1106,7 +1106,7 @@ void App::renderImGuiWindows() {
 
     {
         shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateCommand().MutableState();
-        AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+        AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
 
         if (shellState.hasPendingEditorRequest) {
             atomsTemplate.RequestEditorSection(shellState.pendingEditorRequest);
@@ -1133,7 +1133,7 @@ void App::renderImGuiWindows() {
 
             GetWorkbenchRuntime().Viewer().RequestForcedWindowLayout(resetLayout.viewerPos, resetLayout.viewerSize);
 
-            AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+            AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
             atomsTemplate.RequestForcedBuilderWindowLayout(resetLayout.crystalBuilderPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedEditorWindowLayout(resetLayout.crystalEditorPos, resetLayout.panelSize);
             atomsTemplate.RequestForcedAdvancedWindowLayout(resetLayout.advancedViewPos, resetLayout.panelSize);
@@ -1161,7 +1161,7 @@ void App::renderImGuiWindows() {
         GetWorkbenchRuntime().ModelTreePanel().Render(&m_bShowModelTree);
     }
 
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
     if (m_bShowPeriodicTableWindow) {
         atomsTemplate.RenderPeriodicTableWindow(&m_bShowPeriodicTableWindow);
     }
@@ -1421,6 +1421,8 @@ void App::setProgressPopupText(const std::string& title, const std::string& text
     m_PopupTitle = title;
     m_PopupText = text;
 }
+
+
 
 
 

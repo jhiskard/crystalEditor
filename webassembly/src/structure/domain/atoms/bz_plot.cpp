@@ -1,5 +1,5 @@
 ﻿#include "bz_plot.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../../render/infrastructure/atoms/vtk_renderer.h"
 #include "../../../render/application/render_gateway.h"
 #include "cell_manager.h"
@@ -531,6 +531,7 @@ void BZPlotController::exitBZPlotMode(AtomsTemplate* parent) {
 
 } // namespace domain
 } // namespace atoms
+
 
 
 

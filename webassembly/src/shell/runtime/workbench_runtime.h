@@ -50,7 +50,19 @@ class ShellStateQueryService;
 class ShellStateCommandService;
 class WorkbenchController;
 } // namespace application
+namespace domain {
+enum class ShellLayoutPreset;
+enum class ShellWindowId;
+} // namespace domain
 } // namespace shell
+
+namespace workbench {
+namespace panel {
+enum class EditorRequest;
+enum class BuilderRequest;
+enum class DataRequest;
+} // namespace panel
+} // namespace workbench
 
 /**
  * @brief Runtime composition root facade for legacy singleton graph.
@@ -212,6 +224,21 @@ public:
     int GetMeshCount();
     bool HasChargeDensity();
     void PrintMeshTree();
+
+    /**
+     * @brief Runtime wrapper for shell layout/panel test hooks.
+     * @details These hooks are used only by wasm test seam (`__VTK_WORKBENCH_TEST__`)
+     *          to validate layout/reset and menu-panel synchronization contracts.
+     */
+    void RequestLayoutPreset(shell::domain::ShellLayoutPreset preset);
+    void OpenEditorPanel(workbench::panel::EditorRequest request);
+    void OpenBuilderPanel(workbench::panel::BuilderRequest request);
+    void OpenDataPanel(workbench::panel::DataRequest request);
+    bool IsShellWindowVisible(shell::domain::ShellWindowId windowId);
+    int GetPendingLayoutPreset();
+    bool HasPendingEditorRequest();
+    bool HasPendingBuilderRequest();
+    bool HasPendingDataRequest();
 
 private:
     WorkbenchRuntime() = default;

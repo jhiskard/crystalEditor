@@ -1,4 +1,4 @@
-﻿#include "../../workspace/legacy/atoms_template_facade.h"
+﻿#include "../../workspace/legacy/legacy_atoms_runtime.h"
 
 #include "../../render/application/render_gateway.h"
 #include "../../density/presentation/charge_density_ui.h"
@@ -139,6 +139,7 @@ void AtomsTemplate::SetUnitCellVisible(int32_t id, bool visible) {
     }
     render::application::GetRenderGateway().RequestRender();
 }
+
 
 
 

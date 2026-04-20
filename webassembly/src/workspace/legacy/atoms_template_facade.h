@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "../../macro/singleton_macro.h"
 #include "../../config/log_config.h"
 #include "../../common/panel_request_types.h"
 
@@ -131,9 +130,14 @@ class DensityService;
  * @details UI, ?꾨찓?? ?뚮뜑???ъ씠??釉뚮━吏 ??븷???섑뻾?섎ŉ BatchUpdateSystem???듯빐 ?뚮뜑 媛깆떊??愿由ы빀?덈떎.
  */
 class AtomsTemplate {
-    DECLARE_SINGLETON(AtomsTemplate)
-
 public:
+    AtomsTemplate();
+    ~AtomsTemplate();
+    AtomsTemplate(const AtomsTemplate&) = delete;
+    AtomsTemplate& operator=(const AtomsTemplate&) = delete;
+    AtomsTemplate(AtomsTemplate&&) = delete;
+    AtomsTemplate& operator=(AtomsTemplate&&) = delete;
+
     // ========================================================================
     // PUBLIC API
     // ========================================================================
@@ -1450,6 +1454,23 @@ private:
     std::unique_ptr<density::application::DensityService> m_densityService;
 
 };
+
+namespace workspace {
+namespace legacy {
+
+/**
+ * @brief Returns runtime-owned legacy atoms facade instance.
+ * @note Temporary compatibility path (remove in Phase18-W6 closeout, Track: P18-W6-LEGACY-RUNTIME).
+ */
+AtomsTemplate& LegacyAtomsRuntime();
+
+/**
+ * @brief Returns const runtime-owned legacy atoms facade instance.
+ */
+const AtomsTemplate& LegacyAtomsRuntimeConst();
+
+} // namespace legacy
+} // namespace workspace
 
 
 

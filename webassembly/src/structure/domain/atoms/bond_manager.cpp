@@ -1,5 +1,5 @@
 ﻿#include "bond_manager.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../../render/application/render_gateway.h"
 #include "../structure_repository.h"
 #include <algorithm>
@@ -907,6 +907,7 @@ bool shouldCreateBond(
 
 } //atoms
 } // domain 
+
 
 
 

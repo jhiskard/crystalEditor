@@ -1,9 +1,8 @@
 ﻿#include "import_orchestrator.h"
 
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "import_runtime_port.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../mesh/application/mesh_query_service.h"
-#include "../../shell/runtime/workbench_runtime.h"
 #include "../../structure/domain/structure_repository.h"
 
 namespace io::application {
@@ -20,8 +19,8 @@ bool ImportOrchestrator::HasSceneDataForStructureImport() const {
         return true;
     }
 
-    const AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
-    if (atomsTemplate.HasStructures()) {
+    const ImportRuntimePort& importRuntime = GetImportRuntimePort();
+    if (importRuntime.HasStructures()) {
         return true;
     }
     structure::domain::StructureRepository& structureRepository =
@@ -29,10 +28,10 @@ bool ImportOrchestrator::HasSceneDataForStructureImport() const {
     if (!structureRepository.CreatedAtoms().empty() || !structureRepository.SurroundingAtoms().empty()) {
         return true;
     }
-    if (atomsTemplate.hasUnitCell()) {
+    if (importRuntime.HasUnitCell()) {
         return true;
     }
-    if (atomsTemplate.HasChargeDensity()) {
+    if (importRuntime.HasChargeDensity()) {
         return true;
     }
 
@@ -64,10 +63,10 @@ ReplaceSceneImportSnapshot ImportOrchestrator::BeginReplaceSceneImportTransactio
     ReplaceSceneImportSnapshot snapshot;
     snapshot.rootMeshIds = CollectRootMeshIds();
 
-    const AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
-    snapshot.currentStructureId = atomsTemplate.GetCurrentStructureId();
-    snapshot.chargeDensityStructureId = atomsTemplate.GetChargeDensityStructureId();
-    snapshot.loadedFileName = atomsTemplate.GetLoadedFileName();
+    const ImportRuntimePort& importRuntime = GetImportRuntimePort();
+    snapshot.currentStructureId = importRuntime.GetCurrentStructureId();
+    snapshot.chargeDensityStructureId = importRuntime.GetChargeDensityStructureId();
+    snapshot.loadedFileName = importRuntime.GetLoadedFileName();
     return snapshot;
 }
 
@@ -76,7 +75,7 @@ void ImportOrchestrator::FinalizeReplaceSceneImportSuccess(
     int32_t importedStructureId) const {
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    ImportRuntimePort& importRuntime = GetImportRuntimePort();
 
     for (int32_t rootMeshId : snapshot.rootMeshIds) {
         if (rootMeshId == importedStructureId) {
@@ -89,16 +88,16 @@ void ImportOrchestrator::FinalizeReplaceSceneImportSuccess(
         }
 
         if (mesh->IsXsfStructure()) {
-            atomsTemplate.RemoveStructure(rootMeshId);
+            importRuntime.RemoveStructure(rootMeshId);
             meshCommand.DeleteXsfStructure(rootMeshId);
         } else {
             meshCommand.DeleteMesh(rootMeshId);
         }
     }
 
-    atomsTemplate.RemoveUnassignedData();
+    importRuntime.RemoveUnassignedData();
     if (importedStructureId >= 0 && meshQuery.FindMeshById(importedStructureId) != nullptr) {
-        atomsTemplate.SetCurrentStructureId(importedStructureId);
+        importRuntime.SetCurrentStructureId(importedStructureId);
     }
 }
 
@@ -107,13 +106,13 @@ void ImportOrchestrator::RollbackFailedStructureImport(
     int32_t importedStructureId) const {
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    ImportRuntimePort& importRuntime = GetImportRuntimePort();
 
     if (importedStructureId >= 0) {
         const Mesh* importedMesh = meshQuery.FindMeshById(importedStructureId);
         if (importedMesh != nullptr) {
             if (importedMesh->IsXsfStructure()) {
-                atomsTemplate.RemoveStructure(importedStructureId);
+                importRuntime.RemoveStructure(importedStructureId);
                 meshCommand.DeleteXsfStructure(importedStructureId);
             } else {
                 meshCommand.DeleteMesh(importedStructureId);
@@ -121,7 +120,7 @@ void ImportOrchestrator::RollbackFailedStructureImport(
         }
     }
 
-    atomsTemplate.SetLoadedFileName(snapshot.loadedFileName);
+    importRuntime.SetLoadedFileName(snapshot.loadedFileName);
 
     const auto isValidStructureId = [&meshQuery](int32_t structureId) {
         if (structureId < 0) {
@@ -132,17 +131,16 @@ void ImportOrchestrator::RollbackFailedStructureImport(
     };
 
     if (isValidStructureId(snapshot.currentStructureId)) {
-        atomsTemplate.SetCurrentStructureId(snapshot.currentStructureId);
+        importRuntime.SetCurrentStructureId(snapshot.currentStructureId);
     } else {
-        atomsTemplate.SetCurrentStructureId(-1);
+        importRuntime.SetCurrentStructureId(-1);
     }
 
     if (isValidStructureId(snapshot.chargeDensityStructureId)) {
-        atomsTemplate.SetChargeDensityStructureId(snapshot.chargeDensityStructureId);
+        importRuntime.SetChargeDensityStructureId(snapshot.chargeDensityStructureId);
     } else {
-        atomsTemplate.SetChargeDensityStructureId(-1);
+        importRuntime.SetChargeDensityStructureId(-1);
     }
 }
 
 } // namespace io::application
-

@@ -2,7 +2,7 @@
 #include "../../shell/presentation/font/font_registry.h"
 #include "../../mesh/domain/lcrs_tree.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
-#include "../../workspace/legacy/atoms_template_facade.h"
+#include "../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../density/presentation/charge_density_ui.h"
 #include "../../structure/application/structure_read_model.h"
 #include "../../structure/application/structure_service.h"
@@ -49,7 +49,7 @@ void TextCenteredSizeT(size_t value) {
 } // namespace
 
 void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
-    AtomsTemplate& atomsTemplate = AtomsTemplate::Instance();
+    AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
     structure::application::StructureService& structureService = GetWorkbenchRuntime().StructureFeature();
@@ -1577,6 +1577,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
+
+
 
 
 

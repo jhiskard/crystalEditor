@@ -1,5 +1,5 @@
 ﻿#include "bz_plot_ui.h"
-#include "../../../workspace/legacy/atoms_template_facade.h"
+#include "../../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/special_points.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
 #include "../../../app.h"
@@ -664,6 +664,7 @@ void BZPlotUI::renderBZplot() {
 
 } // namespace ui
 } // namespace atoms
+
 
 
 
