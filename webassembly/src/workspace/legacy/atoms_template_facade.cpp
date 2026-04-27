@@ -9,6 +9,7 @@
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
 #include "../../density/application/density_service.h"
+#include "../../render/application/picked_atom_info.h"
 #include "../../render/application/render_gateway.h"
 
 #include "../../render/infrastructure/atoms/bond_renderer.h"
@@ -3053,6 +3054,28 @@ bool AtomsTemplate::resolvePickedAtom(
     return true;
 }
 
+render::application::PickedAtomInfo AtomsTemplate::ResolvePickedAtomInfo(
+    vtkActor* actor,
+    const double pickPos[3]) const {
+    render::application::PickedAtomInfo pickedInfo;
+    if (pickPos) {
+        pickedInfo.pickPosition = { pickPos[0], pickPos[1], pickPos[2] };
+    }
+
+    uint32_t atomId = 0;
+    int32_t structureId = -1;
+    std::array<double, 3> atomPosition { 0.0, 0.0, 0.0 };
+    if (!resolvePickedAtom(actor, pickPos, atomId, structureId, atomPosition)) {
+        return pickedInfo;
+    }
+
+    pickedInfo.hit = true;
+    pickedInfo.atomId = atomId;
+    pickedInfo.structureId = structureId;
+    pickedInfo.atomPosition = atomPosition;
+    return pickedInfo;
+}
+
 std::string AtomsTemplate::GetSymbolByActor(vtkActor* actor) const {
     if (!actor || !m_vtkRenderer) {
         return "";
@@ -5794,6 +5817,12 @@ bool AtomsTemplate::getBondStructureId(uint32_t bondId, int32_t& structureId) {
     }
     return false;
 }
+
+
+
+
+
+
 
 
 

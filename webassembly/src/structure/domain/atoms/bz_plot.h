@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include <array>
@@ -214,3 +214,5 @@ private:
 
 } // namespace domain
 } // namespace atoms
+
+

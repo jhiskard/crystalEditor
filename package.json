@@ -18,6 +18,7 @@
     "rm-wasm": "if exist public\\wasm\\* del /f /q public\\wasm\\*",
     "health": "echo 'OK'",
     "check:phase12:architecture": "powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase12_architecture_seal.ps1",
+    "check:phase19:friend-class-zero": "powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase19_friend_class_zero.ps1",
     "check:phase18:ui-evidence": "powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase18_ui_regression_evidence.ps1",
     "check:phase18:facade-include-zero": "powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase18_facade_include_zero.ps1",
     "check:phase18:atoms-instance-zero": "powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase18_atoms_instance_zero.ps1",

@@ -1,10 +1,53 @@
-﻿#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "structure_lifecycle_service.h"
+
+#include "../../workspace/legacy/legacy_atoms_runtime.h"
 #include "../domain/structure_repository.h"
 
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 
+namespace structure {
+namespace application {
+
+StructureLifecycleService::StructureLifecycleService() = default;
+
+void StructureLifecycleService::RegisterStructure(int32_t structureId, const std::string& name) {
+    workspace::legacy::LegacyAtomsRuntime().RegisterStructure(structureId, name);
+}
+
+void StructureLifecycleService::RemoveStructure(int32_t structureId) {
+    workspace::legacy::LegacyAtomsRuntime().RemoveStructure(structureId);
+}
+
+void StructureLifecycleService::RemoveUnassignedData() {
+    workspace::legacy::LegacyAtomsRuntime().RemoveUnassignedData();
+}
+
+void StructureLifecycleService::RenderBrillouinZonePlotWindow(bool* openWindow) {
+    workspace::legacy::LegacyAtomsRuntime().RenderBrillouinZonePlotWindow(openWindow);
+}
+
+bool StructureLifecycleService::EnterBZPlotMode(
+    const std::string& path,
+    int npoints,
+    bool showVectors,
+    bool showLabels,
+    std::string& outErrorMessage) {
+    return workspace::legacy::LegacyAtomsRuntime().EnterBZPlotMode(
+        path, npoints, showVectors, showLabels, outErrorMessage);
+}
+
+void StructureLifecycleService::ExitBZPlotMode() {
+    workspace::legacy::LegacyAtomsRuntime().ExitBZPlotMode();
+}
+
+bool StructureLifecycleService::IsBZPlotMode() const {
+    return workspace::legacy::LegacyAtomsRuntime().IsBZPlotMode();
+}
+
+} // namespace application
+} // namespace structure
 void AtomsTemplate::RegisterStructure(int32_t id, const std::string& name) {
     if (id < 0) {
         return;
@@ -472,6 +515,8 @@ void AtomsTemplate::RemoveUnassignedData() {
 
     refreshRenderedGroups();
 }
+
+
 
 
 

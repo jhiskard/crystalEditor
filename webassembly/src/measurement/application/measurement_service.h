@@ -4,36 +4,49 @@
  */
 #pragma once
 
-#include "measurement_service_port.h"
 #include "measurement_service_types.h"
+#include "../../render/application/picked_atom_info.h"
 
 #include <cstdint>
 #include <vector>
+
+class vtkActor;
+class vtkRenderer;
 
 namespace measurement {
 namespace application {
 
 /**
  * @brief Measurement use-case facade extracted from AtomsTemplate.
- * @details 서비스 레이어는 포트 계약만 의존하며, legacy 호환 경로는
- *          infrastructure adapter에서만 관리한다.
+ * @details Application layer delegates to legacy runtime in W5.2 thin-shim mode.
  */
 class MeasurementService {
 public:
     /**
-     * @brief Creates measurement service with default legacy adapter.
+     * @brief Creates measurement service facade.
      */
     MeasurementService();
 
-    /**
-     * @brief Creates measurement service with injected compatibility port.
-     */
-    explicit MeasurementService(MeasurementServicePort& port);
-
     MeasurementMode GetMode() const;
     bool IsModeActive() const;
+    bool IsDragSelectionEnabled() const;
     void EnterMode(MeasurementMode mode);
     void ExitMode();
+
+    render::application::PickedAtomInfo ResolvePickedAtomInfo(
+        vtkActor* actor,
+        const double pickPos[3]) const;
+    void HandlePickerClick(const render::application::PickedAtomInfo& pickedAtomInfo);
+    void HandleEmptyClick();
+    void HandleDragSelectionInScreenRect(
+        int x0,
+        int y0,
+        int x1,
+        int y1,
+        vtkRenderer* renderer,
+        int viewportHeight,
+        bool additive);
+    void RenderModeOverlay();
 
     std::vector<MeasurementListItem> GetMeasurementsForStructure(int32_t structureId) const;
     void SetMeasurementVisible(uint32_t measurementId, bool visible);
@@ -43,11 +56,7 @@ public:
     std::vector<DistanceMeasurementListItem> GetDistanceMeasurementsForStructure(int32_t structureId) const;
     void SetDistanceMeasurementVisible(uint32_t measurementId, bool visible);
     void RemoveDistanceMeasurement(uint32_t measurementId);
-
-private:
-    MeasurementServicePort* m_Port { nullptr };
 };
 
 } // namespace application
 } // namespace measurement
-

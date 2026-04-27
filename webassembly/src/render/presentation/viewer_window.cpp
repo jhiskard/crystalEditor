@@ -1,5 +1,7 @@
-﻿#include "viewer_window.h"
+#include "viewer_window.h"
 #include "../../app.h"
+#include "../../measurement/application/measurement_service.h"
+#include "../../structure/application/structure_interaction_service.h"
 #include "../../structure/domain/atoms/cell_manager.h"
 #include "../../mesh/application/mesh_query_service.h"
 #include "../../platform/persistence/viewer_preferences_store.h"
@@ -1415,8 +1417,8 @@ void VtkViewer::Render(bool* openWindow) {
         m_RenderDirty = false;
     }
     updatePerformanceStats(now, didRender, renderMs, interactionRender);
-    
-    // 강제 레이아웃 요청이 있으면 도킹을 해제하고 해당 값을 우선 적용한다.
+
+    // When forced layout is requested, undock and apply forced bounds first.
     if (m_HasForcedWindowLayout && m_ForcedWindowLayoutFramesRemaining > 0) {
         ImGui::SetNextWindowDockID(0, ImGuiCond_Always);
         ImGui::SetNextWindowPos(m_ForcedWindowPos, ImGuiCond_Always);
@@ -1428,7 +1430,7 @@ void VtkViewer::Render(bool* openWindow) {
             m_HasForcedWindowLayout = false;
         }
     }
-    // 초기 창 설정 (첫 렌더링 시 또는 레이아웃 요청 시)
+    // Initial window placement (first render or explicit layout request).
     else if (m_FirstRender || m_RequestInitialLayout) {
         ImGuiCond cond = m_RequestInitialLayout ? ImGuiCond_Always : ImGuiCond_FirstUseEver;
         m_FirstRender = false;
@@ -1455,8 +1457,12 @@ void VtkViewer::Render(bool* openWindow) {
         ImVec2(0, 1), ImVec2(1, 0));
     
     GetWorkbenchRuntime().ToolbarPanel().Render(windowSize);
+    measurement::application::MeasurementService& measurementService =
+        GetWorkbenchRuntime().MeasurementFeature();
     AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
-    atomsTemplate.RenderMeasurementModeOverlay();
+    structure::application::StructureInteractionService& structureInteraction =
+        GetWorkbenchRuntime().StructureInteractionFeature();
+    measurementService.RenderModeOverlay();
 
     ImGuiIO& io = ImGui::GetIO();
     bool isHovered = ImGui::IsWindowHovered();
@@ -1498,9 +1504,9 @@ void VtkViewer::Render(bool* openWindow) {
                 if (m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
                     vtkActor* pickedActor = m_Picker->GetActor();
                     double* pickPos = m_Picker->GetPickPosition();
-                    atomsTemplate.UpdateHoveredAtomByPicker(pickedActor, pickPos);
+                    structureInteraction.UpdateHoveredAtomByPicker(pickedActor, pickPos);
                 } else {
-                    atomsTemplate.ClearHover();
+                    structureInteraction.ClearHover();
                 }
                 lastHoverPickX = pickX;
                 lastHoverPickY = pickY;
@@ -1508,10 +1514,10 @@ void VtkViewer::Render(bool* openWindow) {
                 hasLastHoverPickPos = true;
             }
         } else {
-            atomsTemplate.ClearHover();
+            structureInteraction.ClearHover();
         }
     } else {
-        atomsTemplate.ClearHover();
+        structureInteraction.ClearHover();
     }
 
     renderDragSelectionOverlay(windowPos, viewportPos);
@@ -1520,15 +1526,15 @@ void VtkViewer::Render(bool* openWindow) {
         renderPerformanceOverlay(windowPos, viewportPos);
     }
     
-    // 툴팁 마우스 좌표 저장
+    // Cache mouse position for tooltip rendering.
     float tooltipMouseX = io.MousePos.x;
     float tooltipMouseY = io.MousePos.y;
     
     ImGui::End();
     ImGui::PopStyleVar();
     
-    // ========== 툴팁 렌더링 (윈도우 외부에서) ==========
-    atomsTemplate.RenderAtomTooltip(tooltipMouseX, tooltipMouseY);
+    // Tooltip rendering (outside the window viewport).
+    structureInteraction.RenderAtomTooltip(tooltipMouseX, tooltipMouseY);
 }
 
 void VtkViewer::SetRenderPaused(bool paused) {
@@ -2179,10 +2185,3 @@ void VtkViewer::SetArrowRotateStepDeg(float stepDeg) {
     const float roundedStepDeg = std::round(stepDeg);
     m_ArrowRotateStepDeg = std::clamp(roundedStepDeg, kMinStepDeg, kMaxStepDeg);
 }
-
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <imgui.h>
 #include <array>
@@ -57,3 +57,5 @@ private:
 
 } // namespace ui
 } // namespace atoms
+
+

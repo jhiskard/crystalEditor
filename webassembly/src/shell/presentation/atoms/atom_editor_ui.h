@@ -1,4 +1,4 @@
-// webassembly/src/atoms/ui/atom_editor_ui.h
+﻿// webassembly/src/atoms/ui/atom_editor_ui.h
 #pragma once
 
 #include <imgui.h>
@@ -44,3 +44,5 @@ private:
 
 } // namespace ui
 } // namespace atoms
+
+

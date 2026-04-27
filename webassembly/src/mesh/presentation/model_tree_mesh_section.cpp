@@ -4,7 +4,7 @@
 #include "../../mesh/presentation/mesh_detail_panel.h"
 #include "../../mesh/domain/lcrs_tree.h"
 #include "../../config/log_config.h"
-#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../structure/application/structure_service.h"
 #include "../../shell/runtime/workbench_runtime.h"
 #include "../application/mesh_command_service.h"
 #include "../application/mesh_query_service.h"
@@ -67,7 +67,7 @@ void ModelTree::renderMeshTable(ImGuiTableFlags tableFlags) {
         ImGui::EndTable();
     }
 
-    // Delete mesh 처리 (일반 VTK 메시)
+    // Delete mesh handling for regular VTK meshes.
     MeshDetail& meshDetail = MeshDetail::Instance();
     if (m_DeleteMeshId != -1) {
         if (m_DeleteMeshId != 0) {
@@ -78,7 +78,7 @@ void ModelTree::renderMeshTable(ImGuiTableFlags tableFlags) {
         m_DeleteMeshId = -1;
     }
     else {
-        // 더블클릭으로 선택 해제
+        // Clear current selection on double-click.
         if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsWindowFocused()) {
             m_SelectedMeshId = -1;
 
@@ -107,6 +107,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
 
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
+    structure::application::StructureService& structureService = GetWorkbenchRuntime().StructureFeature();
     Mesh* mesh = meshQuery.FindMeshByIdMutable(node->GetId());
     if (mesh == nullptr) {
         return;
@@ -174,7 +175,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
                 meshDetail.SetUiVolumeMeshEdgeColor(mesh->GetVolumeMeshEdgeColor());
                 meshDetail.SetUiVolumeMeshVisibility(mesh->GetVolumeMeshVisibility());
 
-                // Volume rendering settings (다른 사람 코드에서 추가)
+                // Extra volume rendering settings added in prior work.
                 meshDetail.SetUiVolumeWindowLevel(mesh->GetVolumeWindow(), mesh->GetVolumeLevel());
                 meshDetail.SetUiVolumeRenderOpacityMin(mesh->GetVolumeRenderOpacityMin());
                 meshDetail.SetUiVolumeRenderOpacity(mesh->GetVolumeRenderOpacity());
@@ -215,19 +216,18 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         ImVec4 curColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
         
         if (isXsfStructure) {
-            AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
-            bool isVisible = atomsTemplate.IsStructureVisible(node->GetId());
+            bool isVisible = structureService.IsStructureVisible(node->GetId());
             
             if (isVisible) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                    atomsTemplate.SetStructureVisible(node->GetId(), false);
+                    structureService.SetStructureVisible(node->GetId(), false);
                     meshCommand.HideMesh(node->GetId());
                 }
             } else {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                    atomsTemplate.SetStructureVisible(node->GetId(), true);
+                    structureService.SetStructureVisible(node->GetId(), true);
                     MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
                     meshCommand.ShowMesh(node->GetId());
                 }
@@ -272,9 +272,3 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         renderMeshTree(node->GetRightSiblingMutable());
     }
 }
-
-
-
-
-
-

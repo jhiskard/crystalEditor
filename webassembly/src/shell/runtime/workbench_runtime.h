@@ -15,6 +15,8 @@ class VtkViewer;
 
 namespace structure {
 namespace application {
+class StructureInteractionService;
+class StructureLifecycleService;
 class StructureService;
 } // namespace application
 } // namespace structure
@@ -108,6 +110,16 @@ public:
      * @brief Returns structure feature service facade.
      */
     structure::application::StructureService& StructureFeature();
+
+    /**
+     * @brief Returns structure interaction service facade.
+     */
+    structure::application::StructureInteractionService& StructureInteractionFeature();
+
+    /**
+     * @brief Returns structure lifecycle/BZ feature service facade.
+     */
+    structure::application::StructureLifecycleService& StructureLifecycleFeature();
 
     /**
      * @brief Returns measurement feature service facade.

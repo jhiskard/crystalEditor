@@ -1,8 +1,9 @@
-﻿#include "../presentation/viewer_window.h"
+#include "../presentation/viewer_window.h"
 
 #include "../../app.h"
+#include "../../measurement/application/measurement_service.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
-#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../structure/application/structure_interaction_service.h"
 #include "../../shell/runtime/workbench_runtime.h"
 
 #include <vtkCommand.h>
@@ -108,10 +109,13 @@ void VtkViewer::processEvents() {
     static bool leftPressForwardedToInteractor = false;
     static bool pendingMeasurementPick = false;
     bool requestRender = false;
-    AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
-    const bool measurementModeActive = atomsTemplate.IsMeasurementModeActive();
+    measurement::application::MeasurementService& measurementService =
+        GetWorkbenchRuntime().MeasurementFeature();
+    structure::application::StructureInteractionService& structureInteraction =
+        GetWorkbenchRuntime().StructureInteractionFeature();
+    const bool measurementModeActive = measurementService.IsModeActive();
     const bool measurementDragSelectionEnabled =
-        measurementModeActive && atomsTemplate.IsMeasurementDragSelectionEnabled();
+        measurementModeActive && measurementService.IsDragSelectionEnabled();
     const bool selectionModifierDown = io.KeySuper || io.KeyCtrl;
     const bool canStartModifierDragSelection =
         selectionModifierDown && (!measurementModeActive || measurementDragSelectionEnabled);
@@ -214,7 +218,7 @@ void VtkViewer::processEvents() {
                 const int dragY0 = static_cast<int>(std::lround(m_DragSelection.startPos.y));
                 const int dragX1 = static_cast<int>(std::lround(m_DragSelection.currentPos.x));
                 const int dragY1 = static_cast<int>(std::lround(m_DragSelection.currentPos.y));
-                atomsTemplate.HandleDragSelectionInScreenRect(
+                measurementService.HandleDragSelectionInScreenRect(
                     dragX0,
                     dragY0,
                     dragX1,
@@ -231,21 +235,22 @@ void VtkViewer::processEvents() {
                     if (m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
                         vtkActor* pickedActor = m_Picker->GetActor();
                         double* pickPos = m_Picker->GetPickPosition();
-                        atomsTemplate.HandleMeasurementClickByPicker(pickedActor, pickPos);
+                        const auto pickedInfo = measurementService.ResolvePickedAtomInfo(pickedActor, pickPos);
+                        measurementService.HandlePickerClick(pickedInfo);
                     } else {
-                        atomsTemplate.HandleMeasurementEmptyClick();
+                        measurementService.HandleEmptyClick();
                     }
                 } else {
                     if (m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
                         vtkActor* pickedActor = m_Picker->GetActor();
                         double* pickPos = m_Picker->GetPickPosition();
                         if (m_DragSelection.sameElementSelectAtStart) {
-                            atomsTemplate.SelectSameElementAtomsByPicker(pickedActor, pickPos);
+                            structureInteraction.SelectSameElementAtomsByPicker(pickedActor, pickPos);
                         } else {
-                            atomsTemplate.SelectAtomByPicker(pickedActor, pickPos);
+                            structureInteraction.SelectAtomByPicker(pickedActor, pickPos);
                         }
                     } else {
-                        atomsTemplate.ClearCreatedAtomSelection();
+                        structureInteraction.ClearCreatedAtomSelection();
                     }
                 }
             }
@@ -268,7 +273,7 @@ void VtkViewer::processEvents() {
                 int pickX = static_cast<int>(relX);
                 int pickY = static_cast<int>(m_Height - relY);
                 if (!m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
-                    atomsTemplate.ClearCreatedAtomSelection();
+                    structureInteraction.ClearCreatedAtomSelection();
                 }
             }
         }
@@ -281,9 +286,10 @@ void VtkViewer::processEvents() {
             if (m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
                 vtkActor* pickedActor = m_Picker->GetActor();
                 double* pickPos = m_Picker->GetPickPosition();
-                atomsTemplate.HandleMeasurementClickByPicker(pickedActor, pickPos);
+                const auto pickedInfo = measurementService.ResolvePickedAtomInfo(pickedActor, pickPos);
+                measurementService.HandlePickerClick(pickedInfo);
             } else {
-                atomsTemplate.HandleMeasurementEmptyClick();
+                measurementService.HandleEmptyClick();
             }
             requestRender = true;
         }
@@ -351,8 +357,3 @@ void VtkViewer::processEvents() {
         RequestRender();
     }
 }
-
-
-
-
-

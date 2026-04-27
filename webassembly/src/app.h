@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "config/log_config.h"
 #include "enum/app_enums.h"
@@ -159,3 +159,5 @@ private:
     void syncShellStateToStore();
 
 };
+
+

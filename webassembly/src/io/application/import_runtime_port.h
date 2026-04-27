@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file import_runtime_port.h
  * @brief IO import compatibility port for legacy atoms runtime access.
  * @note Temporary compatibility path (remove in Phase18-W6 closeout, Track: P18-W4-IO-PORT).
@@ -73,3 +73,5 @@ public:
 ImportRuntimePort& GetImportRuntimePort();
 
 } // namespace io::application
+
+

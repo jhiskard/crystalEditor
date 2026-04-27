@@ -1,32 +1,34 @@
-/**
+﻿/**
  * @file density_service.h
  * @brief Charge-density feature application service facade.
  */
 #pragma once
 
-#include "density_service_port.h"
-
 #include <cstdint>
+#include <string>
+#include <vector>
+
+#include "density_service_types.h"
+
+namespace atoms {
+namespace ui {
+class ChargeDensityUI;
+} // namespace ui
+} // namespace atoms
 
 namespace density {
 namespace application {
 
 /**
  * @brief Density use-case facade extracted from AtomsTemplate.
- * @details 서비스 레이어는 포트 계약만 의존하며, legacy 호환 경로는
- *          infrastructure adapter에서만 관리한다.
+ * @details Application layer delegates to legacy runtime in W5.3 thin-shim mode.
  */
 class DensityService {
 public:
     /**
-     * @brief Creates density service with default legacy adapter.
+     * @brief Creates density service facade.
      */
     DensityService();
-
-    /**
-     * @brief Creates density service with injected compatibility port.
-     */
-    explicit DensityService(DensityServicePort& port);
 
     bool HasChargeDensity() const;
     bool IsChargeDensityVisible() const;
@@ -42,13 +44,26 @@ public:
     void SetAllAdvancedGridVisible(int32_t structureId, bool volumeMode, bool visible);
     void ApplyAdvancedGridVisibilityForStructure(int32_t structureId);
 
+    std::vector<SimpleGridEntry> GetSimpleGridEntries() const;
+    std::vector<SliceGridEntry> GetSliceGridEntries() const;
+    bool IsSliceVisible() const;
+    void SetAllSimpleGridVisible(bool visible);
+    void SetAllSliceGridVisible(bool visible);
+    bool SetSimpleGridVisible(const std::string& gridName, bool visible);
+    bool SetSliceGridVisible(const std::string& gridName, bool visible);
+    bool SelectSimpleGridByName(const std::string& gridName);
+    bool SelectSliceGridByName(const std::string& gridName);
+
+    void RenderChargeDensityViewerWindow(bool* openWindow = nullptr);
+    void RenderSliceViewerWindow(bool* openWindow = nullptr);
+
     atoms::ui::ChargeDensityUI* ChargeDensityUi();
     const atoms::ui::ChargeDensityUI* ChargeDensityUi() const;
 
-private:
-    DensityServicePort* m_Port { nullptr };
 };
 
 } // namespace application
 } // namespace density
+
+
 

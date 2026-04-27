@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file measurement_repository.h
  * @brief Measurement domain repository placeholder for Phase 8 extraction.
  */
@@ -32,4 +32,6 @@ public:
 
 } // namespace domain
 } // namespace measurement
+
+
 

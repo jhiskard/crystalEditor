@@ -905,3 +905,5 @@ void AtomEditorUI::renderSelectionPanel(bool editMode, bool useFractionalCoords,
 
 
 
+
+

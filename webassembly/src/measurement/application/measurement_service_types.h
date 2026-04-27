@@ -23,10 +23,22 @@ enum class MeasurementMode {
 };
 
 /**
+ * @brief Measurement entry type used by measurement list/group views.
+ */
+enum class MeasurementType {
+    Distance = 0,
+    Angle = 1,
+    Dihedral = 2,
+    GeometricCenter = 3,
+    CenterOfMass = 4
+};
+
+/**
  * @brief Measurement list row model.
  */
 struct MeasurementListItem {
     uint32_t id = 0;
+    MeasurementType type = MeasurementType::Distance;
     std::string displayName;
     bool visible = true;
 };
@@ -42,4 +54,3 @@ struct DistanceMeasurementListItem {
 
 } // namespace application
 } // namespace measurement
-

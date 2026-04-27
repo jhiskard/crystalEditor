@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class AtomsTemplate;
 
@@ -18,3 +18,5 @@ private:
 };
 
 } // namespace atoms::domain
+
+

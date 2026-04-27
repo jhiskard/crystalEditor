@@ -1,4 +1,4 @@
-// webassembly/src/atoms/ui/periodic_table_ui.h
+﻿// webassembly/src/atoms/ui/periodic_table_ui.h
 #pragma once
 
 #include <imgui.h>
@@ -146,3 +146,5 @@ private:
 
 } // namespace ui
 } // namespace atoms
+
+

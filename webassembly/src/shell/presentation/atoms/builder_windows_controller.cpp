@@ -68,3 +68,5 @@ void AtomsTemplate::RenderBrillouinZonePlotWindow(bool* openWindow) {
 
 
 
+
+

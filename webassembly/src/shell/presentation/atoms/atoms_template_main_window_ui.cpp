@@ -1,4 +1,4 @@
-#include "atoms_template_main_window_ui.h"
+﻿#include "atoms_template_main_window_ui.h"
 
 #include <imgui.h>
 
@@ -75,3 +75,5 @@ void AtomsTemplateMainWindowUI::render(bool* openWindow)
 }
 
 } // namespace atoms::ui
+
+

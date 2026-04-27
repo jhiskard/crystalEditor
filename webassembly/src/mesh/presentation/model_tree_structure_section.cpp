@@ -1,12 +1,12 @@
-﻿#include "../../mesh/presentation/model_tree_panel.h"
+#include "../../mesh/presentation/model_tree_panel.h"
 #include "../../shell/presentation/font/font_registry.h"
 #include "../../mesh/domain/lcrs_tree.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
-#include "../../workspace/legacy/legacy_atoms_runtime.h"
-#include "../../density/presentation/charge_density_ui.h"
 #include "../../structure/application/structure_read_model.h"
 #include "../../structure/application/structure_service.h"
+#include "../../structure/application/structure_interaction_service.h"
 #include "../../density/application/density_service.h"
+#include "../../measurement/application/measurement_service.h"
 #include "../../shell/application/workbench_controller.h"
 #include "../../shell/runtime/workbench_runtime.h"
 #include "../application/mesh_command_service.h"
@@ -49,10 +49,13 @@ void TextCenteredSizeT(size_t value) {
 } // namespace
 
 void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
-    AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
+    structure::application::StructureInteractionService& structureInteraction =
+        GetWorkbenchRuntime().StructureInteractionFeature();
     mesh::application::MeshQueryService& meshQuery = mesh::application::GetMeshQueryService();
     mesh::application::MeshCommandService& meshCommand = mesh::application::GetMeshCommandService();
     structure::application::StructureService& structureService = GetWorkbenchRuntime().StructureFeature();
+    measurement::application::MeasurementService& measurementService =
+        GetWorkbenchRuntime().MeasurementFeature();
     density::application::DensityService& densityService = GetWorkbenchRuntime().DensityFeature();
     auto structures = structureService.GetStructures();
     const auto& createdAtoms = atoms::application::StructureReadModel::GetCreatedAtoms();
@@ -234,7 +237,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     bool anyAtomVisible = false;
                     bool allAtomVisible = true;
                     for (uint32_t atomId : structureAtomIds) {
-                        const bool visible = atomsTemplate.IsAtomVisibleById(atomId);
+                        const bool visible = structureInteraction.IsAtomVisibleById(atomId);
                         anyAtomVisible = anyAtomVisible || visible;
                         allAtomVisible = allAtomVisible && visible;
                     }
@@ -243,17 +246,17 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     if (allAtomVisible) {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetAtomVisibilityForIds(structureAtomIds, false);
+                            structureInteraction.SetAtomVisibilityForIds(structureAtomIds, false);
                         }
                     } else if (anyAtomVisible) {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetAtomVisibilityForIds(structureAtomIds, true);
+                            structureInteraction.SetAtomVisibilityForIds(structureAtomIds, true);
                         }
                     } else {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetAtomVisibilityForIds(structureAtomIds, true);
+                            structureInteraction.SetAtomVisibilityForIds(structureAtomIds, true);
                         }
                     }
 
@@ -261,12 +264,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     bool anyAtomLabelVisible = false;
                     bool allAtomLabelVisible = !structureAtomIds.empty();
                     for (uint32_t atomId : structureAtomIds) {
-                        const bool labelVisible = atomsTemplate.IsAtomLabelVisibleById(atomId);
+                        const bool labelVisible = structureInteraction.IsAtomLabelVisibleById(atomId);
                         anyAtomLabelVisible = anyAtomLabelVisible || labelVisible;
                         allAtomLabelVisible = allAtomLabelVisible && labelVisible;
                     }
                     renderLabelState(allAtomLabelVisible, anyAtomLabelVisible, [&](bool visible) {
-                        atomsTemplate.SetAtomLabelVisibilityForIds(structureAtomIds, visible);
+                        structureInteraction.SetAtomLabelVisibilityForIds(structureAtomIds, visible);
                     });
 
                     ImGui::TableSetColumnIndex(3);
@@ -297,7 +300,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     continue;
                                 }
                                 symbolAtomIds.push_back(atomEntry.atom->id);
-                                const bool visible = atomsTemplate.IsAtomVisibleById(atomEntry.atom->id);
+                                const bool visible = structureInteraction.IsAtomVisibleById(atomEntry.atom->id);
                                 anySymbolVisible = anySymbolVisible || visible;
                                 allSymbolVisible = allSymbolVisible && visible;
 
@@ -306,7 +309,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                         continue;
                                     }
                                     symbolAtomIds.push_back(surroundingChild->id);
-                                    const bool childVisible = atomsTemplate.IsAtomVisibleById(surroundingChild->id);
+                                    const bool childVisible = structureInteraction.IsAtomVisibleById(surroundingChild->id);
                                     anySymbolVisible = anySymbolVisible || childVisible;
                                     allSymbolVisible = allSymbolVisible && childVisible;
                                 }
@@ -316,17 +319,17 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                             if (allSymbolVisible) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                    atomsTemplate.SetAtomVisibilityForIds(symbolAtomIds, false);
+                                    structureInteraction.SetAtomVisibilityForIds(symbolAtomIds, false);
                                 }
                             } else if (anySymbolVisible) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                    atomsTemplate.SetAtomVisibilityForIds(symbolAtomIds, true);
+                                    structureInteraction.SetAtomVisibilityForIds(symbolAtomIds, true);
                                 }
                             } else {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                    atomsTemplate.SetAtomVisibilityForIds(symbolAtomIds, true);
+                                    structureInteraction.SetAtomVisibilityForIds(symbolAtomIds, true);
                                 }
                             }
 
@@ -334,12 +337,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                             bool anySymbolLabelVisible = false;
                             bool allSymbolLabelVisible = !symbolAtomIds.empty();
                             for (uint32_t atomId : symbolAtomIds) {
-                                const bool labelVisible = atomsTemplate.IsAtomLabelVisibleById(atomId);
+                                const bool labelVisible = structureInteraction.IsAtomLabelVisibleById(atomId);
                                 anySymbolLabelVisible = anySymbolLabelVisible || labelVisible;
                                 allSymbolLabelVisible = allSymbolLabelVisible && labelVisible;
                             }
                             renderLabelState(allSymbolLabelVisible, anySymbolLabelVisible, [&](bool visible) {
-                                atomsTemplate.SetAtomLabelVisibilityForIds(symbolAtomIds, visible);
+                                structureInteraction.SetAtomLabelVisibilityForIds(symbolAtomIds, visible);
                             });
 
                             ImGui::TableSetColumnIndex(3);
@@ -373,34 +376,34 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                         atomLabel.c_str());
 
                                     ImGui::TableSetColumnIndex(1);
-                                    const bool atomVisible = atomsTemplate.IsAtomVisibleById(atomEntry.atom->id);
+                                    const bool atomVisible = structureInteraction.IsAtomVisibleById(atomEntry.atom->id);
                                     if (atomVisible) {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f),
                                                             ICON_FA6_EYE);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetAtomVisibleById(atomEntry.atom->id, false);
+                                            structureInteraction.SetAtomVisibleById(atomEntry.atom->id, false);
                                         }
                                     } else {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f),
                                                             ICON_FA6_EYE_SLASH);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetAtomVisibleById(atomEntry.atom->id, true);
+                                            structureInteraction.SetAtomVisibleById(atomEntry.atom->id, true);
                                         }
                                     }
 
                                     ImGui::TableSetColumnIndex(2);
-                                    const bool atomLabelVisible = atomsTemplate.IsAtomLabelVisibleById(atomEntry.atom->id);
+                                    const bool atomLabelVisible = structureInteraction.IsAtomLabelVisibleById(atomEntry.atom->id);
                                     if (atomLabelVisible) {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f),
                                                             ICON_FA6_EYE);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetAtomLabelVisibleById(atomEntry.atom->id, false);
+                                            structureInteraction.SetAtomLabelVisibleById(atomEntry.atom->id, false);
                                         }
                                     } else {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f),
                                                             ICON_FA6_EYE_SLASH);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetAtomLabelVisibleById(atomEntry.atom->id, true);
+                                            structureInteraction.SetAtomLabelVisibleById(atomEntry.atom->id, true);
                                         }
                                     }
 
@@ -450,35 +453,35 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
 
                                             ImGui::TableSetColumnIndex(1);
                                             const bool surroundingVisible =
-                                                atomsTemplate.IsAtomVisibleById(surroundingChild->id);
+                                                structureInteraction.IsAtomVisibleById(surroundingChild->id);
                                             if (surroundingVisible) {
                                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f),
                                                                     ICON_FA6_EYE);
                                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                                    atomsTemplate.SetAtomVisibleById(surroundingChild->id, false);
+                                                    structureInteraction.SetAtomVisibleById(surroundingChild->id, false);
                                                 }
                                             } else {
                                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f),
                                                                     ICON_FA6_EYE_SLASH);
                                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                                    atomsTemplate.SetAtomVisibleById(surroundingChild->id, true);
+                                                    structureInteraction.SetAtomVisibleById(surroundingChild->id, true);
                                                 }
                                             }
 
                                             ImGui::TableSetColumnIndex(2);
                                             const bool surroundingLabelVisible =
-                                                atomsTemplate.IsAtomLabelVisibleById(surroundingChild->id);
+                                                structureInteraction.IsAtomLabelVisibleById(surroundingChild->id);
                                             if (surroundingLabelVisible) {
                                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f),
                                                                     ICON_FA6_EYE);
                                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                                    atomsTemplate.SetAtomLabelVisibleById(surroundingChild->id, false);
+                                                    structureInteraction.SetAtomLabelVisibleById(surroundingChild->id, false);
                                                 }
                                             } else {
                                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f),
                                                                     ICON_FA6_EYE_SLASH);
                                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                                    atomsTemplate.SetAtomLabelVisibleById(surroundingChild->id, true);
+                                                    structureInteraction.SetAtomLabelVisibleById(surroundingChild->id, true);
                                                 }
                                             }
 
@@ -588,11 +591,11 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     const bool bondsOpen = ImGui::TreeNodeEx(
                         bondsRootId.c_str(), bondFlags, ICON_FA6_LINK"  Bonds");
 
-                    const bool bondsStructureEnabled = atomsTemplate.IsBondsVisible(entry.id);
+                    const bool bondsStructureEnabled = structureInteraction.IsBondsVisible(entry.id);
                     bool anyBondVisible = false;
                     bool allBondVisible = true;
                     for (uint32_t bondId : structureBondIds) {
-                        const bool visible = bondsStructureEnabled && atomsTemplate.IsBondVisibleById(bondId);
+                        const bool visible = bondsStructureEnabled && structureInteraction.IsBondVisibleById(bondId);
                         anyBondVisible = anyBondVisible || visible;
                         allBondVisible = allBondVisible && visible;
                     }
@@ -601,19 +604,19 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     if (allBondVisible) {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetBondVisibilityForIds(structureBondIds, false);
+                            structureInteraction.SetBondVisibilityForIds(structureBondIds, false);
                         }
                     } else if (anyBondVisible) {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetBondsVisible(entry.id, true);
-                            atomsTemplate.SetBondVisibilityForIds(structureBondIds, true);
+                            structureInteraction.SetBondsVisible(entry.id, true);
+                            structureInteraction.SetBondVisibilityForIds(structureBondIds, true);
                         }
                     } else {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetBondsVisible(entry.id, true);
-                            atomsTemplate.SetBondVisibilityForIds(structureBondIds, true);
+                            structureInteraction.SetBondsVisible(entry.id, true);
+                            structureInteraction.SetBondVisibilityForIds(structureBondIds, true);
                         }
                     }
 
@@ -621,12 +624,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     bool anyBondLabelVisible = false;
                     bool allBondLabelVisible = !structureBondIds.empty();
                     for (uint32_t bondId : structureBondIds) {
-                        const bool labelVisible = atomsTemplate.IsBondLabelVisibleById(bondId);
+                        const bool labelVisible = structureInteraction.IsBondLabelVisibleById(bondId);
                         anyBondLabelVisible = anyBondLabelVisible || labelVisible;
                         allBondLabelVisible = allBondLabelVisible && labelVisible;
                     }
                     renderLabelState(allBondLabelVisible, anyBondLabelVisible, [&](bool visible) {
-                        atomsTemplate.SetBondLabelVisibilityForIds(structureBondIds, visible);
+                        structureInteraction.SetBondLabelVisibilityForIds(structureBondIds, visible);
                     });
 
                     ImGui::TableSetColumnIndex(3);
@@ -653,8 +656,8 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     continue;
                                 }
                                 bondIdsByType.push_back(bond->id);
-                                const bool visible = atomsTemplate.IsBondsVisible(entry.id) &&
-                                                     atomsTemplate.IsBondVisibleById(bond->id);
+                                const bool visible = structureInteraction.IsBondsVisible(entry.id) &&
+                                                     structureInteraction.IsBondVisibleById(bond->id);
                                 anyTypeVisible = anyTypeVisible || visible;
                                 allTypeVisible = allTypeVisible && visible;
                             }
@@ -663,19 +666,19 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                             if (allTypeVisible) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                    atomsTemplate.SetBondVisibilityForIds(bondIdsByType, false);
+                                    structureInteraction.SetBondVisibilityForIds(bondIdsByType, false);
                                 }
                             } else if (anyTypeVisible) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                    atomsTemplate.SetBondsVisible(entry.id, true);
-                                    atomsTemplate.SetBondVisibilityForIds(bondIdsByType, true);
+                                    structureInteraction.SetBondsVisible(entry.id, true);
+                                    structureInteraction.SetBondVisibilityForIds(bondIdsByType, true);
                                 }
                             } else {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                    atomsTemplate.SetBondsVisible(entry.id, true);
-                                    atomsTemplate.SetBondVisibilityForIds(bondIdsByType, true);
+                                    structureInteraction.SetBondsVisible(entry.id, true);
+                                    structureInteraction.SetBondVisibilityForIds(bondIdsByType, true);
                                 }
                             }
 
@@ -683,12 +686,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                             bool anyTypeLabelVisible = false;
                             bool allTypeLabelVisible = !bondIdsByType.empty();
                             for (uint32_t bondId : bondIdsByType) {
-                                const bool labelVisible = atomsTemplate.IsBondLabelVisibleById(bondId);
+                                const bool labelVisible = structureInteraction.IsBondLabelVisibleById(bondId);
                                 anyTypeLabelVisible = anyTypeLabelVisible || labelVisible;
                                 allTypeLabelVisible = allTypeLabelVisible && labelVisible;
                             }
                             renderLabelState(allTypeLabelVisible, anyTypeLabelVisible, [&](bool visible) {
-                                atomsTemplate.SetBondLabelVisibilityForIds(bondIdsByType, visible);
+                                structureInteraction.SetBondLabelVisibilityForIds(bondIdsByType, visible);
                             });
 
                             ImGui::TableSetColumnIndex(3);
@@ -762,36 +765,36 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                                       bondLabel.c_str());
 
                                     ImGui::TableSetColumnIndex(1);
-                                    const bool bondVisible = atomsTemplate.IsBondsVisible(entry.id) &&
-                                                             atomsTemplate.IsBondVisibleById(bond->id);
+                                    const bool bondVisible = structureInteraction.IsBondsVisible(entry.id) &&
+                                                             structureInteraction.IsBondVisibleById(bond->id);
                                     if (bondVisible) {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f),
                                                             ICON_FA6_EYE);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetBondVisibleById(bond->id, false);
+                                            structureInteraction.SetBondVisibleById(bond->id, false);
                                         }
                                     } else {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f),
                                                             ICON_FA6_EYE_SLASH);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetBondsVisible(entry.id, true);
-                                            atomsTemplate.SetBondVisibleById(bond->id, true);
+                                            structureInteraction.SetBondsVisible(entry.id, true);
+                                            structureInteraction.SetBondVisibleById(bond->id, true);
                                         }
                                     }
 
                                     ImGui::TableSetColumnIndex(2);
-                                    const bool bondLabelVisible = atomsTemplate.IsBondLabelVisibleById(bond->id);
+                                    const bool bondLabelVisible = structureInteraction.IsBondLabelVisibleById(bond->id);
                                     if (bondLabelVisible) {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f),
                                                             ICON_FA6_EYE);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetBondLabelVisibleById(bond->id, false);
+                                            structureInteraction.SetBondLabelVisibleById(bond->id, false);
                                         }
                                     } else {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f),
                                                             ICON_FA6_EYE_SLASH);
                                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                            atomsTemplate.SetBondLabelVisibleById(bond->id, true);
+                                            structureInteraction.SetBondLabelVisibleById(bond->id, true);
                                         }
                                     }
 
@@ -805,7 +808,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     }
                 }
 
-                if (atomsTemplate.HasUnitCell(entry.id)) {
+                if (structureInteraction.HasUnitCell(entry.id)) {
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
                     ImGuiTreeNodeFlags cellFlags = ImGuiTreeNodeFlags_Leaf |
@@ -815,16 +818,16 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     ImGui::TreeNodeEx(("##UnitCell" + std::to_string(entry.id)).c_str(), cellFlags, ICON_FA6_CUBE"  Unit Cell");
                     
                     ImGui::TableSetColumnIndex(1);
-                    bool cellVisible = atomsTemplate.IsUnitCellVisible(entry.id);
+                    bool cellVisible = structureInteraction.IsUnitCellVisible(entry.id);
                     if (cellVisible) {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetUnitCellVisible(entry.id, false);
+                            structureInteraction.SetUnitCellVisible(entry.id, false);
                         }
                     } else {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                            atomsTemplate.SetUnitCellVisible(entry.id, true);
+                            structureInteraction.SetUnitCellVisible(entry.id, true);
                         }
                     }
                     
@@ -835,30 +838,30 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     ImGui::TextDisabled("--");
                 }
 
-                auto measurementEntries = atomsTemplate.GetMeasurementsForStructure(entry.id);
+                auto measurementEntries = measurementService.GetMeasurementsForStructure(entry.id);
                 if (!measurementEntries.empty()) {
-                    auto measurementTypeLabel = [](AtomsTemplate::MeasurementType type) -> const char* {
+                    auto measurementTypeLabel = [](measurement::application::MeasurementType type) -> const char* {
                         switch (type) {
-                        case AtomsTemplate::MeasurementType::Distance:
+                        case measurement::application::MeasurementType::Distance:
                             return "Distance";
-                        case AtomsTemplate::MeasurementType::Angle:
+                        case measurement::application::MeasurementType::Angle:
                             return "Angle";
-                        case AtomsTemplate::MeasurementType::Dihedral:
+                        case measurement::application::MeasurementType::Dihedral:
                             return "Dihedral";
-                        case AtomsTemplate::MeasurementType::GeometricCenter:
+                        case measurement::application::MeasurementType::GeometricCenter:
                             return "Geometric Center";
-                        case AtomsTemplate::MeasurementType::CenterOfMass:
+                        case measurement::application::MeasurementType::CenterOfMass:
                             return "Center of Mass";
                         }
                         return "Measurement";
                     };
 
-                    const AtomsTemplate::MeasurementType measurementTypeOrder[] = {
-                        AtomsTemplate::MeasurementType::Distance,
-                        AtomsTemplate::MeasurementType::Angle,
-                        AtomsTemplate::MeasurementType::Dihedral,
-                        AtomsTemplate::MeasurementType::GeometricCenter,
-                        AtomsTemplate::MeasurementType::CenterOfMass
+                    const measurement::application::MeasurementType measurementTypeOrder[] = {
+                        measurement::application::MeasurementType::Distance,
+                        measurement::application::MeasurementType::Angle,
+                        measurement::application::MeasurementType::Dihedral,
+                        measurement::application::MeasurementType::GeometricCenter,
+                        measurement::application::MeasurementType::CenterOfMass
                     };
 
                     ImGui::TableNextRow();
@@ -883,21 +886,21 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                             for (const auto& measurement : measurementEntries) {
-                                atomsTemplate.SetMeasurementVisible(measurement.id, false);
+                                measurementService.SetMeasurementVisible(measurement.id, false);
                             }
                         }
                     } else if (anyMeasurementVisible) {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                             for (const auto& measurement : measurementEntries) {
-                                atomsTemplate.SetMeasurementVisible(measurement.id, true);
+                                measurementService.SetMeasurementVisible(measurement.id, true);
                             }
                         }
                     } else {
                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                             for (const auto& measurement : measurementEntries) {
-                                atomsTemplate.SetMeasurementVisible(measurement.id, true);
+                                measurementService.SetMeasurementVisible(measurement.id, true);
                             }
                         }
                     }
@@ -920,7 +923,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
 
                     if (measurementOpen) {
                         for (const auto measurementType : measurementTypeOrder) {
-                            std::vector<const AtomsTemplate::MeasurementListItem*> typedMeasurements;
+                            std::vector<const measurement::application::MeasurementListItem*> typedMeasurements;
                             typedMeasurements.reserve(measurementEntries.size());
                             for (const auto& measurement : measurementEntries) {
                                 if (measurement.type == measurementType) {
@@ -958,21 +961,21 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     for (const auto* measurement : typedMeasurements) {
-                                        atomsTemplate.SetMeasurementVisible(measurement->id, false);
+                                        measurementService.SetMeasurementVisible(measurement->id, false);
                                     }
                                 }
                             } else if (anyTypeVisible) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     for (const auto* measurement : typedMeasurements) {
-                                        atomsTemplate.SetMeasurementVisible(measurement->id, true);
+                                        measurementService.SetMeasurementVisible(measurement->id, true);
                                     }
                                 }
                             } else {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     for (const auto* measurement : typedMeasurements) {
-                                        atomsTemplate.SetMeasurementVisible(measurement->id, true);
+                                        measurementService.SetMeasurementVisible(measurement->id, true);
                                     }
                                 }
                             }
@@ -1010,12 +1013,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 if (measurement->visible) {
                                     TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                                     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                        atomsTemplate.SetMeasurementVisible(measurement->id, false);
+                                        measurementService.SetMeasurementVisible(measurement->id, false);
                                     }
                                 } else {
                                     TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                                     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                        atomsTemplate.SetMeasurementVisible(measurement->id, true);
+                                        measurementService.SetMeasurementVisible(measurement->id, true);
                                     }
                                 }
 
@@ -1028,7 +1031,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 ImGui::TableSetColumnIndex(4);
                                 TextColoredCentered(ImVec4(0.7f, 0.0f, 0.0f, 1.0f), ICON_FA6_TRASH_CAN);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                                    atomsTemplate.RemoveMeasurement(measurement->id);
+                                    measurementService.RemoveMeasurement(measurement->id);
                                 }
                             }
                             ImGui::TreePop();
@@ -1037,16 +1040,11 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     }
                 }
 
-                auto* chargeDensityUI = atomsTemplate.chargeDensityUI();
                 const bool hasChargeDensityForEntry =
                     densityService.HasChargeDensity() &&
                     densityService.GetChargeDensityStructureId() == entry.id;
-                const auto simpleGridEntries = chargeDensityUI
-                    ? chargeDensityUI->getSimpleGridEntries()
-                    : std::vector<atoms::ui::ChargeDensityUI::SimpleGridEntry>{};
-                const auto sliceGridEntries = chargeDensityUI
-                    ? chargeDensityUI->getSliceGridEntries()
-                    : std::vector<atoms::ui::ChargeDensityUI::SliceGridEntry>{};
+                const auto simpleGridEntries = densityService.GetSimpleGridEntries();
+                const auto sliceGridEntries = densityService.GetSliceGridEntries();
 
                 std::vector<const TreeNode*> gridNodes;
                 const TreeNode* structureNode = meshQuery.MeshTree()->GetTreeNodeById(entry.id);
@@ -1067,7 +1065,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     bool allSimpleGridVisible = true;
                     if (hasChargeDensityForEntry) {
                         if (simpleGridEntries.empty()) {
-                            anySimpleGridVisible = atomsTemplate.IsChargeDensityVisible();
+                            anySimpleGridVisible = densityService.IsChargeDensityVisible();
                             allSimpleGridVisible = anySimpleGridVisible;
                         } else {
                             allSimpleGridVisible = true;
@@ -1098,7 +1096,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                     bool allPlaneVisible = true;
                     if (hasChargeDensityForEntry) {
                         if (sliceGridEntries.empty()) {
-                            anyPlaneVisible = chargeDensityUI && chargeDensityUI->isSliceVisible();
+                            anyPlaneVisible = densityService.IsSliceVisible();
                             allPlaneVisible = anyPlaneVisible;
                         } else {
                             allPlaneVisible = true;
@@ -1151,14 +1149,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                             setChargeDensityContext(entry.id);
                             if (hasChargeDensityForEntry) {
-                                if (chargeDensityUI && !simpleGridEntries.empty()) {
-                                    chargeDensityUI->setAllSimpleGridVisible(false);
+                                if (!simpleGridEntries.empty()) {
+                                    densityService.SetAllSimpleGridVisible(false);
                                 } else {
-                                    atomsTemplate.SetChargeDensityVisible(false);
+                                    densityService.SetChargeDensityVisible(false);
                                 }
-                                if (chargeDensityUI) {
-                                    chargeDensityUI->setAllSliceGridVisible(false);
-                                }
+                                densityService.SetAllSliceGridVisible(false);
                             }
                             if (!gridNodes.empty()) {
                                 densityService.SetAllAdvancedGridVisible(entry.id, false, false);
@@ -1171,14 +1167,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                             setChargeDensityContext(entry.id);
                             if (hasChargeDensityForEntry) {
-                                if (chargeDensityUI && !simpleGridEntries.empty()) {
-                                    chargeDensityUI->setAllSimpleGridVisible(true);
+                                if (!simpleGridEntries.empty()) {
+                                    densityService.SetAllSimpleGridVisible(true);
                                 } else {
-                                    atomsTemplate.SetChargeDensityVisible(true);
+                                    densityService.SetChargeDensityVisible(true);
                                 }
-                                if (chargeDensityUI) {
-                                    chargeDensityUI->setAllSliceGridVisible(true);
-                                }
+                                densityService.SetAllSliceGridVisible(true);
                             }
                             if (!gridNodes.empty()) {
                                 densityService.SetAllAdvancedGridVisible(entry.id, false, true);
@@ -1191,14 +1185,12 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                         if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                             setChargeDensityContext(entry.id);
                             if (hasChargeDensityForEntry) {
-                                if (chargeDensityUI && !simpleGridEntries.empty()) {
-                                    chargeDensityUI->setAllSimpleGridVisible(true);
+                                if (!simpleGridEntries.empty()) {
+                                    densityService.SetAllSimpleGridVisible(true);
                                 } else {
-                                    atomsTemplate.SetChargeDensityVisible(true);
+                                    densityService.SetChargeDensityVisible(true);
                                 }
-                                if (chargeDensityUI) {
-                                    chargeDensityUI->setAllSliceGridVisible(true);
-                                }
+                                densityService.SetAllSliceGridVisible(true);
                             }
                             if (!gridNodes.empty()) {
                                 densityService.SetAllAdvancedGridVisible(entry.id, false, true);
@@ -1239,10 +1231,10 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     setChargeDensityContext(entry.id);
-                                    if (chargeDensityUI && !simpleGridEntries.empty()) {
-                                        chargeDensityUI->setAllSimpleGridVisible(false);
+                                    if (!simpleGridEntries.empty()) {
+                                        densityService.SetAllSimpleGridVisible(false);
                                     } else {
-                                        atomsTemplate.SetChargeDensityVisible(false);
+                                        densityService.SetChargeDensityVisible(false);
                                     }
                                     hasChargeDensityVisibilityChange = true;
                                 }
@@ -1250,10 +1242,10 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     setChargeDensityContext(entry.id);
-                                    if (chargeDensityUI && !simpleGridEntries.empty()) {
-                                        chargeDensityUI->setAllSimpleGridVisible(true);
+                                    if (!simpleGridEntries.empty()) {
+                                        densityService.SetAllSimpleGridVisible(true);
                                     } else {
-                                        atomsTemplate.SetChargeDensityVisible(true);
+                                        densityService.SetChargeDensityVisible(true);
                                     }
                                     hasChargeDensityVisibilityChange = true;
                                 }
@@ -1261,10 +1253,10 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     setChargeDensityContext(entry.id);
-                                    if (chargeDensityUI && !simpleGridEntries.empty()) {
-                                        chargeDensityUI->setAllSimpleGridVisible(true);
+                                    if (!simpleGridEntries.empty()) {
+                                        densityService.SetAllSimpleGridVisible(true);
                                     } else {
-                                        atomsTemplate.SetChargeDensityVisible(true);
+                                        densityService.SetChargeDensityVisible(true);
                                     }
                                     hasChargeDensityVisibilityChange = true;
                                 }
@@ -1295,26 +1287,26 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                         ("##SimpleGrid_" + std::to_string(entry.id) + "_" + simpleEntry.name).c_str(),
                                         simpleFlags, ICON_FA6_LAYER_GROUP"  %s", simpleEntry.name.c_str());
                                     if (ImGui::IsItemHovered() &&
-                                        ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) &&
-                                        chargeDensityUI) {
+                                        ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                                         openChargeDensityViewer(entry.id, workbench::panel::DataRequest::Isosurface);
-                                        chargeDensityUI->setSimpleGridVisible(simpleEntry.name, true);
-                                        chargeDensityUI->selectSimpleGridByName(simpleEntry.name);
+                                        densityService.SetSimpleGridVisible(simpleEntry.name, true);
+                                        densityService.SelectSimpleGridByName(simpleEntry.name);
+                                        hasChargeDensityVisibilityChange = true;
                                     }
 
                                     ImGui::TableSetColumnIndex(1);
                                     if (simpleEntry.visible) {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
-                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && chargeDensityUI) {
+                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                             setChargeDensityContext(entry.id);
-                                            chargeDensityUI->setSimpleGridVisible(simpleEntry.name, false);
+                                            densityService.SetSimpleGridVisible(simpleEntry.name, false);
                                             hasChargeDensityVisibilityChange = true;
                                         }
                                     } else {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
-                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && chargeDensityUI) {
+                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                             setChargeDensityContext(entry.id);
-                                            chargeDensityUI->setSimpleGridVisible(simpleEntry.name, true);
+                                            densityService.SetSimpleGridVisible(simpleEntry.name, true);
                                             hasChargeDensityVisibilityChange = true;
                                         }
                                     }
@@ -1467,36 +1459,33 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                             const bool planeOpen = ImGui::TreeNodeEx(
                                 planeGroupId.c_str(), planeFlags, ICON_FA6_LAYER_GROUP"  Plane");
                             if (ImGui::IsItemHovered() &&
-                                ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) &&
-                                chargeDensityUI) {
+                                ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                                 openSliceViewer(entry.id);
                             }
 
                             ImGui::TableSetColumnIndex(1);
-                            ImGui::BeginDisabled(chargeDensityUI == nullptr);
                             if (allPlaneVisible) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
-                                if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && chargeDensityUI) {
+                                if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     setChargeDensityContext(entry.id);
-                                    chargeDensityUI->setAllSliceGridVisible(false);
+                                    densityService.SetAllSliceGridVisible(false);
                                     hasChargeDensityVisibilityChange = true;
                                 }
                             } else if (anyPlaneVisible) {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.65f), ICON_FA6_EYE);
-                                if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && chargeDensityUI) {
+                                if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     setChargeDensityContext(entry.id);
-                                    chargeDensityUI->setAllSliceGridVisible(true);
+                                    densityService.SetAllSliceGridVisible(true);
                                     hasChargeDensityVisibilityChange = true;
                                 }
                             } else {
                                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
-                                if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && chargeDensityUI) {
+                                if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                     setChargeDensityContext(entry.id);
-                                    chargeDensityUI->setAllSliceGridVisible(true);
+                                    densityService.SetAllSliceGridVisible(true);
                                     hasChargeDensityVisibilityChange = true;
                                 }
                             }
-                            ImGui::EndDisabled();
 
                             ImGui::TableSetColumnIndex(2);
                             ImGui::TextDisabled("--");
@@ -1524,28 +1513,27 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                                     ImGui::TreeNodeEx(sliceNodeId.c_str(), sliceGridFlags,
                                                       ICON_FA6_LAYER_GROUP"  %s", sliceEntry.name.c_str());
                                     if (ImGui::IsItemHovered() &&
-                                        ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) &&
-                                        chargeDensityUI) {
+                                        ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                                         openSliceViewer(entry.id);
                                         setChargeDensityContext(entry.id);
-                                        chargeDensityUI->selectSliceGridByName(sliceEntry.name);
+                                        densityService.SelectSliceGridByName(sliceEntry.name);
                                         hasChargeDensityVisibilityChange = true;
                                     }
 
                                     ImGui::TableSetColumnIndex(1);
                                     if (sliceEntry.visible) {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 1.0f), ICON_FA6_EYE);
-                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && chargeDensityUI) {
+                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                             setChargeDensityContext(entry.id);
-                                            chargeDensityUI->setSliceGridVisible(sliceEntry.name, false);
+                                            densityService.SetSliceGridVisible(sliceEntry.name, false);
                                             hasChargeDensityVisibilityChange = true;
                                         }
                                     } else {
                                         TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f),
                                                             ICON_FA6_EYE_SLASH);
-                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && chargeDensityUI) {
+                                        if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                                             setChargeDensityContext(entry.id);
-                                            chargeDensityUI->setSliceGridVisible(sliceEntry.name, true);
+                                            densityService.SetSliceGridVisible(sliceEntry.name, true);
                                             hasChargeDensityVisibilityChange = true;
                                         }
                                     }
@@ -1577,13 +1565,3 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-

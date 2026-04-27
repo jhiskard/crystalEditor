@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include <vtkSmartPointer.h>
@@ -45,3 +45,5 @@ void setCellModified(bool modified);
 bool isCellModified();
 void applyCellChanges(::AtomsTemplate* parent);
 } // namespace atoms::domain
+
+

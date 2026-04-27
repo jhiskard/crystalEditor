@@ -121,6 +121,12 @@ class DensityService;
 } // namespace application
 } // namespace density
 
+namespace render {
+namespace application {
+struct PickedAtomInfo;
+} // namespace application
+} // namespace render
+
 // ============================================================================
 // MAIN ATOMISTIC MODEL BUILDER CLASS
 // ============================================================================
@@ -207,7 +213,10 @@ public:
     void ExitMeasurementMode();
     bool IsMeasurementModeActive() const { return m_MeasurementMode != MeasurementMode::None; }
     MeasurementMode GetMeasurementMode() const { return m_MeasurementMode; }
-    void HandleMeasurementClickByPicker(vtkActor* actor, double pickPos[3]);
+    void HandleMeasurementClickByPicker(const render::application::PickedAtomInfo& pickedAtomInfo);
+    render::application::PickedAtomInfo ResolvePickedAtomInfo(
+        vtkActor* actor,
+        const double pickPos[3]) const;
     void HandleMeasurementEmptyClick();
     void HandleDragSelectionInScreenRect(
         int x0,
@@ -1471,6 +1480,11 @@ const AtomsTemplate& LegacyAtomsRuntimeConst();
 
 } // namespace legacy
 } // namespace workspace
+
+
+
+
+
 
 
 

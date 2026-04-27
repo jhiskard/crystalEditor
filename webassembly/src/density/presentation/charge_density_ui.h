@@ -1,4 +1,4 @@
-// atoms/ui/charge_density_ui.h
+﻿// atoms/ui/charge_density_ui.h
 #pragma once
 #include <memory>
 #include <string>
@@ -316,3 +316,5 @@ private:
 
 } // namespace ui
 } // namespace atoms
+
+

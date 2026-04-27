@@ -1,10 +1,9 @@
-/**
+﻿/**
  * @file structure_service.h
  * @brief Structure feature application service facade.
  */
 #pragma once
 
-#include "structure_service_port.h"
 #include "structure_service_types.h"
 
 #include <cstdint>
@@ -22,14 +21,9 @@ namespace application {
 class StructureService {
 public:
     /**
-     * @brief Creates structure service with default legacy adapter.
+     * @brief Creates structure service facade.
      */
     StructureService();
-
-    /**
-     * @brief Creates structure service with injected compatibility port.
-     */
-    explicit StructureService(StructureServicePort& port);
 
     /**
      * @brief Returns number of registered structures.
@@ -91,10 +85,10 @@ public:
      */
     void SetBoundaryAtomsEnabled(bool enabled);
 
-private:
-    StructureServicePort* m_Port { nullptr };
 };
 
 } // namespace application
 } // namespace structure
+
+
 

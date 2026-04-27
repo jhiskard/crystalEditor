@@ -10,6 +10,8 @@
 #include "mesh/application/mesh_query_service.h"
 #include "mesh/presentation/mesh_group_detail_panel.h"
 #include "mesh/domain/mesh_entity.h"
+#include "density/application/density_service.h"
+#include "structure/application/structure_lifecycle_service.h"
 
 // Legacy atoms facade
 #include "workspace/legacy/legacy_atoms_runtime.h"
@@ -1169,7 +1171,8 @@ void App::renderImGuiWindows() {
         atomsTemplate.RenderCrystalTemplatesWindow(&m_bShowCrystalTemplatesWindow);
     }
     if (m_bShowBrillouinZonePlotWindow) {
-        atomsTemplate.RenderBrillouinZonePlotWindow(&m_bShowBrillouinZonePlotWindow);
+        GetWorkbenchRuntime().StructureLifecycleFeature().RenderBrillouinZonePlotWindow(
+            &m_bShowBrillouinZonePlotWindow);
     }
     if (m_bShowCreatedAtomsWindow) {
         atomsTemplate.RenderCreatedAtomsWindow(&m_bShowCreatedAtomsWindow);
@@ -1180,11 +1183,12 @@ void App::renderImGuiWindows() {
     if (m_bShowCellInformationWindow) {
         atomsTemplate.RenderCellInformationWindow(&m_bShowCellInformationWindow);
     }
+    density::application::DensityService& densityService = GetWorkbenchRuntime().DensityFeature();
     if (m_bShowChargeDensityViewerWindow) {
-        atomsTemplate.RenderChargeDensityViewerWindow(&m_bShowChargeDensityViewerWindow);
+        densityService.RenderChargeDensityViewerWindow(&m_bShowChargeDensityViewerWindow);
     }
     if (m_bShowSliceViewerWindow) {
-        atomsTemplate.RenderSliceViewerWindow(&m_bShowSliceViewerWindow);
+        densityService.RenderSliceViewerWindow(&m_bShowSliceViewerWindow);
     }
 
     const int32_t selectedMeshId = GetWorkbenchRuntime().ModelTreePanel().GetSelectedMeshId();
@@ -1421,10 +1425,3 @@ void App::setProgressPopupText(const std::string& title, const std::string& text
     m_PopupTitle = title;
     m_PopupText = text;
 }
-
-
-
-
-
-
-

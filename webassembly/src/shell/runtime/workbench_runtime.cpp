@@ -12,13 +12,12 @@
 #include "../../mesh/presentation/model_tree_panel.h"
 #include "../presentation/debug/test_window_panel.h"
 #include "../presentation/toolbar/viewer_toolbar_presenter.h"
-#include "../../render/application/legacy_viewer_facade.h"
+#include "../../render/presentation/viewer_window.h"
+#include "../../structure/application/structure_interaction_service.h"
+#include "../../structure/application/structure_lifecycle_service.h"
 #include "../../structure/application/structure_service.h"
-#include "../../structure/infrastructure/legacy/legacy_structure_service_port.h"
 #include "../../measurement/application/measurement_service.h"
-#include "../../measurement/infrastructure/legacy/legacy_measurement_service_port.h"
 #include "../../density/application/density_service.h"
-#include "../../density/infrastructure/legacy/legacy_density_service_port.h"
 #include "../../workspace/application/workspace_query_service.h"
 #include "../../workspace/application/workspace_command_service.h"
 #include "../application/shell_state_query_service.h"
@@ -47,20 +46,27 @@ TestWindow& runtimeTestWindowPanel() {
 }
 
 structure::application::StructureService& runtimeStructureFeature() {
-    static structure::infrastructure::legacy::LegacyStructureServicePort port;
-    static structure::application::StructureService service(port);
+    static structure::application::StructureService service;
+    return service;
+}
+
+structure::application::StructureInteractionService& runtimeStructureInteractionFeature() {
+    static structure::application::StructureInteractionService service;
+    return service;
+}
+
+structure::application::StructureLifecycleService& runtimeStructureLifecycleFeature() {
+    static structure::application::StructureLifecycleService service;
     return service;
 }
 
 measurement::application::MeasurementService& runtimeMeasurementFeature() {
-    static measurement::infrastructure::legacy::LegacyMeasurementServicePort port;
-    static measurement::application::MeasurementService service(port);
+    static measurement::application::MeasurementService service;
     return service;
 }
 
 density::application::DensityService& runtimeDensityFeature() {
-    static density::infrastructure::legacy::LegacyDensityServicePort port;
-    static density::application::DensityService service(port);
+    static density::application::DensityService service;
     return service;
 }
 } // namespace
@@ -89,11 +95,19 @@ Toolbar& WorkbenchRuntime::ToolbarPanel() {
 }
 
 VtkViewer& WorkbenchRuntime::Viewer() {
-    return render::application::GetLegacyViewerFacade();
+    return VtkViewer::Instance();
 }
 
 structure::application::StructureService& WorkbenchRuntime::StructureFeature() {
     return runtimeStructureFeature();
+}
+
+structure::application::StructureInteractionService& WorkbenchRuntime::StructureInteractionFeature() {
+    return runtimeStructureInteractionFeature();
+}
+
+structure::application::StructureLifecycleService& WorkbenchRuntime::StructureLifecycleFeature() {
+    return runtimeStructureLifecycleFeature();
 }
 
 measurement::application::MeasurementService& WorkbenchRuntime::MeasurementFeature() {

@@ -124,10 +124,6 @@ void VtkRenderGateway::EndInteractionLod() {
     viewerFacade().EndInteractionLod();
 }
 
-VtkViewer& GetLegacyViewerFacade() {
-    return viewerFacade();
-}
-
 } // namespace infrastructure
 } // namespace render
 

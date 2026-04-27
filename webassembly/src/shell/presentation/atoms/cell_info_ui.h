@@ -1,4 +1,4 @@
-// webassembly/src/atoms/ui/cell_info_ui.h
+﻿// webassembly/src/atoms/ui/cell_info_ui.h
 #pragma once
 
 #include <imgui.h>
@@ -41,3 +41,5 @@ private:
 
 } // namespace ui
 } // namespace atoms
+
+
