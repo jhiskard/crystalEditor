@@ -1,7 +1,7 @@
-﻿// webassembly/src/atoms/ui/atom_editor_ui.cpp
+// webassembly/src/atoms/ui/atom_editor_ui.cpp
 #include "atom_editor_ui.h"
 #include "ui_color_utils.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/atom_manager.h"
 #include "../../../structure/domain/atoms/bond_manager.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
@@ -21,24 +21,24 @@ auto& surroundingBonds = structure::domain::GetStructureRepository().Surrounding
 auto& atomGroups = structure::domain::GetStructureRepository().AtomGroups();
 }
 
-AtomEditorUI::AtomEditorUI(AtomsTemplate* parent)
+AtomEditorUI::AtomEditorUI(WorkspaceRuntimeModel* parent)
     : m_parent(parent) {
     SPDLOG_DEBUG("AtomEditorUI initialized");
 }
 
 void AtomEditorUI::render() {
-    // 편집 모드 상태 (static으로 유지)
+    // ���� ��� ���� (static���� ����)
     static bool editMode = false;
-    static bool hasChanges = false; // 변경사항 추적
+    static bool hasChanges = false; // ������� ����
     static bool useFractionalCoords = false;
 
-    // 기본 정보 표시
+    // �⺻ ���� ǥ��
     ImGui::Text("Total atoms: %d", (int)createdAtoms.size());
     ImGui::Text("Total bonds: %d", (int)createdBonds.size());
 
     ImGui::Separator();
 
-    // Fractional coordinates 체크박스 추가
+    // Fractional coordinates üũ�ڽ� �߰�
     if (ImGui::Checkbox("Fractional coordinates", &useFractionalCoords)) {
         SPDLOG_DEBUG("Fractional coordinates mode changed to: {}", useFractionalCoords ? "enabled" : "disabled");
     }
@@ -48,8 +48,8 @@ void AtomEditorUI::render() {
 
     ImGui::SameLine();
         
-    // Boundary atoms 체크박스
-    // UI 상태는 AtomsTemplate::isSurroundingsVisible()와 항상 동기화
+    // Boundary atoms üũ�ڽ�
+    // UI ���´� WorkspaceRuntimeModel::isSurroundingsVisible()�� �׻� ����ȭ
     if (m_parent) {
         m_boundaryAtomsEnabled = m_parent->isSurroundingsVisible();
     }
@@ -64,22 +64,22 @@ void AtomEditorUI::render() {
         }
     }
 
-    // 도움말 텍스트
+    // ���� �ؽ�Ʈ
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Show/hide atoms at unit cell boundaries\nand their bonds with original atoms");
     }
 
     ImGui::SameLine();
     
-    // Edit mode 체크박스 추가
+    // Edit mode üũ�ڽ� �߰�
     bool previousEditMode = editMode;
     if (ImGui::Checkbox("Edit mode##atomEdit", &editMode)) {
         if (!editMode && previousEditMode && hasChanges) {
-            // Edit mode 해제 시 변경사항 저장 및 업데이트
+            // Edit mode ���� �� ������� ���� �� ������Ʈ
             SPDLOG_INFO("Exiting edit mode - applying changes and updating rendering");
             
-            // 🔧 변경점: applyAtomChanges()가 내부에서 BatchGuard 사용
-            // UI 스레드에서 직접 호출 가능
+            // ?? ������: applyAtomChanges()�� ���ο��� BatchGuard ���
+            // UI �����忡�� ���� ȣ�� ����
             if (m_parent) {
                 m_parent->ApplyAtomChangesFromEditor();
             }
@@ -99,13 +99,13 @@ void AtomEditorUI::render() {
     
     ImGui::Separator();
     
-    // 🔧 변경점: 배치 모드 상태 표시 추가 (사용자 피드백)
+    // ?? ������: ��ġ ��� ���� ǥ�� �߰� (����� �ǵ��)
     if (m_parent && m_parent->isBatchMode()) {
-        ImGui::TextColored(ImVec4(0.2f, 0.8f, 0.2f, 1.0f), "⚡ Batch mode active - updates optimized");
+        ImGui::TextColored(ImVec4(0.2f, 0.8f, 0.2f, 1.0f), "? Batch mode active - updates optimized");
         ImGui::Separator();
     }
     
-    // 원자 테이블 렌더링 - editMode와 useFractionalCoords를 전달
+    // ���� ���̺� ������ - editMode�� useFractionalCoords�� ����
     bool tableHasChanges = renderAtomTable(editMode, useFractionalCoords);
     if (tableHasChanges) {
         hasChanges = true;
@@ -115,15 +115,15 @@ void AtomEditorUI::render() {
 bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
     static std::vector<atoms::domain::AtomInfo> lastDeletedAtoms;
 
-    // 🎯 통합 원자 리스트 생성 (ORIGINAL + SURROUNDING)
-    std::vector<std::pair<atoms::domain::AtomInfo*, bool>> allAtoms; // pair<원자포인터, 원본여부>
+    // ?? ���� ���� ����Ʈ ���� (ORIGINAL + SURROUNDING)
+    std::vector<std::pair<atoms::domain::AtomInfo*, bool>> allAtoms; // pair<����������, ��������>
     
-    // 원본 원자들 추가
+    // ���� ���ڵ� �߰�
     for (auto& atom : createdAtoms) {
         allAtoms.push_back({&atom, true});
     }
     
-    // 주변 원자들 추가 (surroundingsVisible일 때만)
+    // �ֺ� ���ڵ� �߰� (surroundingsVisible�� ����)
     if (m_parent && m_parent->isSurroundingsVisible()) {
         for (auto& atom : surroundingAtoms) {
             allAtoms.push_back({&atom, false});
@@ -135,11 +135,11 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         return false;
     }
     
-    // 🎯 원본 원자 ID → 인덱스 매핑 생성 (SURROUNDING 원자 표시용)
+    // ?? ���� ���� ID �� �ε��� ���� ���� (SURROUNDING ���� ǥ�ÿ�)
     std::map<uint32_t, size_t> originalIdToIndex;
     for (size_t i = 0; i < createdAtoms.size(); ++i) {
         if (createdAtoms[i].id != 0) {
-            originalIdToIndex[createdAtoms[i].id] = i + 1; // 1-based 인덱스
+            originalIdToIndex[createdAtoms[i].id] = i + 1; // 1-based �ε���
         }
     }
     
@@ -153,24 +153,24 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
 
     ImGuiTableFlags columnFlags = ImGuiTableColumnFlags_WidthStretch;
     
-    // 테이블 시작 - 원자 개수에 따른 크기 조정
+    // ���̺� ���� - ���� ������ ���� ũ�� ����
     ImVec2 tableSize = ImVec2(0.0f, 0.0f);
     if (allAtoms.size() > 20) {
         tableSize = ImVec2(0.0f, 1000.0f);
         tableFlags |= ImGuiTableFlags_ScrollY;  
     }
     
-    // 🔧 컬럼 수 설정 - Radius 컬럼 추가
-    int columnCount = editMode ? 9 : 8; // Edit 모드: Select + Edit + Radius 컬럼 표시
+    // ?? �÷� �� ���� - Radius �÷� �߰�
+    int columnCount = editMode ? 9 : 8; // Edit ���: Select + Edit + Radius �÷� ǥ��
     
     if (ImGui::BeginTable("AtomsTable", columnCount, tableFlags, tableSize)) {
         
-        // 🔧 테이블 헤더 설정 - Edit 모드에서도 Select 컬럼 포함
+        // ?? ���̺� ��� ���� - Edit ��忡���� Select �÷� ����
         ImGui::TableSetupColumn("#", ImGuiTableColumnFlags_WidthFixed);
-        ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed); // 항상 표시
+        ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed); // �׻� ǥ��
         
         if (editMode) {
-            ImGui::TableSetupColumn("Edit", ImGuiTableColumnFlags_WidthFixed); // Edit 모드에서만 추가
+            ImGui::TableSetupColumn("Edit", ImGuiTableColumnFlags_WidthFixed); // Edit ��忡���� �߰�
         }
         
         ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
@@ -190,22 +190,22 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
         
-        // 🎯 통합된 원자 데이터 렌더링
+        // ?? ���յ� ���� ������ ������
         for (size_t i = 0; i < allAtoms.size(); ++i) {
             atoms::domain::AtomInfo* atom = allAtoms[i].first;
             bool isOriginal = allAtoms[i].second;
             
             ImGui::TableNextRow();
             
-            // 1. 일련번호 (#)
+            // 1. �Ϸù�ȣ (#)
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("%zu", i + 1);
             
-            // 2. 선택 체크박스 (Select) - 항상 표시
+            // 2. ���� üũ�ڽ� (Select) - �׻� ǥ��
             ImGui::TableSetColumnIndex(1);
-            ImGui::PushID(static_cast<int>(i * 2)); // Edit 컬럼과 ID 충돌 방지
+            ImGui::PushID(static_cast<int>(i * 2)); // Edit �÷��� ID �浹 ����
             
-            // SURROUNDING 원자는 선택 불가
+            // SURROUNDING ���ڴ� ���� �Ұ�
             if (isOriginal) {
                 bool selected = atom->selected;
                 if (ImGui::Checkbox("##select", &selected)) {
@@ -217,7 +217,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                                i + 1, atom->symbol, selected ? "selected" : "deselected");
                 }
             } else {
-                // SURROUNDING 원자는 비활성화된 체크박스
+                // SURROUNDING ���ڴ� ��Ȱ��ȭ�� üũ�ڽ�
                 ImGui::BeginDisabled();
                 bool dummySelected = false;
                 ImGui::Checkbox("##select_disabled", &dummySelected);
@@ -228,25 +228,25 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
             }
             ImGui::PopID();
             
-            // 🔧 3. 편집 표시 (Edit) - Edit 모드에서만 표시
+            // ?? 3. ���� ǥ�� (Edit) - Edit ��忡���� ǥ��
             int nextColumnIndex = 2;
             if (editMode) {
                 ImGui::TableSetColumnIndex(2);
-                ImGui::PushID(static_cast<int>(i * 2 + 1)); // Select 컬럼과 ID 충돌 방지
+                ImGui::PushID(static_cast<int>(i * 2 + 1)); // Select �÷��� ID �浹 ����
                 
                 if (isOriginal && atom->modified) {
                     ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), "MOD");
                 } else if (isOriginal) {
                     ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "---");
                 } else {
-                    // SURROUNDING 원자는 편집 불가 표시
+                    // SURROUNDING ���ڴ� ���� �Ұ� ǥ��
                     ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "N/A");
                 }
                 ImGui::PopID();
                 nextColumnIndex = 3;
             }
             
-            // 4 (또는 3). Type 컬럼 (원자 타입 구분)
+            // 4 (�Ǵ� 3). Type �÷� (���� Ÿ�� ����)
             ImGui::TableSetColumnIndex(nextColumnIndex);
             if (atom->atomType == atoms::domain::AtomType::ORIGINAL) {
                 ImGui::TextColored(ImVec4(0.2f, 0.8f, 0.2f, 1.0f), "ORIG");
@@ -254,14 +254,14 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::TextColored(ImVec4(0.8f, 0.6f, 0.2f, 1.0f), "SURR");
             }
             
-            // ID 정보를 툴팁으로 표시 (원본 원자 정보 포함)
+            // ID ������ �������� ǥ�� (���� ���� ���� ����)
             if (ImGui::IsItemHovered()) {
                 std::string tooltipText = "Atom ID: " + std::to_string(atom->id) + 
                                         "\nInstance Index: " + std::to_string(atom->instanceIndex) + 
                                         "\nInstanced: " + (atom->isInstanced ? "Yes" : "No") +
                                         "\nEditable: " + (isOriginal ? "Yes" : "No");
                 
-                // 🎯 SURROUNDING 원자의 경우 원본 원자 정보 추가
+                // ?? SURROUNDING ������ ��� ���� ���� ���� �߰�
                 if (!isOriginal && atom->originalAtomId != 0) {
                     auto it = originalIdToIndex.find(atom->originalAtomId);
                     if (it != originalIdToIndex.end()) {
@@ -276,14 +276,14 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::SetTooltip("%s", tooltipText.c_str());
             }
             
-            // 5 (또는 4). 원소 기호 (Symbol) - 🎯 SURROUNDING 원자는 원본 ID 포함 표시
+            // 5 (�Ǵ� 4). ���� ��ȣ (Symbol) - ?? SURROUNDING ���ڴ� ���� ID ���� ǥ��
             ImGui::TableSetColumnIndex(nextColumnIndex + 1);
             
-            // SURROUNDING 원자는 색상을 약간 어둡게 표시
+            // SURROUNDING ���ڴ� ������ �ణ ��Ӱ� ǥ��
             // ImVec4 bgColor = atom->color;
             ImVec4 bgColor = atoms::ui::ToImVec4(atom->color);
             if (!isOriginal) {
-                // SURROUNDING 원자는 색상을 더 어둡게
+                // SURROUNDING ���ڴ� ������ �� ��Ӱ�
                 bgColor.x *= 0.7f;
                 bgColor.y *= 0.7f;
                 bgColor.z *= 0.7f;
@@ -295,30 +295,30 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
             ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::ColorConvertFloat4ToU32(bgColor));
             
             if (!editMode || !isOriginal) {
-                // 읽기 전용 모드 또는 SURROUNDING 원자
+                // �б� ���� ��� �Ǵ� SURROUNDING ����
                 if (isOriginal) {
-                    // ORIGINAL 원자: 일반 표시
+                    // ORIGINAL ����: �Ϲ� ǥ��
                     ImGui::TextColored(textColor, "%s", atom->symbol.c_str());
                 } else {
-                    // 🎯 SURROUNDING 원자: Symbol(OriginalID) 형식으로 표시
+                    // ?? SURROUNDING ����: Symbol(OriginalID) �������� ǥ��
                     std::string displayText;
                     if (atom->originalAtomId != 0) {
                         auto it = originalIdToIndex.find(atom->originalAtomId);
                         if (it != originalIdToIndex.end()) {
-                            // 원본 원자를 찾은 경우: Symbol(#Index)
+                            // ���� ���ڸ� ã�� ���: Symbol(#Index)
                             displayText = atom->symbol + "(#" + std::to_string(it->second) + ")";
                         } else {
-                            // 원본 원자를 찾지 못한 경우: Symbol(ID:XXX)
+                            // ���� ���ڸ� ã�� ���� ���: Symbol(ID:XXX)
                             displayText = atom->symbol + "(ID:" + std::to_string(atom->originalAtomId) + ")";
                         }
                     } else {
-                        // originalAtomId가 설정되지 않은 경우: Symbol(?)
+                        // originalAtomId�� �������� ���� ���: Symbol(?)
                         displayText = atom->symbol + "(?)";
                     }
                     
                     ImGui::TextColored(textColor, "%s", displayText.c_str());
                     
-                    // 🎯 SURROUNDING 원자 Symbol에 마우스 오버 시 상세 정보 표시
+                    // ?? SURROUNDING ���� Symbol�� ���콺 ���� �� �� ���� ǥ��
                     if (ImGui::IsItemHovered()) {
                         if (atom->originalAtomId != 0) {
                             auto it = originalIdToIndex.find(atom->originalAtomId);
@@ -335,13 +335,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                     }
                 }
             } else {
-                // 편집 모드 (ORIGINAL 원자만)
+                // ���� ��� (ORIGINAL ���ڸ�)
                 char symbolBuffer[16];
                 strncpy(symbolBuffer, atom->tempSymbol.c_str(), sizeof(symbolBuffer) - 1);
                 symbolBuffer[sizeof(symbolBuffer) - 1] = '\0';
                 
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 5)); // Symbol InputText 고유 ID
+                ImGui::PushID(static_cast<int>(i * 10 + 5)); // Symbol InputText ���� ID
                 if (ImGui::InputText("##symbol", symbolBuffer, sizeof(symbolBuffer))) {
                     atom->tempSymbol = std::string(symbolBuffer);
                     atom->modified = true;
@@ -351,7 +351,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
             
-            // 🔧 좌표 표시 및 편집 (컬럼 인덱스: nextColumnIndex + 2, 3, 4)
+            // ?? ��ǥ ǥ�� �� ���� (�÷� �ε���: nextColumnIndex + 2, 3, 4)
             float* coords;
             float* tempCoords;
             
@@ -363,13 +363,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 tempCoords = atom->tempPosition;
             }
             
-            // 첫 번째 좌표 (X 또는 a)
+            // ù ��° ��ǥ (X �Ǵ� a)
             ImGui::TableSetColumnIndex(nextColumnIndex + 2);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", coords[0]);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 6)); // Coord0 InputFloat 고유 ID
+                ImGui::PushID(static_cast<int>(i * 10 + 6)); // Coord0 InputFloat ���� ID
                 if (ImGui::InputFloat("##coord0", &tempCoords[0], 0.01f, 0.1f, "%.4f")) {
                     atom->modified = true;
                     hasChanges = true;
@@ -384,13 +384,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
             
-            // 두 번째 좌표 (Y 또는 b)
+            // �� ��° ��ǥ (Y �Ǵ� b)
             ImGui::TableSetColumnIndex(nextColumnIndex + 3);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", coords[1]);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 7)); // Coord1 InputFloat 고유 ID
+                ImGui::PushID(static_cast<int>(i * 10 + 7)); // Coord1 InputFloat ���� ID
                 if (ImGui::InputFloat("##coord1", &tempCoords[1], 0.01f, 0.1f, "%.4f")) {
                     atom->modified = true;
                     hasChanges = true;
@@ -405,13 +405,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
             
-            // 세 번째 좌표 (Z 또는 c)
+            // �� ��° ��ǥ (Z �Ǵ� c)
             ImGui::TableSetColumnIndex(nextColumnIndex + 4);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", coords[2]);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 8)); // Coord2 InputFloat 고유 ID
+                ImGui::PushID(static_cast<int>(i * 10 + 8)); // Coord2 InputFloat ���� ID
                 if (ImGui::InputFloat("##coord2", &tempCoords[2], 0.01f, 0.1f, "%.4f")) {
                     atom->modified = true;
                     hasChanges = true;
@@ -426,13 +426,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
 
-            // Radius 컬럼 (Z/c 옆)
+            // Radius �÷� (Z/c ��)
             ImGui::TableSetColumnIndex(nextColumnIndex + 5);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", atom->radius);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 9)); // Radius InputFloat 고유 ID
+                ImGui::PushID(static_cast<int>(i * 10 + 9)); // Radius InputFloat ���� ID
                 float tempRadius = atom->tempRadius;
                 if (ImGui::InputFloat("##radius", &tempRadius, 0.01f, 0.1f, "%.4f")) {
                     const float clampedRadius = std::max(tempRadius, 0.001f);
@@ -452,10 +452,10 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
 
     renderSelectionPanel(editMode, useFractionalCoords, &hasChanges);
     
-    // 🎯 테이블 하단 정보 - 통합된 통계 표시 (원본 추적 정보 포함)
+    // ?? ���̺� �ϴ� ���� - ���յ� ��� ǥ�� (���� ���� ���� ����)
     ImGui::Text("Showing %zu atoms", allAtoms.size());
     
-    // 타입별 개수 계산 및 표시
+    // Ÿ�Ժ� ���� ��� �� ǥ��
     int originalCount = 0, surroundingCount = 0;
     int trackedSurrounding = 0, untrackedSurrounding = 0;
     
@@ -464,7 +464,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
             originalCount++;
         } else {
             surroundingCount++;
-            // 🎯 SURROUNDING 원자의 원본 추적 상태 확인
+            // ?? SURROUNDING ������ ���� ���� ���� Ȯ��
             if (atom->originalAtomId != 0) {
                 auto it = originalIdToIndex.find(atom->originalAtomId);
                 if (it != originalIdToIndex.end()) {
@@ -484,7 +484,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::SameLine();
         ImGui::TextColored(ImVec4(0.8f, 0.6f, 0.2f, 1.0f), "+ %d SURR)", surroundingCount);
         
-        // 🎯 SURROUNDING 원자의 추적 상태 표시
+        // ?? SURROUNDING ������ ���� ���� ǥ��
         if (trackedSurrounding > 0 || untrackedSurrounding > 0) {
             ImGui::SameLine();
             if (trackedSurrounding > 0) {
@@ -507,7 +507,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 1.0f, 1.0f), "(Scrollable)");
     }
     
-    // 🔧 모드 정보 표시 - Edit 모드에서도 선택 기능 언급
+    // ?? ��� ���� ǥ�� - Edit ��忡���� ���� ��� ���
     ImGui::SameLine();
     if (editMode) {
         ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), "[Edit + Select Mode]");
@@ -527,7 +527,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
 
 // void AtomEditorUI::renderEditPanel() {
 
-    // 선택된 원자 정보 표시 (ORIGINAL 원자만 계산) - Edit 모드에서도 표시
+    // ���õ� ���� ���� ǥ�� (ORIGINAL ���ڸ� ���) - Edit ��忡���� ǥ��
     ImGui::Separator();
     
     std::vector<size_t> selectedAtomIndices;
@@ -537,7 +537,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         atoms::domain::AtomInfo* atom = allAtoms[i].first;
         bool isOriginal = allAtoms[i].second;
         
-        // ORIGINAL 원자만 선택 가능하므로 ORIGINAL 원자만 계산
+        // ORIGINAL ���ڸ� ���� �����ϹǷ� ORIGINAL ���ڸ� ���
         if (isOriginal && atom->selected) {
             selectedAtomIndices.push_back(i + 1);
             selectedElementCounts[atom->symbol]++;
@@ -590,7 +590,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 m_parent->hideSurroundingAtoms();
             }
 
-            AtomsTemplate::BatchGuard guard = m_parent->createBatchGuard();
+            WorkspaceRuntimeModel::BatchGuard guard = m_parent->createBatchGuard();
 
             for (const auto& atom : createdAtoms) {
                 if (atom.selected && atom.id != 0) {
@@ -642,7 +642,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 m_parent->hideSurroundingAtoms();
             }
 
-            AtomsTemplate::BatchGuard guard = m_parent->createBatchGuard();
+            WorkspaceRuntimeModel::BatchGuard guard = m_parent->createBatchGuard();
 
             for (const auto& atom : lastDeletedAtoms) {
                 m_parent->createAtomSphere(
@@ -669,7 +669,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "No atoms selected");
     }
     
-    // 🎯 SURROUNDING 원자 정보 표시 (원본 추적 상태 포함)
+    // ?? SURROUNDING ���� ���� ǥ�� (���� ���� ���� ����)
     if (surroundingCount > 0) {
         ImGui::TextColored(ImVec4(0.8f, 0.6f, 0.2f, 1.0f), "Surrounding atoms: %d (view only)", surroundingCount);
         if (trackedSurrounding > 0) {
@@ -686,7 +686,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         }
     }
     
-    // Edit 모드에서 수정 상태 정보 추가 표시
+    // Edit ��忡�� ���� ���� ���� �߰� ǥ��
     if (editMode) {
         ImGui::Separator();
         

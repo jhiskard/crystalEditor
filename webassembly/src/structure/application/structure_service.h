@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file structure_service.h
  * @brief Structure feature application service facade.
  */
@@ -14,7 +14,7 @@ namespace structure {
 namespace application {
 
 /**
- * @brief Structure use-case facade extracted from AtomsTemplate.
+ * @brief Structure use-case facade extracted from WorkspaceRuntimeModel.
  * @details 서비스 레이어는 포트 계약만 의존하며, legacy 호환 경로는
  *          infrastructure adapter에서만 관리한다.
  */

@@ -1,4 +1,4 @@
-﻿// webassembly/src/atoms/ui/periodic_table_ui.h
+// webassembly/src/atoms/ui/periodic_table_ui.h
 #pragma once
 
 #include <imgui.h>
@@ -6,7 +6,7 @@
 #include <vector>
 
 // Forward declarations
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms {
 
@@ -23,15 +23,15 @@ namespace ui {
  * @brief 주기율표 UI 렌더링 클래스
  * 
  * 주기율표 시각화 및 원소 선택 기능 제공
- * AtomsTemplate에서 UI 로직을 분리하여 관리
+ * WorkspaceRuntimeModel에서 UI 로직을 분리하여 관리
  */
 class PeriodicTableUI {
 public:
     /**
      * @brief 생성자
-     * @param parent AtomsTemplate 인스턴스 포인터
+     * @param parent WorkspaceRuntimeModel 인스턴스 포인터
      */
-    explicit PeriodicTableUI(AtomsTemplate* parent);
+    explicit PeriodicTableUI(WorkspaceRuntimeModel* parent);
     
     /**
      * @brief 소멸자
@@ -129,7 +129,7 @@ private:
     // 멤버 변수
     // ========================================================================
     
-    AtomsTemplate* m_parent;                      // 부모 참조
+    WorkspaceRuntimeModel* m_parent;                      // 부모 참조
     atoms::domain::ElementDatabase* m_elementDB;  // ElementDatabase 참조
     
     // UI 상태 변수

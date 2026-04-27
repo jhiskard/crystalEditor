@@ -1,5 +1,5 @@
-﻿#include "bond_manager.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "bond_manager.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include "../../../render/application/render_gateway.h"
 #include "../structure_repository.h"
 #include <algorithm>
@@ -25,7 +25,7 @@ std::map<std::string, atoms::domain::BondGroupInfo>& GetBondGroups() {
 }
 
 namespace {
-void initializeBondGroupRenderer(AtomsTemplate* parent, const std::string& bondTypeKey, float radius) {
+void initializeBondGroupRenderer(WorkspaceRuntimeModel* parent, const std::string& bondTypeKey, float radius) {
     if (!parent) {
         return;
     }
@@ -36,7 +36,7 @@ void initializeBondGroupRenderer(AtomsTemplate* parent, const std::string& bondT
     parent->initializeBondGroupVTK(bondTypeKey, radius);
 }
 
-void updateBondGroupRenderer(AtomsTemplate* parent, const std::string& bondTypeKey) {
+void updateBondGroupRenderer(WorkspaceRuntimeModel* parent, const std::string& bondTypeKey) {
     if (!parent) {
         return;
     }
@@ -65,7 +65,7 @@ void updateBondGroupRenderer(AtomsTemplate* parent, const std::string& bondTypeK
     render::application::GetRenderGateway().RequestRender();
 }
 
-void clearAllBondGroupsRenderer(AtomsTemplate* parent) {
+void clearAllBondGroupsRenderer(WorkspaceRuntimeModel* parent) {
     if (!parent) {
         return;
     }
@@ -270,7 +270,7 @@ calculateBondTransforms2Color(
     matrix1->SetElement(2, 3, centerAC_Z);
 
     transform1->SetMatrix(matrix1);
-    transform1->Scale(1.0, halfHeight, 1.0);  // Y축 방향으로 스케일
+    transform1->Scale(1.0, halfHeight, 1.0);  // Y�� �������� ������
 
     vtkSmartPointer<vtkTransform> transform2 = vtkSmartPointer<vtkTransform>::New();
     vtkSmartPointer<vtkMatrix4x4> matrix2 = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -292,7 +292,7 @@ calculateBondTransforms2Color(
     matrix2->SetElement(2, 3, centerCB_Z);
 
     transform2->SetMatrix(matrix2);
-    transform2->Scale(1.0, halfHeight, 1.0);  // Y축 방향으로 스케일
+    transform2->Scale(1.0, halfHeight, 1.0);  // Y�� �������� ������
 
     SPDLOG_DEBUG("Calculated 2-color bond transforms: length={:.3f}, centers=({:.3f},{:.3f},{:.3f})-({:.3f},{:.3f},{:.3f})",
                 height, centerAC_X, centerAC_Y, centerAC_Z, centerCB_X, centerCB_Y, centerCB_Z);
@@ -350,7 +350,7 @@ bool removeBondFromGroup(const std::string& bondTypeKey, size_t instanceIndex) {
 }
 
 void createBond(
-    AtomsTemplate* parent,
+    WorkspaceRuntimeModel* parent,
     const atoms::domain::AtomInfo& atom1,
     const atoms::domain::AtomInfo& atom2,
     atoms::domain::BondType bondType,
@@ -458,7 +458,7 @@ void createBond(
 }
 
 void createBondsForAtoms(
-    AtomsTemplate* parent,
+    WorkspaceRuntimeModel* parent,
     const std::vector<uint32_t>& atomIds,
     bool includeOriginal,
     bool includeSurrounding,
@@ -519,7 +519,7 @@ void createBondsForAtoms(
         return;
     }
 
-    SPDLOG_DEBUG("🎯 Pre-computing bond type keys for caching optimization");
+    SPDLOG_DEBUG("?? Pre-computing bond type keys for caching optimization");
 
     std::set<std::string> uniqueElements;
     for (const auto& [atom, isOriginal] : atomsToProcess) {
@@ -631,7 +631,7 @@ void createBondsForAtoms(
         { 1, 1,-1}, { 1, 1,0}, { 1, 1,1}
     };
 
-    SPDLOG_DEBUG("🚀 Starting batch bond creation loop (updates deferred)");
+    SPDLOG_DEBUG("?? Starting batch bond creation loop (updates deferred)");
 
     for (const auto& [cellIndex, atomIndicesInCell] : spatialGrid) {
         if (atomIndicesInCell.empty()) continue;
@@ -677,12 +677,12 @@ void createBondsForAtoms(
 
                     totalPairsChecked++;
 
-                    // 주변-주변 결합은 생성하지 않음 (원본 원자 기반 주변 표시 정책)
+                    // �ֺ�-�ֺ� ������ �������� ���� (���� ���� ��� �ֺ� ǥ�� ��å)
                     if (isSurroundingSurrounding) {
                         continue;
                     }
 
-                    // 주변 원자 생성 후 증분 결합 생성 시 기존 원본-원본 결합 중복 방지
+                    // �ֺ� ���� ���� �� ���� ���� ���� �� ���� ����-���� ���� �ߺ� ����
                     if (!clearExisting && includeOriginal && includeSurrounding && isOriginalOriginal) {
                         continue;
                     }
@@ -723,7 +723,7 @@ void createBondsForAtoms(
     float reductionPercentage = totalAtoms > 1 ? 
         100.0f * (1.0f - static_cast<float>(totalPairsChecked) / naivePairCount) : 0.0f;
 
-    SPDLOG_INFO("🚀 Optimized spatial grid + batch mode results (ID-based):");
+    SPDLOG_INFO("?? Optimized spatial grid + batch mode results (ID-based):");
     SPDLOG_INFO("  Target atom IDs: {} (empty = all atoms)", atomIds.size());
     SPDLOG_INFO("  Total atoms processed: {}", totalAtoms);
     SPDLOG_INFO("  Grid cells used: {}/{}", spatialGrid.size(), totalCells);
@@ -735,7 +735,7 @@ void createBondsForAtoms(
                newBondsCreated, parent->isBatchMode() ? "active" : "individual");
 }
 
-void clearAllBonds(AtomsTemplate* parent) {
+void clearAllBonds(WorkspaceRuntimeModel* parent) {
     SPDLOG_INFO("Clearing all bonds with unified batch system...");
     
     try {
@@ -763,7 +763,7 @@ void clearAllBonds(AtomsTemplate* parent) {
 }
 
 void addBondsToGroups(
-    AtomsTemplate* parent,
+    WorkspaceRuntimeModel* parent,
     int atomIndex,
     float bondScalingFactor,
     const atoms::domain::ElementDatabase& elementDB
@@ -814,7 +814,7 @@ void addBondsToGroups(
     }
 }
 
-void updateAllBondGroupThickness(AtomsTemplate* parent, float thickness) {
+void updateAllBondGroupThickness(WorkspaceRuntimeModel* parent, float thickness) {
     if (!parent) {
         SPDLOG_ERROR("updateAllBondGroupThickness called with null parent");
         return;
@@ -833,7 +833,7 @@ void updateAllBondGroupThickness(AtomsTemplate* parent, float thickness) {
     }
 }
 
-void updateAllBondGroupOpacity(AtomsTemplate* parent, float opacity) {
+void updateAllBondGroupOpacity(WorkspaceRuntimeModel* parent, float opacity) {
     if (!parent) {
         SPDLOG_ERROR("updateAllBondGroupOpacity called with null parent");
         return;
@@ -889,8 +889,8 @@ bool shouldCreateBond(
     double bondDistance = radius1 + radius2;
     double scaledBondDistance = bondDistance * bondScalingFactor * 0.8; // 0.8 : magic number
 
-    double minBondDistance = 0.1;                      // 너무 가까우면 결합 없음
-    double maxBondDistance = scaledBondDistance * 1.5; // 너무 멀면 결합 없음
+    double minBondDistance = 0.1;                      // �ʹ� ������ ���� ����
+    double maxBondDistance = scaledBondDistance * 1.5; // �ʹ� �ָ� ���� ����
 
     bool shouldBond = (distance >= minBondDistance && distance <= maxBondDistance);
 

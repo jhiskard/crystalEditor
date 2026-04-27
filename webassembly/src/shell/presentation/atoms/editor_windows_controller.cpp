@@ -1,4 +1,4 @@
-﻿#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 
 #include "atom_editor_ui.h"
 #include "bond_ui.h"
@@ -7,7 +7,7 @@
 // ImGui
 #include <imgui.h>
 
-void AtomsTemplate::RenderCreatedAtomsWindow(bool* openWindow) {
+void WorkspaceRuntimeModel::RenderCreatedAtomsWindow(bool* openWindow) {
     if (openWindow != nullptr && !*openWindow) {
         return;
     }
@@ -26,7 +26,7 @@ void AtomsTemplate::RenderCreatedAtomsWindow(bool* openWindow) {
     ImGui::End();
 }
 
-void AtomsTemplate::RenderBondsManagementWindow(bool* openWindow) {
+void WorkspaceRuntimeModel::RenderBondsManagementWindow(bool* openWindow) {
     if (openWindow != nullptr && !*openWindow) {
         return;
     }
@@ -45,7 +45,7 @@ void AtomsTemplate::RenderBondsManagementWindow(bool* openWindow) {
     ImGui::End();
 }
 
-void AtomsTemplate::RenderCellInformationWindow(bool* openWindow) {
+void WorkspaceRuntimeModel::RenderCellInformationWindow(bool* openWindow) {
     if (openWindow != nullptr && !*openWindow) {
         return;
     }

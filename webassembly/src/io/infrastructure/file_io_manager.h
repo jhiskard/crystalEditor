@@ -1,4 +1,4 @@
-﻿// render/infrastructure/atoms/file_io_manager.h (신규)
+// render/infrastructure/atoms/file_io_manager.h (신규)
 #pragma once
 
 #include <chrono>
@@ -10,7 +10,7 @@
 #include <vector>
 
 // Forward declarations
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms {
 namespace infrastructure {
@@ -18,7 +18,7 @@ namespace infrastructure {
 /**
  * @brief 파일 입출력 관리자 - XSF 파일 파싱 및 저장 기능
  * 
- * AtomsTemplate에서 파일 I/O 관련 코드를 분리하여 관리합니다.
+ * WorkspaceRuntimeModel에서 파일 I/O 관련 코드를 분리하여 관리합니다.
  * 현재는 XSF 파일 형식만 지원하며, 추후 다른 형식 확장 가능합니다.
  */
 class FileIOManager {
@@ -104,7 +104,7 @@ public:
     // ========================================================================
     // 생성자/소멸자
     // ========================================================================
-    explicit FileIOManager(::AtomsTemplate* parent);
+    explicit FileIOManager(::WorkspaceRuntimeModel* parent);
     ~FileIOManager();
     
     // ========================================================================
@@ -121,13 +121,13 @@ public:
     Grid3DParseResult load3DGridXSFFile(const std::string& filePath);
     bool initializeStructureFromXSF(
         const std::string& filePath,
-        ::AtomsTemplate* parent,
+        ::WorkspaceRuntimeModel* parent,
         std::string& errorMessage,
         std::vector<uint32_t>* outNewAtomIds = nullptr);
     bool initializeStructure(
         const float cellVectors[3][3],
         const std::vector<AtomData>& atomsData,
-        ::AtomsTemplate* parent,
+        ::WorkspaceRuntimeModel* parent,
         std::string& errorMessage,
         std::vector<uint32_t>* outNewAtomIds = nullptr);
     void SetProgressCallback(std::function<void(float)> callback);
@@ -165,7 +165,7 @@ public:
     static std::string getFileExtension(const std::string& filePath);
     
 private:
-    ::AtomsTemplate* m_parent;  // 부모 객체 참조
+    ::WorkspaceRuntimeModel* m_parent;  // 부모 객체 참조
     std::function<void(float)> m_progressCallback;
     float m_lastProgress { -1.0f };
     std::chrono::steady_clock::time_point m_lastProgressTime { };

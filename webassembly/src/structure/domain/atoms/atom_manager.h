@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../../../config/log_config.h"
 #include "color.h"
@@ -15,7 +15,7 @@
 #include <vtkActor.h>
 
 
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms {
 namespace domain {
@@ -248,7 +248,7 @@ uint32_t generateUniqueAtomId();
 bool isSurroundingsVisible();
 void setSurroundingsVisible(bool visible);
 
-void applyAtomChanges(::AtomsTemplate* parent,
+void applyAtomChanges(::WorkspaceRuntimeModel* parent,
                       float bondScalingFactor,
                       const ElementDatabase& elementDB);
 

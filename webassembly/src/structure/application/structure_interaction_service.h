@@ -1,6 +1,6 @@
 /**
  * @file structure_interaction_service.h
- * @brief Structure atom/bond/cell interaction facade extracted from AtomsTemplate.
+ * @brief Structure atom/bond/cell interaction facade extracted from WorkspaceRuntimeModel.
  */
 #pragma once
 

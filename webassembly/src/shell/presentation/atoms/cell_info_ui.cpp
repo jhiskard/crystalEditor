@@ -1,5 +1,5 @@
-﻿#include "cell_info_ui.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "cell_info_ui.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/cell_manager.h"   // cellInfo, calculateInverseMatrix, cartesianToFractional
 #include "../../../config/log_config.h"
 #include <cstdio>  // snprintf
@@ -8,7 +8,7 @@
 namespace atoms {
 namespace ui {
 
-CellInfoUI::CellInfoUI(AtomsTemplate* parent)
+CellInfoUI::CellInfoUI(WorkspaceRuntimeModel* parent)
     : m_parent(parent) {
     SPDLOG_DEBUG("CellInfoUI initialized");
 }
@@ -19,14 +19,14 @@ void CellInfoUI::applyCellChangesOnEditEnd() {
         return;
     }
 
-    // 실제 셀 변경 적용은 도메인 계층(AtomsTemplate)에게 위임
+    // ���� �� ���� ������ ������ ����(WorkspaceRuntimeModel)���� ����
     m_parent->ApplyCellChangesFromEditor();
 }
 
 void CellInfoUI::render() {
     if (!m_parent) {
         ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f),
-                           "CellInfoUI: AtomsTemplate is not available.");
+                           "CellInfoUI: WorkspaceRuntimeModel is not available.");
         return;
     }
 
@@ -37,35 +37,35 @@ void CellInfoUI::render() {
 
     ImGuiTableFlags columnFlags = ImGuiTableColumnFlags_WidthStretch;
     
-    // Edit mode 토글
+    // Edit mode ���
     ImGui::Checkbox("Edit mode##cellEdit", &m_editMode);
 
-    // Edit mode 종료( true → false ) 시 셀 변경 적용
+    // Edit mode ����( true �� false ) �� �� ���� ����
     if (m_prevEditMode && !m_editMode) {
         applyCellChangesOnEditEnd();
     }
     m_prevEditMode = m_editMode;
     
-    // Cell matrix 테이블 표시
+    // Cell matrix ���̺� ǥ��
     if (ImGui::BeginTable("CellMatrix", 4, tableFlags)) {
-        // 헤더 설정
+        // ��� ����
         ImGui::TableSetupColumn("",  columnFlags, 50.0f);
         ImGui::TableSetupColumn("x", columnFlags, 100.0f);
         ImGui::TableSetupColumn("y", columnFlags, 100.0f);
         ImGui::TableSetupColumn("z", columnFlags, 100.0f);
         ImGui::TableHeadersRow();
         
-        // 행 라벨
+        // �� ��
         const char* rowLabels[] = { "v1", "v2", "v3" };
         
         for (int row = 0; row < 3; row++) {
             ImGui::TableNextRow();
             
-            // 첫 번째 열: 행 라벨
+            // ù ��° ��: �� ��
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("%s", rowLabels[row]);
             
-            // 나머지 열: 매트릭스 값들
+            // ������ ��: ��Ʈ���� ����
             for (int col = 0; col < 3; col++) {
                 ImGui::TableSetColumnIndex(col + 1);
 
@@ -86,14 +86,14 @@ void CellInfoUI::render() {
         ImGui::EndTable();
     }
     
-    // Edit mode 안내 메시지
+    // Edit mode �ȳ� �޽���
     if (m_editMode) {
         ImGui::Separator();
         ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), "[Edit Mode Active]");
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 1.0f, 1.0f),
                            "Uncheck 'Edit mode' to apply cell changes");
         ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.2f, 1.0f),
-                           "⚡ Changes will be batched for optimal performance");
+                           "? Changes will be batched for optimal performance");
     }
 }
 

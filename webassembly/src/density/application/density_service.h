@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file density_service.h
  * @brief Charge-density feature application service facade.
  */
@@ -20,7 +20,7 @@ namespace density {
 namespace application {
 
 /**
- * @brief Density use-case facade extracted from AtomsTemplate.
+ * @brief Density use-case facade extracted from WorkspaceRuntimeModel.
  * @details Application layer delegates to legacy runtime in W5.3 thin-shim mode.
  */
 class DensityService {

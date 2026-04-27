@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file measurement_repository.h
  * @brief Measurement domain repository placeholder for Phase 8 extraction.
  */
@@ -13,7 +13,7 @@ namespace domain {
 
 /**
  * @brief Stable domain row for measurement queries.
- * @details This type decouples presentation read models from legacy AtomsTemplate structs.
+ * @details This type decouples presentation read models from legacy WorkspaceRuntimeModel structs.
  */
 struct MeasurementRecord {
     uint32_t id = 0;

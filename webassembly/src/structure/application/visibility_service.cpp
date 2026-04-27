@@ -1,9 +1,9 @@
-﻿#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/legacy_atoms_runtime.h"
 
 #include "../../render/application/render_gateway.h"
 #include "../../density/presentation/charge_density_ui.h"
 
-void AtomsTemplate::SetStructureVisible(bool visible) {
+void WorkspaceRuntimeModel::SetStructureVisible(bool visible) {
     m_StructureVisible = visible;
 
     for (auto& [id, entry] : m_Structures) {
@@ -39,7 +39,7 @@ void AtomsTemplate::SetStructureVisible(bool visible) {
 
 
 
-void AtomsTemplate::SetAtomVisibleById(uint32_t atomId, bool visible) {
+void WorkspaceRuntimeModel::SetAtomVisibleById(uint32_t atomId, bool visible) {
     if (atomId == 0) {
         return;
     }
@@ -49,7 +49,7 @@ void AtomsTemplate::SetAtomVisibleById(uint32_t atomId, bool visible) {
 }
 
 
-void AtomsTemplate::SetAtomLabelVisibleById(uint32_t atomId, bool visible) {
+void WorkspaceRuntimeModel::SetAtomLabelVisibleById(uint32_t atomId, bool visible) {
     if (atomId == 0) {
         return;
     }
@@ -63,7 +63,7 @@ void AtomsTemplate::SetAtomLabelVisibleById(uint32_t atomId, bool visible) {
 }
 
 
-void AtomsTemplate::SetBondVisibleById(uint32_t bondId, bool visible) {
+void WorkspaceRuntimeModel::SetBondVisibleById(uint32_t bondId, bool visible) {
     if (bondId == 0) {
         return;
     }
@@ -73,7 +73,7 @@ void AtomsTemplate::SetBondVisibleById(uint32_t bondId, bool visible) {
 }
 
 
-void AtomsTemplate::SetBondLabelVisibleById(uint32_t bondId, bool visible) {
+void WorkspaceRuntimeModel::SetBondLabelVisibleById(uint32_t bondId, bool visible) {
     if (bondId == 0) {
         return;
     }
@@ -87,7 +87,7 @@ void AtomsTemplate::SetBondLabelVisibleById(uint32_t bondId, bool visible) {
 }
 
 
-void AtomsTemplate::SetStructureVisible(int32_t id, bool visible) {
+void WorkspaceRuntimeModel::SetStructureVisible(int32_t id, bool visible) {
     if (id < 0) {
         SetStructureVisible(visible);
         return;
@@ -119,7 +119,7 @@ void AtomsTemplate::SetStructureVisible(int32_t id, bool visible) {
 }
 
 
-void AtomsTemplate::SetUnitCellVisible(int32_t id, bool visible) {
+void WorkspaceRuntimeModel::SetUnitCellVisible(int32_t id, bool visible) {
     if (id < 0) {
         setCellVisible(visible);
         return;

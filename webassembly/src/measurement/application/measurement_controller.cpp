@@ -1,4 +1,4 @@
-﻿#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/legacy_atoms_runtime.h"
 
 #include "../../app.h"
 #include "../../render/application/picked_atom_info.h"
@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-void AtomsTemplate::EnterMeasurementMode(MeasurementMode mode) {
+void WorkspaceRuntimeModel::EnterMeasurementMode(MeasurementMode mode) {
     if (mode == MeasurementMode::None) {
         ExitMeasurementMode();
         return;
@@ -28,7 +28,7 @@ void AtomsTemplate::EnterMeasurementMode(MeasurementMode mode) {
 }
 
 
-void AtomsTemplate::ExitMeasurementMode() {
+void WorkspaceRuntimeModel::ExitMeasurementMode() {
     if (m_MeasurementMode == MeasurementMode::None && m_MeasurementPickedAtomIds.empty()) {
         return;
     }
@@ -41,7 +41,7 @@ void AtomsTemplate::ExitMeasurementMode() {
 }
 
 
-void AtomsTemplate::HandleMeasurementClickByPicker(
+void WorkspaceRuntimeModel::HandleMeasurementClickByPicker(
     const render::application::PickedAtomInfo& pickedAtomInfo) {
     if (!IsMeasurementModeActive()) {
         return;
@@ -110,7 +110,7 @@ void AtomsTemplate::HandleMeasurementClickByPicker(
 }
 
 
-void AtomsTemplate::RenderMeasurementModeOverlay() {
+void WorkspaceRuntimeModel::RenderMeasurementModeOverlay() {
     if (!IsMeasurementModeActive()) {
         return;
     }

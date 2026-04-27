@@ -1,13 +1,13 @@
-﻿// webassembly/src/atoms/ui/bond_ui.cpp
+// webassembly/src/atoms/ui/bond_ui.cpp
 #include "bond_ui.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/bond_manager.h"
 #include "../../../config/log_config.h"
 
 namespace atoms {
 namespace ui {
 
-BondUI::BondUI(AtomsTemplate* parent)
+BondUI::BondUI(WorkspaceRuntimeModel* parent)
     : m_parent(parent) {
     SPDLOG_DEBUG("BondUI initialized");
 }
@@ -16,7 +16,7 @@ void BondUI::render() {
     if (!m_parent) {
         ImGui::TextColored(
             ImVec4(1.0f, 0.2f, 0.2f, 1.0f),
-            "Bond UI is not connected to AtomsTemplate."
+            "Bond UI is not connected to WorkspaceRuntimeModel."
         );
         return;
     }
@@ -33,7 +33,7 @@ void BondUI::render() {
 void BondUI::renderBondOperationsSection() {
     ImGui::Text("Bond Operations:");
 
-    // 모든 결합 생성 버튼
+    // ��� ���� ���� ��ư
     if (ImGui::Button("Add Bonds (All)")) {
         SPDLOG_INFO("User requested to create all bonds");
 
@@ -51,7 +51,7 @@ void BondUI::renderBondOperationsSection() {
 
     ImGui::SameLine();
 
-    // 모든 결합 제거 버튼
+    // ��� ���� ���� ��ư
     if (ImGui::Button("Clear Bonds (All)")) {
         SPDLOG_INFO("User requested to clear all bonds");
 
@@ -71,7 +71,7 @@ void BondUI::renderBondOperationsSection() {
 void BondUI::renderBondStyleSection() {
     ImGui::Text("Bond Style:");
 
-    // 두께 조절
+    // �β� ����
     float thickness = m_parent->getBondThickness();
     bool thicknessChanged = false;
 
@@ -97,7 +97,7 @@ void BondUI::renderBondStyleSection() {
         m_parent->updateAllBondGroupThickness();
     }
 
-    // 투명도 조절
+    // ����� ����
     float opacity = m_parent->getBondOpacity();
     bool opacityChanged = false;
 
@@ -127,7 +127,7 @@ void BondUI::renderBondStyleSection() {
 void BondUI::renderBondDistanceSection() {
     ImGui::Text("Bond Distance Parameters:");
 
-    // 거리 스케일 팩터
+    // �Ÿ� ������ ����
     float scalingFactor = m_parent->getBondScalingFactor();
     bool scalingChanged = false;
 
@@ -151,12 +151,12 @@ void BondUI::renderBondDistanceSection() {
         SPDLOG_DEBUG("Bond distance factor changed to {:.2f}", scalingFactor);
         m_parent->setBondScalingFactor(scalingFactor);
 
-        // 거리 스케일 변경 시, 전체 결합을 다시 생성하여 반영
+        // �Ÿ� ������ ���� ��, ��ü ������ �ٽ� �����Ͽ� �ݿ�
         auto guard = m_parent->createBatchGuard();
         m_parent->createAllBonds();
     }
 
-    // 허용 오차 팩터
+    // ��� ���� ����
     float toleranceFactor = m_parent->getBondToleranceFactor();
     bool toleranceChanged = false;
 

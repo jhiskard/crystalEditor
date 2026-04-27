@@ -1,4 +1,4 @@
-﻿// webassembly/src/atoms/ui/bravais_lattice_ui.h
+// webassembly/src/atoms/ui/bravais_lattice_ui.h
 #pragma once
 
 #include "../../../structure/domain/atoms/crystal_structure.h"
@@ -8,7 +8,7 @@
 #include <string>
 
 // Forward declaration
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms {
 namespace ui {
@@ -17,15 +17,15 @@ namespace ui {
  * @brief Bravais 격자 템플릿 UI 렌더링 클래스
  * 
  * 14가지 Bravais 격자 선택 및 파라미터 입력 기능 제공
- * AtomsTemplate에서 UI 로직을 분리하여 관리
+ * WorkspaceRuntimeModel에서 UI 로직을 분리하여 관리
  */
 class BravaisLatticeUI {
 public:
     /**
      * @brief 생성자
-     * @param parent AtomsTemplate 인스턴스 포인터
+     * @param parent WorkspaceRuntimeModel 인스턴스 포인터
      */
-    explicit BravaisLatticeUI(AtomsTemplate* parent);
+    explicit BravaisLatticeUI(WorkspaceRuntimeModel* parent);
     
     /**
      * @brief 소멸자
@@ -148,7 +148,7 @@ private:
     // 멤버 변수
     // ========================================================================
     
-    AtomsTemplate* m_parent;  // 부모 AtomsTemplate 참조
+    WorkspaceRuntimeModel* m_parent;  // 부모 WorkspaceRuntimeModel 참조
     
     // UI State
     int m_selectedLatticeType;  // 현재 선택된 격자 (-1: 선택 없음)

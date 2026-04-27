@@ -1,4 +1,4 @@
-﻿// render/infrastructure/atoms/vtk_renderer.h
+// render/infrastructure/atoms/vtk_renderer.h
 #pragma once
 
 #include "bz_plot_layer.h"      // 추가
@@ -46,7 +46,7 @@ enum class BondType;
 /**
  * @brief VTK 렌더링 시스템 - 모든 VTK 관련 렌더링 로직을 관리
  * 
- * AtomsTemplate에서 VTK 렌더링 관련 코드를 분리하여 관리합니다.
+ * WorkspaceRuntimeModel에서 VTK 렌더링 관련 코드를 분리하여 관리합니다.
  * 원자 그룹, 결합 그룹, 유닛 셀 렌더링을 담당합니다.
  */
 class VTKRenderer {

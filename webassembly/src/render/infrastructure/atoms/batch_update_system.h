@@ -1,10 +1,10 @@
-﻿// render/infrastructure/atoms/batch_update_system.h
+// render/infrastructure/atoms/batch_update_system.h
 #pragma once
 #include <set>
 #include <string>
 #include <chrono>
 
-class AtomsTemplate; // Forward declaration
+class WorkspaceRuntimeModel; // Forward declaration
 
 namespace atoms {
 namespace infrastructure {
@@ -17,7 +17,7 @@ namespace infrastructure {
  */
 class BatchUpdateSystem {
 public:
-    explicit BatchUpdateSystem(AtomsTemplate* parent);
+    explicit BatchUpdateSystem(WorkspaceRuntimeModel* parent);
     
     // ========================================================================
     // 배치 모드 제어
@@ -108,7 +108,7 @@ public:
     };
     
 private:
-    AtomsTemplate* parent;  // 부모 객체 참조 (콜백용)
+    WorkspaceRuntimeModel* parent;  // 부모 객체 참조 (콜백용)
     
     // 배치 상태
     bool batchMode;

@@ -1,4 +1,4 @@
-﻿// webassembly/src/atoms/ui/bravais_lattice_ui.cpp
+// webassembly/src/atoms/ui/bravais_lattice_ui.cpp
 #include "bravais_lattice_ui.h"
 #include "../../../structure/domain/atoms/crystal_structure.h"
 #include "../../../structure/domain/atoms/crystal_system.h"
@@ -7,7 +7,7 @@
 #include "../../../structure/domain/structure_repository.h"
 #include "../../../app.h"
 #include "../../../config/log_config.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -27,10 +27,10 @@ float calcScaledInputWidth() {
 }
 
 // ============================================================================
-// 생성자
+// ������
 // ============================================================================
 
-BravaisLatticeUI::BravaisLatticeUI(AtomsTemplate* parent)
+BravaisLatticeUI::BravaisLatticeUI(WorkspaceRuntimeModel* parent)
     : m_parent(parent)
     , m_selectedLatticeType(-1)
     , m_showCubic(true)
@@ -45,18 +45,18 @@ BravaisLatticeUI::BravaisLatticeUI(AtomsTemplate* parent)
     , m_pendingMinDistance(0.0f)
     , m_pendingMinThreshold(0.0f) {
     
-    // 파라미터 기본값 초기화
+    // �Ķ���� �⺻�� �ʱ�ȭ
     initializeDefaultParameters();
     
     SPDLOG_DEBUG("BravaisLatticeUI initialized");
 }
 
 // ============================================================================
-// 파라미터 기본값 초기화
+// �Ķ���� �⺻�� �ʱ�ȭ
 // ============================================================================
 
 void BravaisLatticeUI::initializeDefaultParameters() {
-    // 모든 격자에 대한 기본 파라미터 설정
+    // ��� ���ڿ� ���� �⺻ �Ķ���� ����
     for (int i = 0; i < 14; i++) {
         atoms::domain::BravaisLatticeType type = 
             static_cast<atoms::domain::BravaisLatticeType>(i);
@@ -110,7 +110,7 @@ void BravaisLatticeUI::initializeDefaultParameters() {
                 break;
                 
             case atoms::domain::BravaisLatticeType::TRICLINIC:
-                // Triclinic: 모든 값 다름
+                // Triclinic: ��� �� �ٸ�
                 m_latticeParams[i].a = 1.0f;
                 m_latticeParams[i].b = 1.2f;
                 m_latticeParams[i].c = 1.5f;
@@ -145,21 +145,21 @@ void BravaisLatticeUI::initializeDefaultParameters() {
 }
 
 // ============================================================================
-// 메인 렌더링
+// ���� ������
 // ============================================================================
 
 void BravaisLatticeUI::render() {
     ImGui::Text("Bravais Lattice Templates");
     
-    // 결정계 필터
+    // ������ ����
     renderCategoryFilter();
     
     ImGui::Separator();
     
-    // Bravais 격자 테이블
+    // Bravais ���� ���̺�
     renderLatticeTable();
     
-    // 선택된 격자 정보
+    // ���õ� ���� ����
     if (m_selectedLatticeType >= 0) {
         ImGui::Separator();
         renderLatticeDescription();
@@ -169,7 +169,7 @@ void BravaisLatticeUI::render() {
 }
 
 // ============================================================================
-// 결정계 필터
+// ������ ����
 // ============================================================================
 
 void BravaisLatticeUI::renderCategoryFilter() {
@@ -217,11 +217,11 @@ void BravaisLatticeUI::renderCategoryFilter() {
 }
 
 // ============================================================================
-// Bravais 격자 테이블
+// Bravais ���� ���̺�
 // ============================================================================
 
 void BravaisLatticeUI::renderLatticeTable() {
-    // 사용 가능한 창 너비 계산
+    // ��� ������ â �ʺ� ���
     const float availWidth = ImGui::GetContentRegionAvail().x;
     const ImGuiStyle& style = ImGui::GetStyle();
 
@@ -242,19 +242,19 @@ void BravaisLatticeUI::renderLatticeTable() {
         ImGui::TableSetupColumn("Button", ImGuiTableColumnFlags_WidthFixed, buttonWidth);
         ImGui::TableSetupColumn("Parameters", ImGuiTableColumnFlags_WidthStretch);
         
-        // 각 격자 유형별 행
+        // �� ���� ������ ��
         for (int i = 0; i < 14; i++) {
-            if (!isLatticeVisible(i)) continue;  // 필터링 적용
+            if (!isLatticeVisible(i)) continue;  // ���͸� ����
             
             ImGui::TableNextRow();
             
-            // 첫 번째 열: 버튼
+            // ù ��° ��: ��ư
             ImGui::TableNextColumn();
             if (ImGui::Button(getLatticeName(i), ImVec2(-FLT_MIN, 0))) {
                 onLatticeSelected(i);
             }
             
-            // 두 번째 열: 파라미터 입력
+            // �� ��° ��: �Ķ���� �Է�
             ImGui::TableNextColumn();
             renderParameterInputs(i);
         }
@@ -264,7 +264,7 @@ void BravaisLatticeUI::renderLatticeTable() {
 }
 
 // ============================================================================
-// 파라미터 입력 렌더링
+// �Ķ���� �Է� ������
 // ============================================================================
 
 void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
@@ -312,7 +312,7 @@ void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
         ImGui::TextDisabled("%s", text);
     };
 
-    // 각 격자 유형별 파라미터 설정 UI (좁은 폭에서 자동 줄바꿈)
+    // �� ���� ������ �Ķ���� ���� UI (���� ������ �ڵ� �ٹٲ�)
     switch (type) {
         case atoms::domain::BravaisLatticeType::SIMPLE_CUBIC:
         case atoms::domain::BravaisLatticeType::BODY_CENTERED_CUBIC:
@@ -320,7 +320,7 @@ void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
             renderFloatField("a:", "##a_" + std::to_string(latticeIndex), params.a, "%.3f", [&]() {
                 params.b = params.c = params.a;
             });
-            renderDescription("(a = b = c, all angles = 90°)");
+            renderDescription("(a = b = c, all angles = 90��)");
             break;
 
         case atoms::domain::BravaisLatticeType::SIMPLE_TETRAGONAL:
@@ -329,7 +329,7 @@ void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
                 params.b = params.a;
             });
             renderFloatField("c:", "##c_" + std::to_string(latticeIndex), params.c, "%.3f", []() {});
-            renderDescription("(a = b != c, all angles = 90°)");
+            renderDescription("(a = b != c, all angles = 90��)");
             break;
 
         case atoms::domain::BravaisLatticeType::SIMPLE_ORTHORHOMBIC:
@@ -339,7 +339,7 @@ void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
             renderFloatField("a:", "##a_" + std::to_string(latticeIndex), params.a, "%.3f", []() {});
             renderFloatField("b:", "##b_" + std::to_string(latticeIndex), params.b, "%.3f", []() {});
             renderFloatField("c:", "##c_" + std::to_string(latticeIndex), params.c, "%.3f", []() {});
-            renderDescription("(all angles = 90°)");
+            renderDescription("(all angles = 90��)");
             break;
 
         case atoms::domain::BravaisLatticeType::SIMPLE_MONOCLINIC:
@@ -348,7 +348,7 @@ void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
             renderFloatField("b:", "##b_" + std::to_string(latticeIndex), params.b, "%.3f", []() {});
             renderFloatField("c:", "##c_" + std::to_string(latticeIndex), params.c, "%.3f", []() {});
             renderFloatField("beta:", "##beta_" + std::to_string(latticeIndex), params.beta, "%.1f", []() {});
-            renderDescription("(alpha = gamma = 90°)");
+            renderDescription("(alpha = gamma = 90��)");
             break;
 
         case atoms::domain::BravaisLatticeType::TRICLINIC:
@@ -358,7 +358,7 @@ void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
             renderFloatField("alpha:", "##alpha_" + std::to_string(latticeIndex), params.alpha, "%.1f", []() {});
             renderFloatField("beta:", "##beta_" + std::to_string(latticeIndex), params.beta, "%.1f", []() {});
             renderFloatField("gamma:", "##gamma_" + std::to_string(latticeIndex), params.gamma, "%.1f", []() {});
-            renderDescription("(all angles != 90°)");
+            renderDescription("(all angles != 90��)");
             break;
 
         case atoms::domain::BravaisLatticeType::RHOMBOHEDRAL:
@@ -377,13 +377,13 @@ void BravaisLatticeUI::renderParameterInputs(int latticeIndex) {
                 params.gamma = 120.0f;
             });
             renderFloatField("c:", "##c_" + std::to_string(latticeIndex), params.c, "%.3f", []() {});
-            renderDescription("(a = b, alpha = beta = 90°, gamma = 120°)");
+            renderDescription("(a = b, alpha = beta = 90��, gamma = 120��)");
             break;
     }
 }
 
 // ============================================================================
-// 선택된 격자 설명
+// ���õ� ���� ����
 // ============================================================================
 
 void BravaisLatticeUI::renderLatticeDescription() {
@@ -393,7 +393,7 @@ void BravaisLatticeUI::renderLatticeDescription() {
     ImGui::Text("Selected: %s", 
                 atoms::domain::CrystalStructureGenerator::getLatticeName(type));
     
-    // TreeNode로 상세 설명 접기/펼치기
+    // TreeNode�� �� ���� ����/��ġ��
     if (ImGui::TreeNode("Lattice Description")) {
         ImGui::TextWrapped("%s", 
             atoms::domain::CrystalStructureGenerator::getLatticeDescription(type));
@@ -402,7 +402,7 @@ void BravaisLatticeUI::renderLatticeDescription() {
 }
 
 // ============================================================================
-// 이벤트 핸들러
+// �̺�Ʈ �ڵ鷯
 // ============================================================================
 
 void BravaisLatticeUI::onLatticeSelected(int latticeIndex) {
@@ -411,7 +411,7 @@ void BravaisLatticeUI::onLatticeSelected(int latticeIndex) {
     SPDLOG_INFO("Bravais lattice selected: {} (index={})", 
                 getLatticeName(latticeIndex), latticeIndex);
     
-    // AtomsTemplate에 격자 설정 요청
+    // WorkspaceRuntimeModel�� ���� ���� ��û
     if (m_parent) {
         atoms::domain::BravaisLatticeType type = 
             static_cast<atoms::domain::BravaisLatticeType>(latticeIndex);
@@ -555,7 +555,7 @@ bool BravaisLatticeUI::checkPredictedOverlap(
 }
 
 // ============================================================================
-// 유틸리티 메서드
+// ��ƿ��Ƽ �޼���
 // ============================================================================
 
 bool BravaisLatticeUI::isLatticeVisible(int latticeIndex) const {

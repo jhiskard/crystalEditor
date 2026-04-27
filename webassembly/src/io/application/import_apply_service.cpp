@@ -1,5 +1,7 @@
 ﻿#include "import_apply_service.h"
 
+#include "import_chgcar_service.h"
+#include "import_xsf_service.h"
 #include "import_runtime_port.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"
@@ -30,6 +32,16 @@ ImportRuntimePort& importRuntime() {
 
 mesh::application::MeshCommandService& meshCommandService() {
     return mesh::application::GetMeshCommandService();
+}
+
+ImportXsfService& importXsfService() {
+    static ImportXsfService service;
+    return service;
+}
+
+ImportChgcarService& importChgcarService() {
+    static ImportChgcarService service;
+    return service;
 }
 
 std::string ExtractFileName(const std::string& filePath, const char* fallback) {
@@ -189,7 +201,7 @@ ImportApplyResult ImportApplyService::ApplyXsf(ParserWorkerResult& parsedResult)
         runtime.SetCurrentStructureId(structureId);
         runtime.RegisterStructure(structureId, fileNameOnly);
         runtime.SetLoadedFileName(fileNameOnly);
-        applySuccess = runtime.LoadXsfParsedData(parseResult, true);
+        applySuccess = importXsfService().LoadXsfParsedData(parseResult, true);
     }
     catch (const std::exception& e) {
         SPDLOG_ERROR("Error applying XSF data: {}", e.what());
@@ -233,7 +245,7 @@ ImportApplyResult ImportApplyService::ApplyXsfGrid(ParserWorkerResult& parsedRes
         runtime.SetLoadedFileName(fileNameOnly);
 
         mesh::application::MeshCommandService& meshCommand = meshCommandService();
-        std::vector<ImportGridDataEntry> gridEntries;
+        std::vector<XsfGridDataEntry> gridEntries;
         int gridIndex = 1;
         for (auto& gridSet : parseResult.grids) {
             auto& gridHigh = gridSet.high;
@@ -301,7 +313,7 @@ ImportApplyResult ImportApplyService::ApplyXsfGrid(ParserWorkerResult& parsedRes
             mesh->SetVolumeMeshVisibility(true);
 
             if (simpleSource && !simpleSource->values.empty()) {
-                ImportGridDataEntry entry;
+                XsfGridDataEntry entry;
                 entry.name = simpleSource->label;
                 entry.dims = { simpleSource->dims[0], simpleSource->dims[1], simpleSource->dims[2] };
                 entry.origin[0] = simpleSource->origin[0];
@@ -319,10 +331,10 @@ ImportApplyResult ImportApplyService::ApplyXsfGrid(ParserWorkerResult& parsedRes
         }
 
         if (!gridEntries.empty()) {
-            runtime.SetChargeDensityGridDataEntries(std::move(gridEntries));
-            runtime.SetAllChargeDensityAdvancedGridVisible(
+            importXsfService().SetChargeDensityGridDataEntries(std::move(gridEntries));
+            importXsfService().SetAllChargeDensityAdvancedGridVisible(
                 structureId, false, false);
-            runtime.SetAllChargeDensityAdvancedGridVisible(
+            importXsfService().SetAllChargeDensityAdvancedGridVisible(
                 structureId, true, false);
         }
 
@@ -378,7 +390,7 @@ ImportApplyResult ImportApplyService::ApplyChgcar(ParserWorkerResult& parsedResu
         runtime.SetCurrentStructureId(structureId);
         runtime.RegisterStructure(structureId, fileNameOnly);
 
-        applySuccess = runtime.LoadChgcarParsedData(parseResult);
+        applySuccess = importChgcarService().LoadChgcarParsedData(parseResult);
         if (applySuccess) {
             runtime.SetLoadedFileName(fileNameOnly);
             SPDLOG_INFO("CHGCAR file loaded successfully: {}", fileNameOnly);
@@ -435,7 +447,7 @@ bool ImportApplyService::ApplyXsfGridAtomsPayload(
     parse.atoms = std::move(parsedResult.atoms);
 
     try {
-        return runtime.LoadXsfParsedData(parse, renderCell);
+        return importXsfService().LoadXsfParsedData(parse, renderCell);
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Error applying XSF grid atoms: {}", e.what());
         return false;

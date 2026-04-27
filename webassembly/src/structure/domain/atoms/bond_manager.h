@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../../../config/log_config.h"
 #include "atom_manager.h"
@@ -17,7 +17,7 @@
 #include <vtkAppendPolyData.h>
 #include <vtkMatrix4x4.h>
 
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 
 namespace atoms {
@@ -109,7 +109,7 @@ BondGroupInfo* findBondGroup(const std::string& key);
 void initializeBondGroup(const std::string& key, float baseRadius);
 void clearAllBondGroups();
 const std::map<std::string, BondGroupInfo>& getBondGroups();
-void clearAllBonds(AtomsTemplate* parent);
+void clearAllBonds(WorkspaceRuntimeModel* parent);
 std::string generateBondTypeKey(const std::string& element1, const std::string& element2);
 float calculateBondRadius(const AtomInfo& atom1, const AtomInfo& atom2);
 int findAtomIndex(const AtomInfo& atom, const std::vector<AtomInfo>& atomList);
@@ -126,7 +126,7 @@ void addBondToGroup2Color(
 );
 bool removeBondFromGroup(const std::string& bondTypeKey, size_t instanceIndex);
 void createBond(
-    AtomsTemplate* parent,
+    WorkspaceRuntimeModel* parent,
     const AtomInfo& atom1,
     const AtomInfo& atom2,
     BondType bondType,
@@ -134,7 +134,7 @@ void createBond(
     const ElementDatabase& elementDB
 );
 void createBondsForAtoms(
-    AtomsTemplate* parent,
+    WorkspaceRuntimeModel* parent,
     const std::vector<uint32_t>& atomIds,
     bool includeOriginal,
     bool includeSurrounding,
@@ -143,18 +143,18 @@ void createBondsForAtoms(
     const ElementDatabase& elementDB
 );
 void addBondsToGroups(
-    AtomsTemplate* parent,
+    WorkspaceRuntimeModel* parent,
     int atomIndex,
     float bondScalingFactor,
     const ElementDatabase& elementDB
 );
-void updateAllBondGroupThickness(AtomsTemplate* parent, float thickness);
-void updateAllBondGroupOpacity(AtomsTemplate* parent, float opacity);
+void updateAllBondGroupThickness(WorkspaceRuntimeModel* parent, float thickness);
+void updateAllBondGroupOpacity(WorkspaceRuntimeModel* parent, float opacity);
 
 /**
  * @brief 두 원자 사이에 결합을 생성할지 판단 (도메인 로직)
  *
- * 기존 AtomsTemplate::shouldCreateBond 로직을 유지하되,
+ * 기존 WorkspaceRuntimeModel::shouldCreateBond 로직을 유지하되,
  * - AtomInfo 데이터 + ElementDatabase + 스케일 팩터만 입력으로 받도록 정리.
  */
 bool shouldCreateBond(

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <vector>
 #include <vtkSmartPointer.h>
@@ -6,7 +6,7 @@
 
 #include "cell_transform.h"
 
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 
 struct CellInfo {
@@ -43,7 +43,7 @@ void getCellMatrix(float out[3][3]);
 void getCellInverse(float out[3][3]);
 void setCellModified(bool modified);
 bool isCellModified();
-void applyCellChanges(::AtomsTemplate* parent);
+void applyCellChanges(::WorkspaceRuntimeModel* parent);
 } // namespace atoms::domain
 
 

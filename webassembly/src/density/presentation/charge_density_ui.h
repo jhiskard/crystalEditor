@@ -1,4 +1,4 @@
-﻿// atoms/ui/charge_density_ui.h
+// atoms/ui/charge_density_ui.h
 #pragma once
 #include <memory>
 #include <string>
@@ -11,7 +11,7 @@
 #include "../../io/infrastructure/chgcar_parser.h"
 #include "../../common/colormap.h"
 
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms {
 namespace infrastructure {
@@ -43,7 +43,7 @@ public:
         bool visible = false;
     };
 
-    explicit ChargeDensityUI(::AtomsTemplate* atomsTemplate);
+    explicit ChargeDensityUI(::WorkspaceRuntimeModel* atomsTemplate);
     ~ChargeDensityUI();
     
     /// ImGui 렌더링
@@ -125,7 +125,7 @@ public:
     void setAnimationDuration(float seconds) { m_animationDuration = seconds; }
 
 private:
-    ::AtomsTemplate* m_atomsTemplate;
+    ::WorkspaceRuntimeModel* m_atomsTemplate;
     std::unique_ptr<infrastructure::ChargeDensityRenderer> m_renderer;
     std::unordered_map<std::string, std::unique_ptr<infrastructure::ChargeDensityRenderer>> m_auxRenderers;
     

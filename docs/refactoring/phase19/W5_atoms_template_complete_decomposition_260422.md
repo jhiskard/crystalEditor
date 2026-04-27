@@ -25,7 +25,7 @@
 
 ## 3. 운영 규칙 (v2 필수)
 
-1. `W5.1~W5.6`은 **병렬 금지, 순차 실행**.
+1. `W5.1~W5.9`는 **병렬 금지, 순차 실행**.
 2. 각 단계에서 **Thin-shim 3단계** 허용:
    - 1차: 신규 서비스 이관
    - 2차: 호출자 전환
@@ -74,6 +74,14 @@
 
 - `wb_workspace.cmake`에서 legacy 소스 완전 제거
 
+### W5.9 심볼 제로화 (`AtomsTemplate`, `LegacyAtomsRuntime`)
+
+- 대상: `webassembly/src/**`의 타입명/전방 선언/include/alias 잔존 참조
+- 실행: 코드 기준 심볼 인벤토리 동결(`docs/**` 제외 후 `rg` 기준선 확정)
+- 실행: 잔존 호출자/헤더를 중립 명칭 기반 경로로 치환 후 shim 제거
+- 검증: 재검색으로 `AtomsTemplate`, `LegacyAtomsRuntime` 심볼 0 확인
+- 산출: `atoms_template_decomposition_progress_W5_9.md` + call graph 최신화
+
 ## 5. 파일 변경 명세
 
 | 경로 | 변경 유형 | 비고 |
@@ -89,8 +97,10 @@
 | `webassembly/src/shell/presentation/**` | 신규/수정 | W5.5 |
 | `webassembly/src/io/application/**` | 수정 | W5.6 |
 | `webassembly/cmake/modules/wb_workspace.cmake` | 수정 | W5.8 |
+| `webassembly/src/**` | 수정/치환 | W5.9 (잔존 심볼 제거) |
 | `docs/refactoring/phase19/logs/atoms_template_call_graph_phase19_latest.md` | **신규/갱신** | 단계별 갱신 |
 | `docs/refactoring/phase19/logs/w5_state_ownership_matrix_phase19_latest.md` | **신규** | 상태 소유권 기록 |
+| `docs/refactoring/phase19/logs/atoms_template_decomposition_progress_W5_9.md` | **신규** | W5.9 증빙 |
 | `docs/refactoring/phase19/logs/dependency_gate_report_W5.md` | **신규** | 완료 리포트 |
 
 ## 6. 완료 기준 (DoD)
@@ -100,8 +110,9 @@
 | `AtomsTemplate` 심볼 | grep | 0 |
 | `LegacyAtomsRuntime` 심볼 | grep | 0 |
 | `webassembly/src/workspace/legacy/` 존재 | find | 없음 |
-| W5.1~W5.6 순차 증빙 | 로그 | 전 단계 기록 완료 |
+| W5.1~W5.9 순차 증빙 | 로그 | 전 단계 기록 완료 |
 | `atoms_template_call_graph_phase19_latest.md` | 문서 체크 | 최신 반영 |
+| `atoms_template_decomposition_progress_W5_9.md` | 문서 체크 | 작성 완료 |
 | 회귀 테스트 | 단위/e2e/수동 | PASS |
 
 ## 7. 리스크와 완화
@@ -117,6 +128,7 @@
 - `workspace/legacy` 삭제 결과
 - 기능별 신규/수정 서비스 및 presenter
 - 단계별 call graph/소유권 로그
+- W5.9 심볼 제로화 증빙 로그
 - `dependency_gate_report_W5.md`
 
 ## 9. Git 커밋 템플릿
@@ -124,9 +136,10 @@
 ```
 refactor(workspace): phase19/W5 — fully decompose AtomsTemplate and remove legacy runtime
 
-- Execute W5.1~W5.6 sequential migration with thin-shim strategy
+- Execute W5.1~W5.9 sequential migration with thin-shim strategy
 - Delete workspace/legacy files (atoms_template_facade + legacy_atoms_runtime)
 - Update workspace cmake sources
+- Execute W5.9 symbol zeroization for AtomsTemplate and LegacyAtomsRuntime
 - Refresh call graph and ownership matrix logs
 
 metrics:
@@ -135,7 +148,7 @@ metrics:
   workspace/legacy directory: present -> removed
 
 verif:
-  stage regressions (W5.1~W5.6): PASS
+  stage regressions (W5.1~W5.9): PASS
   build/test gates: PASS
 ```
 

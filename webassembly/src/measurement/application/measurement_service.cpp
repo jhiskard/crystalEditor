@@ -1,58 +1,58 @@
 #include "measurement_service.h"
 
-#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/legacy_atoms_runtime.h"
 
 namespace {
-measurement::application::MeasurementMode toMeasurementMode(AtomsTemplate::MeasurementMode mode) {
+measurement::application::MeasurementMode toMeasurementMode(WorkspaceRuntimeModel::MeasurementMode mode) {
     using measurement::application::MeasurementMode;
     switch (mode) {
-    case AtomsTemplate::MeasurementMode::Distance:
+    case WorkspaceRuntimeModel::MeasurementMode::Distance:
         return MeasurementMode::Distance;
-    case AtomsTemplate::MeasurementMode::Angle:
+    case WorkspaceRuntimeModel::MeasurementMode::Angle:
         return MeasurementMode::Angle;
-    case AtomsTemplate::MeasurementMode::Dihedral:
+    case WorkspaceRuntimeModel::MeasurementMode::Dihedral:
         return MeasurementMode::Dihedral;
-    case AtomsTemplate::MeasurementMode::GeometricCenter:
+    case WorkspaceRuntimeModel::MeasurementMode::GeometricCenter:
         return MeasurementMode::GeometricCenter;
-    case AtomsTemplate::MeasurementMode::CenterOfMass:
+    case WorkspaceRuntimeModel::MeasurementMode::CenterOfMass:
         return MeasurementMode::CenterOfMass;
-    case AtomsTemplate::MeasurementMode::None:
+    case WorkspaceRuntimeModel::MeasurementMode::None:
     default:
         return MeasurementMode::None;
     }
 }
 
-AtomsTemplate::MeasurementMode toLegacyMeasurementMode(measurement::application::MeasurementMode mode) {
+WorkspaceRuntimeModel::MeasurementMode toLegacyMeasurementMode(measurement::application::MeasurementMode mode) {
     using measurement::application::MeasurementMode;
     switch (mode) {
     case MeasurementMode::Distance:
-        return AtomsTemplate::MeasurementMode::Distance;
+        return WorkspaceRuntimeModel::MeasurementMode::Distance;
     case MeasurementMode::Angle:
-        return AtomsTemplate::MeasurementMode::Angle;
+        return WorkspaceRuntimeModel::MeasurementMode::Angle;
     case MeasurementMode::Dihedral:
-        return AtomsTemplate::MeasurementMode::Dihedral;
+        return WorkspaceRuntimeModel::MeasurementMode::Dihedral;
     case MeasurementMode::GeometricCenter:
-        return AtomsTemplate::MeasurementMode::GeometricCenter;
+        return WorkspaceRuntimeModel::MeasurementMode::GeometricCenter;
     case MeasurementMode::CenterOfMass:
-        return AtomsTemplate::MeasurementMode::CenterOfMass;
+        return WorkspaceRuntimeModel::MeasurementMode::CenterOfMass;
     case MeasurementMode::None:
     default:
-        return AtomsTemplate::MeasurementMode::None;
+        return WorkspaceRuntimeModel::MeasurementMode::None;
     }
 }
 
-measurement::application::MeasurementType toMeasurementType(AtomsTemplate::MeasurementType type) {
+measurement::application::MeasurementType toMeasurementType(WorkspaceRuntimeModel::MeasurementType type) {
     using measurement::application::MeasurementType;
     switch (type) {
-    case AtomsTemplate::MeasurementType::Distance:
+    case WorkspaceRuntimeModel::MeasurementType::Distance:
         return MeasurementType::Distance;
-    case AtomsTemplate::MeasurementType::Angle:
+    case WorkspaceRuntimeModel::MeasurementType::Angle:
         return MeasurementType::Angle;
-    case AtomsTemplate::MeasurementType::Dihedral:
+    case WorkspaceRuntimeModel::MeasurementType::Dihedral:
         return MeasurementType::Dihedral;
-    case AtomsTemplate::MeasurementType::GeometricCenter:
+    case WorkspaceRuntimeModel::MeasurementType::GeometricCenter:
         return MeasurementType::GeometricCenter;
-    case AtomsTemplate::MeasurementType::CenterOfMass:
+    case WorkspaceRuntimeModel::MeasurementType::CenterOfMass:
     default:
         return MeasurementType::CenterOfMass;
     }
@@ -65,37 +65,37 @@ namespace application {
 MeasurementService::MeasurementService() = default;
 
 MeasurementMode MeasurementService::GetMode() const {
-    return toMeasurementMode(workspace::legacy::LegacyAtomsRuntime().GetMeasurementMode());
+    return toMeasurementMode(workspace::legacy::WorkspaceRuntimeModelRef().GetMeasurementMode());
 }
 
 bool MeasurementService::IsModeActive() const {
-    return workspace::legacy::LegacyAtomsRuntime().IsMeasurementModeActive();
+    return workspace::legacy::WorkspaceRuntimeModelRef().IsMeasurementModeActive();
 }
 
 bool MeasurementService::IsDragSelectionEnabled() const {
-    return workspace::legacy::LegacyAtomsRuntime().IsMeasurementDragSelectionEnabled();
+    return workspace::legacy::WorkspaceRuntimeModelRef().IsMeasurementDragSelectionEnabled();
 }
 
 void MeasurementService::EnterMode(MeasurementMode mode) {
-    workspace::legacy::LegacyAtomsRuntime().EnterMeasurementMode(toLegacyMeasurementMode(mode));
+    workspace::legacy::WorkspaceRuntimeModelRef().EnterMeasurementMode(toLegacyMeasurementMode(mode));
 }
 
 void MeasurementService::ExitMode() {
-    workspace::legacy::LegacyAtomsRuntime().ExitMeasurementMode();
+    workspace::legacy::WorkspaceRuntimeModelRef().ExitMeasurementMode();
 }
 
 render::application::PickedAtomInfo MeasurementService::ResolvePickedAtomInfo(
     vtkActor* actor,
     const double pickPos[3]) const {
-    return workspace::legacy::LegacyAtomsRuntime().ResolvePickedAtomInfo(actor, pickPos);
+    return workspace::legacy::WorkspaceRuntimeModelRef().ResolvePickedAtomInfo(actor, pickPos);
 }
 
 void MeasurementService::HandlePickerClick(const render::application::PickedAtomInfo& pickedAtomInfo) {
-    workspace::legacy::LegacyAtomsRuntime().HandleMeasurementClickByPicker(pickedAtomInfo);
+    workspace::legacy::WorkspaceRuntimeModelRef().HandleMeasurementClickByPicker(pickedAtomInfo);
 }
 
 void MeasurementService::HandleEmptyClick() {
-    workspace::legacy::LegacyAtomsRuntime().HandleMeasurementEmptyClick();
+    workspace::legacy::WorkspaceRuntimeModelRef().HandleMeasurementEmptyClick();
 }
 
 void MeasurementService::HandleDragSelectionInScreenRect(
@@ -106,17 +106,17 @@ void MeasurementService::HandleDragSelectionInScreenRect(
     vtkRenderer* renderer,
     int viewportHeight,
     bool additive) {
-    workspace::legacy::LegacyAtomsRuntime().HandleDragSelectionInScreenRect(
+    workspace::legacy::WorkspaceRuntimeModelRef().HandleDragSelectionInScreenRect(
         x0, y0, x1, y1, renderer, viewportHeight, additive);
 }
 
 void MeasurementService::RenderModeOverlay() {
-    workspace::legacy::LegacyAtomsRuntime().RenderMeasurementModeOverlay();
+    workspace::legacy::WorkspaceRuntimeModelRef().RenderMeasurementModeOverlay();
 }
 
 std::vector<MeasurementListItem> MeasurementService::GetMeasurementsForStructure(int32_t structureId) const {
     std::vector<MeasurementListItem> output;
-    const auto source = workspace::legacy::LegacyAtomsRuntime().GetMeasurementsForStructure(structureId);
+    const auto source = workspace::legacy::WorkspaceRuntimeModelRef().GetMeasurementsForStructure(structureId);
     output.reserve(source.size());
     for (const auto& item : source) {
         output.push_back({ item.id, toMeasurementType(item.type), item.displayName, item.visible });
@@ -125,21 +125,21 @@ std::vector<MeasurementListItem> MeasurementService::GetMeasurementsForStructure
 }
 
 void MeasurementService::SetMeasurementVisible(uint32_t measurementId, bool visible) {
-    workspace::legacy::LegacyAtomsRuntime().SetMeasurementVisible(measurementId, visible);
+    workspace::legacy::WorkspaceRuntimeModelRef().SetMeasurementVisible(measurementId, visible);
 }
 
 void MeasurementService::RemoveMeasurement(uint32_t measurementId) {
-    workspace::legacy::LegacyAtomsRuntime().RemoveMeasurement(measurementId);
+    workspace::legacy::WorkspaceRuntimeModelRef().RemoveMeasurement(measurementId);
 }
 
 void MeasurementService::RemoveMeasurementsByStructure(int32_t structureId) {
-    workspace::legacy::LegacyAtomsRuntime().RemoveMeasurementsByStructure(structureId);
+    workspace::legacy::WorkspaceRuntimeModelRef().RemoveMeasurementsByStructure(structureId);
 }
 
 std::vector<DistanceMeasurementListItem> MeasurementService::GetDistanceMeasurementsForStructure(
     int32_t structureId) const {
     std::vector<DistanceMeasurementListItem> output;
-    const auto source = workspace::legacy::LegacyAtomsRuntime().GetDistanceMeasurementsForStructure(structureId);
+    const auto source = workspace::legacy::WorkspaceRuntimeModelRef().GetDistanceMeasurementsForStructure(structureId);
     output.reserve(source.size());
     for (const auto& item : source) {
         output.push_back({ item.id, item.displayName, item.visible });
@@ -148,11 +148,11 @@ std::vector<DistanceMeasurementListItem> MeasurementService::GetDistanceMeasurem
 }
 
 void MeasurementService::SetDistanceMeasurementVisible(uint32_t measurementId, bool visible) {
-    workspace::legacy::LegacyAtomsRuntime().SetDistanceMeasurementVisible(measurementId, visible);
+    workspace::legacy::WorkspaceRuntimeModelRef().SetDistanceMeasurementVisible(measurementId, visible);
 }
 
 void MeasurementService::RemoveDistanceMeasurement(uint32_t measurementId) {
-    workspace::legacy::LegacyAtomsRuntime().RemoveDistanceMeasurement(measurementId);
+    workspace::legacy::WorkspaceRuntimeModelRef().RemoveDistanceMeasurement(measurementId);
 }
 
 } // namespace application

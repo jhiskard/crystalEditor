@@ -1,4 +1,4 @@
-﻿// render/infrastructure/atoms/file_io_manager.cpp (신규, merge-style progress parser)
+// render/infrastructure/atoms/file_io_manager.cpp (�ű�, merge-style progress parser)
 #include "file_io_manager.h"
 #include "../../config/log_config.h"
 #include "../../io/infrastructure/xsf_parser.h"
@@ -6,7 +6,7 @@
 #include "../../structure/domain/atoms/element_database.h"
 #include "../../structure/domain/atoms/atom_manager.h"
 #include "../../structure/domain/atoms/cell_manager.h"
-#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/legacy_atoms_runtime.h"
 
 #include <fstream>
 #include <sstream>
@@ -180,7 +180,7 @@ bool buildDownsampledGrid(const FileIOManager::Grid3DResult& source,
 } // namespace
 
 // ============================================================================
-// 정적 데이터
+// ���� ������
 // ============================================================================
 
 const char* FileIOManager::s_chemicalSymbols[] = {
@@ -202,10 +202,10 @@ const size_t FileIOManager::s_numElements =
     sizeof(FileIOManager::s_chemicalSymbols) / sizeof(FileIOManager::s_chemicalSymbols[0]);
 
 // ============================================================================
-// 생성자/소멸자
+// ������/�Ҹ���
 // ============================================================================
 
-FileIOManager::FileIOManager(::AtomsTemplate* parent) 
+FileIOManager::FileIOManager(::WorkspaceRuntimeModel* parent) 
     : m_parent(parent) {
     SPDLOG_DEBUG("FileIOManager initialized");
 }
@@ -215,13 +215,13 @@ FileIOManager::~FileIOManager() {
 }
 
 // ============================================================================
-// Public 인터페이스
+// Public �������̽�
 // ============================================================================
 
 FileIOManager::ParseResult FileIOManager::loadXSFFile(const std::string& filePath) {
     SPDLOG_INFO("Loading XSF file: {}", filePath);
     
-    // 파일 확장자 확인
+    // ���� Ȯ���� Ȯ��
     std::string ext = getFileExtension(filePath);
     if (ext != "xsf") {
         SPDLOG_WARN("File extension is not .xsf: {}", ext);
@@ -252,10 +252,10 @@ bool FileIOManager::saveXSFFile(const std::string& filePath,
                                 const float cellVectors[3][3],
                                 const std::vector<AtomData>& atoms) {
     SPDLOG_WARN("XSF file saving not implemented yet");
-    return false; // 미구현 - 추후 확장용
+    return false; // �̱��� - ���� Ȯ���
 }
 
-bool FileIOManager::initializeStructureFromXSF(const std::string& filePath, ::AtomsTemplate* parent, std::string& errorMessage, std::vector<uint32_t>* outNewAtomIds) {
+bool FileIOManager::initializeStructureFromXSF(const std::string& filePath, ::WorkspaceRuntimeModel* parent, std::string& errorMessage, std::vector<uint32_t>* outNewAtomIds) {
     auto result = loadXSFFile(filePath);
     if (!result.success) {
         errorMessage = result.errorMessage;
@@ -264,15 +264,15 @@ bool FileIOManager::initializeStructureFromXSF(const std::string& filePath, ::At
     return initializeStructure(result.cellVectors, result.atoms, parent, errorMessage, outNewAtomIds);
 }
 
-bool FileIOManager::initializeStructure(const float cellVectors[3][3], const std::vector<AtomData>& atomsData, ::AtomsTemplate* parent, std::string& errorMessage, std::vector<uint32_t>* outNewAtomIds) {
+bool FileIOManager::initializeStructure(const float cellVectors[3][3], const std::vector<AtomData>& atomsData, ::WorkspaceRuntimeModel* parent, std::string& errorMessage, std::vector<uint32_t>* outNewAtomIds) {
     if (!parent) {
-        errorMessage = "AtomsTemplate parent is null";
+        errorMessage = "WorkspaceRuntimeModel parent is null";
         return false;
     }
     try {
         auto& createdAtoms = structure::domain::GetStructureRepository().CreatedAtoms();
 
-        // 셀 행렬 업데이트
+        // �� ��� ������Ʈ
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 cellInfo.matrix[i][j] = cellVectors[i][j];
@@ -283,7 +283,7 @@ bool FileIOManager::initializeStructure(const float cellVectors[3][3], const std
 
         parent->createUnitCell(cellInfo.matrix);
 
-        // 원자 생성
+        // ���� ����
         const auto& elementDB = atoms::domain::ElementDatabase::getInstance();
         for (const auto& atom : atomsData) {
             const std::string& symbol = atom.symbol;
@@ -312,7 +312,7 @@ std::string FileIOManager::getSymbolFromAtomicNumber(int atomicNumber) {
     if (atomicNumber >= 0 && atomicNumber < static_cast<int>(s_numElements)) {
         return s_chemicalSymbols[atomicNumber];
     }
-    return "X"; // 기본값 (알 수 없는 원소)
+    return "X"; // �⺻�� (�� �� ���� ����)
 }
 
 std::string FileIOManager::getFileExtension(const std::string& filePath) {
@@ -328,7 +328,7 @@ std::string FileIOManager::getFileExtension(const std::string& filePath) {
 }
 
 // ============================================================================
-// XSF 파싱 구현
+// XSF �Ľ� ����
 // ============================================================================
 
 FileIOManager::ParseResult FileIOManager::parseXSFFile(const std::string& filePath) {
@@ -405,7 +405,7 @@ FileIOManager::ParseResult FileIOManager::parseXSFFile(const std::string& filePa
             
             if (readingPrimcoord) {
                 if (currentAtomLine == 0) {
-                    // 첫 줄은 원자 개수
+                    // ù ���� ���� ����
                     iss.str(line);
                     iss >> atomCount;
                     SPDLOG_DEBUG("Expecting {} atoms", atomCount);
@@ -435,7 +435,7 @@ FileIOManager::ParseResult FileIOManager::parseXSFFile(const std::string& filePa
             m_progressCallback(1.0f);
         }
         
-        // 결과 검증
+        // ��� ����
         if (primvecLine == 3 && !result.atoms.empty()) {
             result.success = true;
             SPDLOG_INFO("Successfully parsed XSF file: {} atoms, cell vectors complete", 

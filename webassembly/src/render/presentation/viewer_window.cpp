@@ -39,7 +39,7 @@
 #include <vtkCameraOrientationRepresentation.h>
 #include <vtkCamera.h>
 #include <vtkCommand.h>
-#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/legacy_atoms_runtime.h"
 
 namespace {
 constexpr int kInteractionSampleDistanceIndex = 5;
@@ -1459,7 +1459,7 @@ void VtkViewer::Render(bool* openWindow) {
     GetWorkbenchRuntime().ToolbarPanel().Render(windowSize);
     measurement::application::MeasurementService& measurementService =
         GetWorkbenchRuntime().MeasurementFeature();
-    AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
+    WorkspaceRuntimeModel& atomsTemplate = workspace::legacy::WorkspaceRuntimeModelRef();
     structure::application::StructureInteractionService& structureInteraction =
         GetWorkbenchRuntime().StructureInteractionFeature();
     measurementService.RenderModeOverlay();

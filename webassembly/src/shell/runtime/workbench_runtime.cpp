@@ -5,6 +5,7 @@
 #include "../../platform/browser/browser_file_dialog_adapter.h"
 #include "../../platform/worker/emscripten_worker_port.h"
 #include "../../platform/worker/runtime_progress_port.h"
+#include "../presentation/atoms/atoms_window_presenter.h"
 #include "../presentation/font/font_registry.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
 #include "../../mesh/presentation/mesh_group_detail_panel.h"
@@ -69,6 +70,11 @@ density::application::DensityService& runtimeDensityFeature() {
     static density::application::DensityService service;
     return service;
 }
+
+shell::presentation::atoms::AtomsWindowPresenter& runtimeAtomsWindowFeature() {
+    static shell::presentation::atoms::AtomsWindowPresenter presenter;
+    return presenter;
+}
 } // namespace
 
 WorkbenchRuntime& WorkbenchRuntime::Instance() {
@@ -116,6 +122,10 @@ measurement::application::MeasurementService& WorkbenchRuntime::MeasurementFeatu
 
 density::application::DensityService& WorkbenchRuntime::DensityFeature() {
     return runtimeDensityFeature();
+}
+
+shell::presentation::atoms::AtomsWindowPresenter& WorkbenchRuntime::AtomsWindowFeature() {
+    return runtimeAtomsWindowFeature();
 }
 
 ModelTree& WorkbenchRuntime::ModelTreePanel() {

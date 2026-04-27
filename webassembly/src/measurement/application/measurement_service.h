@@ -17,7 +17,7 @@ namespace measurement {
 namespace application {
 
 /**
- * @brief Measurement use-case facade extracted from AtomsTemplate.
+ * @brief Measurement use-case facade extracted from WorkspaceRuntimeModel.
  * @details Application layer delegates to legacy runtime in W5.2 thin-shim mode.
  */
 class MeasurementService {

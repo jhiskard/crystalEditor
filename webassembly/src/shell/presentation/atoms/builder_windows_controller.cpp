@@ -1,4 +1,4 @@
-﻿#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 
 #include "bravais_lattice_ui.h"
 #include "bz_plot_ui.h"
@@ -7,7 +7,7 @@
 // ImGui
 #include <imgui.h>
 
-void AtomsTemplate::RenderCrystalTemplatesWindow(bool* openWindow) {
+void WorkspaceRuntimeModel::RenderCrystalTemplatesWindow(bool* openWindow) {
     if (openWindow != nullptr && !*openWindow) {
         return;
     }
@@ -26,7 +26,7 @@ void AtomsTemplate::RenderCrystalTemplatesWindow(bool* openWindow) {
     ImGui::End();
 }
 
-void AtomsTemplate::RenderPeriodicTableWindow(bool* openWindow) {
+void WorkspaceRuntimeModel::RenderPeriodicTableWindow(bool* openWindow) {
     if (openWindow != nullptr && !*openWindow) {
         return;
     }
@@ -45,7 +45,7 @@ void AtomsTemplate::RenderPeriodicTableWindow(bool* openWindow) {
     ImGui::End();
 }
 
-void AtomsTemplate::RenderBrillouinZonePlotWindow(bool* openWindow) {
+void WorkspaceRuntimeModel::RenderBrillouinZonePlotWindow(bool* openWindow) {
     if (openWindow != nullptr && !*openWindow) {
         return;
     }

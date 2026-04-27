@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <vector>
 #include <array>
@@ -7,7 +7,7 @@
 #include <map>
 
 struct CellInfo;
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms {
 namespace domain {
@@ -182,12 +182,12 @@ public:
 /**
  * @brief BZ Plot 모드 전환을 관리하는 컨트롤러
  *
- * AtomsTemplate에서 renderer 가시성 토글 및 BZ 생성/정리를 위임받아 수행합니다.
+ * WorkspaceRuntimeModel에서 renderer 가시성 토글 및 BZ 생성/정리를 위임받아 수행합니다.
  */
 class BZPlotController {
 public:
     bool enterBZPlotMode(
-        AtomsTemplate* parent,
+        WorkspaceRuntimeModel* parent,
         const CellInfo& cellInfo,
         const std::string& path,
         int npoints,
@@ -195,7 +195,7 @@ public:
         bool showLabels,
         std::string& outErrorMessage);
 
-    void exitBZPlotMode(AtomsTemplate* parent);
+    void exitBZPlotMode(WorkspaceRuntimeModel* parent);
 
 private:
     struct CameraState {

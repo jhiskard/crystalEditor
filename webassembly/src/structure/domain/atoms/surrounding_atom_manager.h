@@ -1,12 +1,12 @@
-﻿#pragma once
+#pragma once
 
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms::domain {
 
 class SurroundingAtomManager {
 public:
-    explicit SurroundingAtomManager(::AtomsTemplate* parent);
+    explicit SurroundingAtomManager(::WorkspaceRuntimeModel* parent);
 
     void createSurroundingAtoms();
     void hideSurroundingAtoms();
@@ -14,7 +14,7 @@ public:
     void setVisible(bool visible);
 
 private:
-    ::AtomsTemplate* m_parent = nullptr;
+    ::WorkspaceRuntimeModel* m_parent = nullptr;
 };
 
 } // namespace atoms::domain

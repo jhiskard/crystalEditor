@@ -1,4 +1,4 @@
-﻿#include "app.h"
+#include "app.h"
 #include "shell/runtime/workbench_runtime.h"
 #include "shell/application/workbench_controller.h"
 #include "shell/application/shell_state_query_service.h"
@@ -12,9 +12,7 @@
 #include "mesh/domain/mesh_entity.h"
 #include "density/application/density_service.h"
 #include "structure/application/structure_lifecycle_service.h"
-
-// Legacy atoms facade
-#include "workspace/legacy/legacy_atoms_runtime.h"
+#include "shell/presentation/atoms/atoms_window_presenter.h"
 
 // ImGui
 #include <imgui.h>
@@ -1026,7 +1024,7 @@ void App::InitImGuiWindows() {
     (void)GetWorkbenchRuntime().ModelTreePanel();
     (void)GetWorkbenchRuntime().MeshDetailPanel();
     (void)GetWorkbenchRuntime().MeshGroupDetailPanel();
-    (void)workspace::legacy::LegacyAtomsRuntime();
+    (void)GetWorkbenchRuntime().AtomsWindowFeature();
 }
 
 void App::renderAboutPopup() {
@@ -1100,6 +1098,8 @@ void App::renderAboutPopup() {
 
 void App::renderImGuiWindows() {
     syncShellStateFromStore();
+    shell::presentation::atoms::AtomsWindowPresenter& atomsWindowPresenter =
+        GetWorkbenchRuntime().AtomsWindowFeature();
 
     // About 팝업 렌더링
     if (m_bShowAboutPopup) {
@@ -1108,20 +1108,7 @@ void App::renderImGuiWindows() {
 
     {
         shell::domain::ShellUiState& shellState = GetWorkbenchRuntime().ShellStateCommand().MutableState();
-        AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
-
-        if (shellState.hasPendingEditorRequest) {
-            atomsTemplate.RequestEditorSection(shellState.pendingEditorRequest);
-            shellState.hasPendingEditorRequest = false;
-        }
-        if (shellState.hasPendingBuilderRequest) {
-            atomsTemplate.RequestBuilderSection(shellState.pendingBuilderRequest);
-            shellState.hasPendingBuilderRequest = false;
-        }
-        if (shellState.hasPendingDataRequest) {
-            atomsTemplate.RequestDataMenu(shellState.pendingDataRequest);
-            shellState.hasPendingDataRequest = false;
-        }
+        atomsWindowPresenter.ApplyPendingPanelRequests(shellState);
     }
 
     const bool applyResetLayoutThisFrame = m_ResetWindowGeometryPassesRemaining > 0;
@@ -1135,10 +1122,15 @@ void App::renderImGuiWindows() {
 
             GetWorkbenchRuntime().Viewer().RequestForcedWindowLayout(resetLayout.viewerPos, resetLayout.viewerSize);
 
-            AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
-            atomsTemplate.RequestForcedBuilderWindowLayout(resetLayout.crystalBuilderPos, resetLayout.panelSize);
-            atomsTemplate.RequestForcedEditorWindowLayout(resetLayout.crystalEditorPos, resetLayout.panelSize);
-            atomsTemplate.RequestForcedAdvancedWindowLayout(resetLayout.advancedViewPos, resetLayout.panelSize);
+            atomsWindowPresenter.RequestForcedBuilderWindowLayout(
+                resetLayout.crystalBuilderPos,
+                resetLayout.panelSize);
+            atomsWindowPresenter.RequestForcedEditorWindowLayout(
+                resetLayout.crystalEditorPos,
+                resetLayout.panelSize);
+            atomsWindowPresenter.RequestForcedAdvancedWindowLayout(
+                resetLayout.advancedViewPos,
+                resetLayout.panelSize);
         }
     }
 
@@ -1163,25 +1155,24 @@ void App::renderImGuiWindows() {
         GetWorkbenchRuntime().ModelTreePanel().Render(&m_bShowModelTree);
     }
 
-    AtomsTemplate& atomsTemplate = workspace::legacy::LegacyAtomsRuntime();
     if (m_bShowPeriodicTableWindow) {
-        atomsTemplate.RenderPeriodicTableWindow(&m_bShowPeriodicTableWindow);
+        atomsWindowPresenter.RenderPeriodicTableWindow(&m_bShowPeriodicTableWindow);
     }
     if (m_bShowCrystalTemplatesWindow) {
-        atomsTemplate.RenderCrystalTemplatesWindow(&m_bShowCrystalTemplatesWindow);
+        atomsWindowPresenter.RenderCrystalTemplatesWindow(&m_bShowCrystalTemplatesWindow);
     }
     if (m_bShowBrillouinZonePlotWindow) {
         GetWorkbenchRuntime().StructureLifecycleFeature().RenderBrillouinZonePlotWindow(
             &m_bShowBrillouinZonePlotWindow);
     }
     if (m_bShowCreatedAtomsWindow) {
-        atomsTemplate.RenderCreatedAtomsWindow(&m_bShowCreatedAtomsWindow);
+        atomsWindowPresenter.RenderCreatedAtomsWindow(&m_bShowCreatedAtomsWindow);
     }
     if (m_bShowBondsManagementWindow) {
-        atomsTemplate.RenderBondsManagementWindow(&m_bShowBondsManagementWindow);
+        atomsWindowPresenter.RenderBondsManagementWindow(&m_bShowBondsManagementWindow);
     }
     if (m_bShowCellInformationWindow) {
-        atomsTemplate.RenderCellInformationWindow(&m_bShowCellInformationWindow);
+        atomsWindowPresenter.RenderCellInformationWindow(&m_bShowCellInformationWindow);
     }
     density::application::DensityService& densityService = GetWorkbenchRuntime().DensityFeature();
     if (m_bShowChargeDensityViewerWindow) {
@@ -1409,7 +1400,7 @@ void App::ShowSliceViewerWindow(bool show) {
     app.syncShellStateToStore();
 }
 
-void App::ShowAtomsTemplateWindow(bool show) {
+void App::ShowWorkspaceRuntimeModelWindow(bool show) {
     ShowCrystalBuilderWindow(show);
 }
 

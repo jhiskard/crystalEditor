@@ -1,5 +1,5 @@
-﻿#include "atom_manager.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "atom_manager.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include "bond_manager.h"
 #include "element_database.h"
 #include "cell_manager.h"
@@ -12,7 +12,7 @@
 namespace atoms {
 namespace domain {
 
-// 전역 원자 벡터 정의 (실제 메모리 할당)
+// ���� ���� ���� ���� (���� �޸� �Ҵ�)
 std::vector<atoms::domain::AtomInfo>& GetCreatedAtoms() {
     return structure::domain::GetStructureRepository().CreatedAtoms();
 }
@@ -37,7 +37,7 @@ uint32_t generateUniqueAtomId() {
     return structure::domain::GetStructureRepository().GenerateAtomId();
 }
 
-void applyAtomChanges(::AtomsTemplate* parent,
+void applyAtomChanges(::WorkspaceRuntimeModel* parent,
                       float bondScalingFactor,
                       const ElementDatabase& elementDB) {
     (void)bondScalingFactor;
@@ -434,7 +434,7 @@ bool getAtomPositionAndRadius(
         const double bondRadius = static_cast<double>(
             std::max(atom.bondRadius, 0.001f));
 
-        // 편집 모드에서는 임시 위치만 사용 (결합 반경은 내부 bondRadius 고정)
+        // ���� ��忡���� �ӽ� ��ġ�� ��� (���� �ݰ��� ���� bondRadius ����)
         if (atom.modified) {
             position[0] = static_cast<double>(atom.tempPosition[0]);
             position[1] = static_cast<double>(atom.tempPosition[1]);
@@ -443,7 +443,7 @@ bool getAtomPositionAndRadius(
             return true;
         }
         
-        // ✅ AtomInfo의 기본 위치 + 결합 전용 반경 사용
+        // ? AtomInfo�� �⺻ ��ġ + ���� ���� �ݰ� ���
         position[0] = static_cast<double>(atom.position[0]);
         position[1] = static_cast<double>(atom.position[1]);
         position[2] = static_cast<double>(atom.position[2]);

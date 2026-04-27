@@ -1,11 +1,11 @@
-﻿#pragma once
+#pragma once
 
 #include <imgui.h>
 #include <array>
 #include <map>
 #include <string>
 
-class AtomsTemplate;
+class WorkspaceRuntimeModel;
 
 namespace atoms {
 namespace ui {
@@ -19,11 +19,11 @@ namespace ui {
  * - Clear BZ 버튼
  * - 상태/에러/특수점 테이블 표시
  *
- * 실제 BZ 계산/렌더링은 AtomsTemplate 도메인 메서드에 위임.
+ * 실제 BZ 계산/렌더링은 WorkspaceRuntimeModel 도메인 메서드에 위임.
  */
 class BZPlotUI {
 public:
-    explicit BZPlotUI(AtomsTemplate* parent);
+    explicit BZPlotUI(WorkspaceRuntimeModel* parent);
 
     /// "Brillouin Zone Plot" 섹션 전체 렌더링
     void render();
@@ -31,7 +31,7 @@ public:
     void SetShowingBZ(bool showing);
 
 private:
-    AtomsTemplate* m_parent = nullptr;
+    WorkspaceRuntimeModel* m_parent = nullptr;
 
     // 기존 static 지역 변수들을 멤버로 이동
     char  m_pathInput[128] = "All";

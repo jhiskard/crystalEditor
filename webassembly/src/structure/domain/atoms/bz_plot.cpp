@@ -1,5 +1,5 @@
-﻿#include "bz_plot.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "bz_plot.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include "../../../render/infrastructure/atoms/vtk_renderer.h"
 #include "../../../render/application/render_gateway.h"
 #include "cell_manager.h"
@@ -21,11 +21,11 @@ std::vector<std::array<double, 4>> BZCalculator::generateLatticePoints(
     const double icell[3][3]) 
 {
     std::vector<std::array<double, 4>> points;
-    points.reserve(27);  // 3x3x3 격자
+    points.reserve(27);  // 3x3x3 ����
     
     int id = 0;
     // Python: I = (np.indices((3, 3, 3)) - 1).reshape((3, 27))
-    // i, j, k ∈ {-1, 0, 1}
+    // i, j, k �� {-1, 0, 1}
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
             for (int k = -1; k <= 1; k++) {
@@ -66,7 +66,7 @@ std::array<double, 6> BZCalculator::calculateBounds(
         zmax = std::max(zmax, p[2]);
     }
     
-    // 마진 추가
+    // ���� �߰�
     xmin -= margin; xmax += margin;
     ymin -= margin; ymax += margin;
     zmin -= margin; zmax += margin;
@@ -82,7 +82,7 @@ std::array<double, 3> BZCalculator::calculateNormal(
     const std::array<double, 3>& point2)
 {
     // Python: normal = G[points].sum(0)
-    // 두 이웃 격자점의 합 (중점 방향)
+    // �� �̿� �������� �� (���� ����)
     double nx = point1[0] + point2[0];
     double ny = point1[1] + point2[1];
     double nz = point1[2] + point2[2];
@@ -92,7 +92,7 @@ std::array<double, 3> BZCalculator::calculateNormal(
     
     if (norm < 1e-10) {
         SPDLOG_WARN("Normal vector has near-zero length");
-        return {0.0, 0.0, 1.0};  // 기본값
+        return {0.0, 0.0, 1.0};  // �⺻��
     }
     
     return {nx/norm, ny/norm, nz/norm};
@@ -102,7 +102,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
     BZVerticesResult result;
     
     try {
-        // 1. 27개 역격자 점 생성
+        // 1. 27�� ������ �� ����
         auto points = generateLatticePoints(icell);
         
         if (points.size() != 27) {
@@ -111,40 +111,40 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
             return result;
         }
         
-        // 중심 격자점 ID는 13 (i=0, j=0, k=0)
+        // �߽� ������ ID�� 13 (i=0, j=0, k=0)
         // id = (i+1)*9 + (j+1)*3 + (k+1) = 1*9 + 1*3 + 1 = 13
         const int centralId = 13;
         SPDLOG_INFO("Central lattice point ID: {}", centralId);
         SPDLOG_DEBUG("Central point: ({:.3f}, {:.3f}, {:.3f})", 
                     points[centralId][0], points[centralId][1], points[centralId][2]);
         
-        // 2. 컨테이너 경계 계산
+        // 2. �����̳� ��� ���
         auto bounds = calculateBounds(points);
         
-        // 3. Voro++ 컨테이너 생성
+        // 3. Voro++ �����̳� ����
         voro::container con(
-            bounds[0], bounds[1],  // x 범위
-            bounds[2], bounds[3],  // y 범위
-            bounds[4], bounds[5],  // z 범위
-            6, 6, 6,               // 블록 분할 (성능 최적화)
-            false, false, false,   // 주기성 (x, y, z) - BZ는 주기성 없음
-            8                      // 메모리 할당 단위
+            bounds[0], bounds[1],  // x ����
+            bounds[2], bounds[3],  // y ����
+            bounds[4], bounds[5],  // z ����
+            6, 6, 6,               // ��� ���� (���� ����ȭ)
+            false, false, false,   // �ֱ⼺ (x, y, z) - BZ�� �ֱ⼺ ����
+            8                      // �޸� �Ҵ� ����
         );
         
         SPDLOG_DEBUG("Created Voro++ container with bounds [{:.3f}, {:.3f}] x [{:.3f}, {:.3f}] x [{:.3f}, {:.3f}]",
                     bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
         
-        // 4. 점들을 컨테이너에 추가
+        // 4. ������ �����̳ʿ� �߰�
         for (const auto& p : points) {
             int id = static_cast<int>(p[3]);
             con.put(id, p[0], p[1], p[2]);
         }
         SPDLOG_DEBUG("Added {} points to Voro++ container", points.size());
         
-        // 5. 중심 셀의 Voronoi 셀 계산
+        // 5. �߽� ���� Voronoi �� ���
         voro::voronoicell_neighbor cell;
         
-        // c_loop_all로 모든 셀 순회하여 중심 셀 찾기
+        // c_loop_all�� ��� �� ��ȸ�Ͽ� �߽� �� ã��
         voro::c_loop_all vl(con);
         bool cellComputed = false;
         
@@ -168,7 +168,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
         SPDLOG_DEBUG("  Number of faces: {}", cell.number_of_faces());
         SPDLOG_DEBUG("  Number of edges: {}", cell.number_of_edges());
         
-        // 6. Vertex 및 Face 정보 추출
+        // 6. Vertex �� Face ���� ����
         std::vector<double> allVertices;
         std::vector<int> faceVertexIndices;
         std::vector<int> neighborIds;
@@ -181,7 +181,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
         SPDLOG_DEBUG("  Total vertices: {}", numVertices);
         SPDLOG_DEBUG("  Neighbor count: {}", neighborIds.size());
         
-        // 7. Face별로 BZFacet 구성
+        // 7. Face���� BZFacet ����
         // Python: for vertices, points in zip(vor.ridge_vertices, vor.ridge_points):
         //             if -1 not in vertices and 13 in points:
         int offset = 0;
@@ -189,13 +189,13 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
             int numFaceVertices = faceVertexIndices[offset];
             int neighborId = neighborIds[faceIdx];
             
-            // Python에서는 ridge_points[0] 또는 [1]이 13인지 확인
-            // Voro++에서는 compute_cell(cell, 13)으로 이미 중심이 13임
+            // Python������ ridge_points[0] �Ǵ� [1]�� 13���� Ȯ��
+            // Voro++������ compute_cell(cell, 13)���� �̹� �߽��� 13��
             
             BZFacet facet;
             facet.neighborId = neighborId;
             
-            // Face의 vertex들 추출
+            // Face�� vertex�� ����
             for (int i = 1; i <= numFaceVertices; i++) {
                 int vIdx = faceVertexIndices[offset + i];
                 
@@ -211,7 +211,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
                 });
             }
             
-            // 법선 벡터 계산
+            // ���� ���� ���
             // Python: normal = G[points].sum(0) / norm
             // points = [13, neighborId]
             // G[13] = (0, 0, 0), G[neighborId] = neighbor point
@@ -252,10 +252,10 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
 namespace BZTestUtils {
 
 void createCubicReciprocalLattice(double icell[3][3], double a) {
-    // Cubic 격자의 역격자는 동일한 cubic
-    // b1 = 2π/a * (1, 0, 0)
-    // b2 = 2π/a * (0, 1, 0)
-    // b3 = 2π/a * (0, 0, 1)
+    // Cubic ������ �����ڴ� ������ cubic
+    // b1 = 2��/a * (1, 0, 0)
+    // b2 = 2��/a * (0, 1, 0)
+    // b3 = 2��/a * (0, 0, 1)
     
     const double factor = 2.0 * M_PI / a;
     
@@ -323,7 +323,7 @@ bool compareToPythonResult(
     SPDLOG_INFO("Comparing C++ result with Python result");
     SPDLOG_INFO("========================================");
     
-    // 면 개수 비교
+    // �� ���� ��
     SPDLOG_INFO("Number of facets - C++: {}, Python: {}", 
                cppResult.facets.size(), pythonRidgeVertices.size());
     
@@ -332,10 +332,10 @@ bool compareToPythonResult(
         SPDLOG_WARN("Facet count mismatch!");
     }
     
-    // 꼭지점 개수 비교
+    // ������ ���� ��
     SPDLOG_INFO("Python vertices count: {}", pythonVertices.size());
     
-    // 각 면의 꼭지점 개수 비교
+    // �� ���� ������ ���� ��
     int matchingFaces = 0;
     for (size_t i = 0; i < std::min(cppResult.facets.size(), pythonRidgeVertices.size()); i++) {
         size_t cppVertCount = cppResult.facets[i].vertices.size();
@@ -355,9 +355,9 @@ bool compareToPythonResult(
     bool isMatch = facetCountMatch && (matchingFaces == cppResult.facets.size());
     
     if (isMatch) {
-        SPDLOG_INFO("✓ Results match!");
+        SPDLOG_INFO("? Results match!");
     } else {
-        SPDLOG_WARN("✗ Results do not match completely");
+        SPDLOG_WARN("? Results do not match completely");
     }
     
     SPDLOG_INFO("========================================");
@@ -372,7 +372,7 @@ bool compareToPythonResult(
 // ============================================================================
 
 bool BZPlotController::enterBZPlotMode(
-    AtomsTemplate* parent,
+    WorkspaceRuntimeModel* parent,
     const CellInfo& cellInfo,
     const std::string& path,
     int npoints,
@@ -480,7 +480,7 @@ bool BZPlotController::enterBZPlotMode(
     }
 }
 
-void BZPlotController::exitBZPlotMode(AtomsTemplate* parent) {
+void BZPlotController::exitBZPlotMode(WorkspaceRuntimeModel* parent) {
     SPDLOG_INFO("=== Switching to Crystal mode ===");
 
     atoms::infrastructure::VTKRenderer* renderer = parent ? parent->vtkRenderer() : nullptr;

@@ -1,5 +1,5 @@
-﻿#include "bz_plot_ui.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "bz_plot_ui.h"
+#include "../../../workspace/runtime/legacy_atoms_runtime.h"
 #include "../../../structure/domain/atoms/special_points.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
 #include "../../../app.h"
@@ -41,7 +41,7 @@ void copyCellMatrix(
 namespace atoms {
 namespace ui {
 
-BZPlotUI::BZPlotUI(AtomsTemplate* parent)
+BZPlotUI::BZPlotUI(WorkspaceRuntimeModel* parent)
     : m_parent(parent)
 {
     SPDLOG_DEBUG("BZPlotUI initialized");
@@ -57,7 +57,7 @@ void BZPlotUI::SetShowingBZ(bool showing) {
 void BZPlotUI::render() {
     if (!m_parent) {
         ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f),
-                           "BZPlotUI: AtomsTemplate is not available.");
+                           "BZPlotUI: WorkspaceRuntimeModel is not available.");
         return;
     }
 
@@ -81,7 +81,7 @@ void BZPlotUI::renderBandpathConfig() {
     ImGui::Text("Bandpath Configuration:");
     ImGui::Spacing();
 
-    // Path 입력
+    // Path �Է�
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Path:");
     ImGui::SameLine();
@@ -98,7 +98,7 @@ void BZPlotUI::renderBandpathConfig() {
         );
     }
 
-    // Npoints 입력
+    // Npoints �Է�
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Npoints:");
     ImGui::SameLine();
@@ -119,45 +119,45 @@ void BZPlotUI::renderOptions() {
     ImGui::Text("Options:");
     ImGui::Spacing();
 
-    // 🔹 토글 이전 상태 저장
+    // ?? ��� ���� ���� ����
     bool prevShowVectors = m_showVectors;
     bool prevShowLabels  = m_showLabels;
 
-    // 🔹 벡터 표시 토글
+    // ?? ���� ǥ�� ���
     ImGui::Checkbox("Show reciprocal vectors", &m_showVectors);
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Toggle visibility of reciprocal lattice vectors.");
     }
 
-    // 🔹 라벨 표시 토글
+    // ?? �� ǥ�� ���
     ImGui::Checkbox("Show special point labels", &m_showLabels);
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Toggle labels for special k-points.");
     }
 
-    // 🔹 둘 중 하나라도 값이 바뀌었는지 확인
+    // ?? �� �� �ϳ��� ���� �ٲ������ Ȯ��
     bool vectorsChanged = (prevShowVectors != m_showVectors);
     bool labelsChanged  = (prevShowLabels  != m_showLabels);
     bool optionsChanged = vectorsChanged || labelsChanged;
 
-    // 이미 BZ Plot 모드일 때만 즉시 업데이트
+    // �̹� BZ Plot ����� ���� ��� ������Ʈ
     if (optionsChanged && m_showingBZ && m_parent) {
         m_lastErrorMessage.clear();
 
         std::string pathStr(m_pathInput);
         int npoints = m_npointsInput;
 
-        // ⚠️ 중요: 현재 옵션(m_showVectors / m_showLabels)을 그대로 넘겨서
-        // 전체 BZ Plot을 다시 생성하도록 한다.
+        // ?? �߿�: ���� �ɼ�(m_showVectors / m_showLabels)�� �״�� �Ѱܼ�
+        // ��ü BZ Plot�� �ٽ� �����ϵ��� �Ѵ�.
         bool success = m_parent->EnterBZPlotMode(
             pathStr,
             npoints,
-            m_showVectors,   // ← 벡터 표시 여부
-            m_showLabels,    // ← 라벨 표시 여부 (여기가 핵심)
+            m_showVectors,   // �� ���� ǥ�� ����
+            m_showLabels,    // �� �� ǥ�� ���� (���Ⱑ �ٽ�)
             m_lastErrorMessage
         );
 
-        // 다시 그리기 성공 여부에 따라 로그만 참고용으로 사용
+        // �ٽ� �׸��� ���� ���ο� ���� �α׸� ��������� ���
         if (!success && !m_lastErrorMessage.empty()) {
             SPDLOG_ERROR("Failed to update BZ options: {}", m_lastErrorMessage);
         }
@@ -180,12 +180,12 @@ void BZPlotUI::renderToggleAndClearButtons() {
         : availableWidth;
     const ImVec2 buttonSize(buttonWidth, 0.0f);
 
-    // Show BZ Plot / Show Crystal 토글 버튼
+    // Show BZ Plot / Show Crystal ��� ��ư
     if (ImGui::Button(buttonText, buttonSize)) {
         m_lastErrorMessage.clear();
 
         if (!m_showingBZ) {
-            // BZ Plot 모드 진입
+            // BZ Plot ��� ����
             std::string pathStr(m_pathInput);
             int npoints = m_npointsInput;
 
@@ -204,7 +204,7 @@ void BZPlotUI::renderToggleAndClearButtons() {
                 m_showingBZ = true;
             }
         } else {
-            // Crystal 모드로 복귀
+            // Crystal ���� ����
             if (m_parent) {
                 m_parent->ExitBZPlotMode();
             }
@@ -216,11 +216,11 @@ void BZPlotUI::renderToggleAndClearButtons() {
         ImGui::SameLine();
     }
 
-    // Clear BZ 버튼
+    // Clear BZ ��ư
     if (ImGui::Button("Clear BZ", buttonSize)) {
         m_lastErrorMessage.clear();
         if (m_parent) {
-            // BZ Plot을 제거하고 crystal 모드로 복귀
+            // BZ Plot�� �����ϰ� crystal ���� ����
             m_parent->ExitBZPlotMode();
         }
         m_showingBZ = false;
@@ -232,7 +232,7 @@ void BZPlotUI::renderStatus() {
 
     if (m_showingBZ) {
         ImGui::TextColored(ImVec4(0.0f, 0.5f, 1.0f, 1.0f),
-                           "● BZ Plot Mode");
+                           "�� BZ Plot Mode");
         ImGui::SameLine();
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f),
                            "(vectors: %s, labels: %s)",
@@ -240,7 +240,7 @@ void BZPlotUI::renderStatus() {
                            m_showLabels ? "ON" : "OFF");
     } else {
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f),
-                           "● Crystal Mode");
+                           "�� Crystal Mode");
     }
 
     if (!m_lastErrorMessage.empty()) {
@@ -252,7 +252,7 @@ void BZPlotUI::renderStatus() {
 }
 
 void BZPlotUI::renderSpecialPointsTable() {
-    // 격자 타입 감지 및 특수점 데이터 조회
+    // ���� Ÿ�� ���� �� Ư���� ������ ��ȸ
     refreshSpecialPointsCache();
 
     ImGui::Spacing();
@@ -319,7 +319,7 @@ void BZPlotUI::refreshSpecialPointsCache() {
 }
 
 /*
-// 기존 static 지역 변수들을 멤버로 이동
+// ���� static ���� �������� ����� �̵�
 char  m_pathInput[128] = "All";
 int   m_npointsInput   = 50;
 bool  m_showVectors    = true;
@@ -327,22 +327,22 @@ bool  m_showLabels     = true;
 bool  m_showingBZ      = false;
 */
 void BZPlotUI::renderBZplot() {
-    // 입력 필드 상태 (static으로 유지)
-    static char pathInput[128] = "All";  // ⭐ 기본값 "All"로 변경
+    // �Է� �ʵ� ���� (static���� ����)
+    static char pathInput[128] = "All";  // ? �⺻�� "All"�� ����
     static int npointsInput = 50;
     static bool showVectors = true;
     static bool showLabels = true;
-    static bool showingBZ = false;  // BZ 표시 상태
+    static bool showingBZ = false;  // BZ ǥ�� ����
     static std::string lastErrorMessage;
     
     // ========================================================================
-    // 1. 입력 UI
+    // 1. �Է� UI
     // ========================================================================
     
     ImGui::Text("Bandpath Configuration:");
     ImGui::Spacing();
     
-    // Path 입력
+    // Path �Է�
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Path:");
     ImGui::SameLine();
@@ -359,7 +359,7 @@ void BZPlotUI::renderBZplot() {
         );
     }
     
-    // Npoints 입력
+    // Npoints �Է�
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Npoints:");
     ImGui::SameLine();
@@ -373,7 +373,7 @@ void BZPlotUI::renderBZplot() {
     
     ImGui::Spacing();
     
-    // 옵션 체크박스
+    // �ɼ� üũ�ڽ�
     ImGui::Checkbox("Show reciprocal vectors", &showVectors);
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Display the reciprocal lattice vectors (b1, b2, b3)");
@@ -381,7 +381,7 @@ void BZPlotUI::renderBZplot() {
     
     ImGui::Checkbox("Show special point labels", &showLabels);
     if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("Display labels at high-symmetry points (Γ, X, M, etc.)");
+        ImGui::SetTooltip("Display labels at high-symmetry points (��, X, M, etc.)");
     }
     
     ImGui::Spacing();
@@ -389,7 +389,7 @@ void BZPlotUI::renderBZplot() {
     ImGui::Spacing();
     
     // ========================================================================
-    // 2. 토글 버튼 (Show BZ Plot ↔ Show Crystal)
+    // 2. ��� ��ư (Show BZ Plot �� Show Crystal)
     // ========================================================================
     
     const char* buttonText = showingBZ ? "Show Crystal" : "Show BZ Plot";
@@ -410,7 +410,7 @@ void BZPlotUI::renderBZplot() {
     if (ImGui::Button(buttonText, buttonSize)) {
         if (!showingBZ) {
             // ============================================================
-            // BZ Plot 표시 모드로 전환
+            // BZ Plot ǥ�� ���� ��ȯ
             // ============================================================
             SPDLOG_INFO("=== Switching to BZ Plot mode ===");
             SPDLOG_INFO("Path: '{}', npoints: {}, vectors: {}, labels: {}", 
@@ -419,7 +419,7 @@ void BZPlotUI::renderBZplot() {
             lastErrorMessage.clear();
             
             try {
-                // 1. 역격자 행렬 준비
+                // 1. ������ ��� �غ�
                 double cell[3][3];
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
@@ -440,7 +440,7 @@ void BZPlotUI::renderBZplot() {
                 SPDLOG_DEBUG("  [{}, {}, {}]", icell[1][0], icell[1][1], icell[1][2]);
                 SPDLOG_DEBUG("  [{}, {}, {}]", icell[2][0], icell[2][1], icell[2][2]);
                 
-                // 2. BZ vertices 계산
+                // 2. BZ vertices ���
                 SPDLOG_INFO("Calculating BZ vertices...");
                 auto bzData = atoms::domain::BZCalculator::calculateBZVertices(icell);
                 
@@ -454,7 +454,7 @@ void BZPlotUI::renderBZplot() {
                            bzData.facets.size(), 
                            bzData.facets.empty() ? 0 : bzData.facets[0].vertices.size());
                 
-                // 3. 기존 객체 숨기기 (원자, 결합, Unit Cell)
+                // 3. ���� ��ü ����� (����, ����, Unit Cell)
                 SPDLOG_INFO("Hiding crystal structure...");
                 
                 if (auto* vtkRenderer = m_parent->vtkRenderer()) {
@@ -466,24 +466,24 @@ void BZPlotUI::renderBZplot() {
                     }
                 }
                 
-                // ⭐ 4. "All" 키워드 처리 - 자동 경로 선택
+                // ? 4. "All" Ű���� ó�� - �ڵ� ��� ����
                 std::string pathStr(pathInput);
                 
                 if (pathStr == "All" || pathStr == "all" || pathStr == "ALL") {
                     SPDLOG_INFO("'All' keyword detected - determining lattice type automatically");
 
-                    // ⭐ SpecialPointsDatabase::detectLatticeType() 호출
+                    // ? SpecialPointsDatabase::detectLatticeType() ȣ��
                     std::string latticeType = atoms::domain::SpecialPointsDatabase::detectLatticeType(cellInfo.matrix);
                     
                     SPDLOG_INFO("Detected lattice type: {}", latticeType);
                     
-                    // SpecialPointsDatabase에서 기본 경로 가져오기
+                    // SpecialPointsDatabase���� �⺻ ��� ��������
                     pathStr = atoms::domain::SpecialPointsDatabase::getDefaultPath(latticeType);
                     
                     SPDLOG_INFO("Auto-selected path: '{}'", pathStr);
                 }
 
-                // 5. 완전한 BZ Plot 생성 (모든 요소 포함)
+                // 5. ������ BZ Plot ���� (��� ��� ����)
                 if (auto* vtkRenderer = m_parent->vtkRenderer()) {
                     SPDLOG_INFO("Creating complete BZ Plot with path: '{}'", pathStr);
                     
@@ -491,10 +491,10 @@ void BZPlotUI::renderBZplot() {
                         bzData,
                         cell, 
                         icell, 
-                        showVectors,    // 역격자 벡터 표시
-                        showLabels,     // 특수점 라벨 표시
-                        pathStr,        // 밴드 경로
-                        npointsInput    // 보간 점 개수
+                        showVectors,    // ������ ���� ǥ��
+                        showLabels,     // Ư���� �� ǥ��
+                        pathStr,        // ��� ���
+                        npointsInput    // ���� �� ����
                     );
                     
                     SPDLOG_INFO("Complete BZ Plot created successfully");
@@ -514,17 +514,17 @@ void BZPlotUI::renderBZplot() {
             
         } else {
             // ============================================================
-            // Crystal 표시 모드로 전환
+            // Crystal ǥ�� ���� ��ȯ
             // ============================================================
             SPDLOG_INFO("=== Switching to Crystal mode ===");
             
-            // 1. BZ Plot 숨기기
+            // 1. BZ Plot �����
             if (auto* vtkRenderer = m_parent->vtkRenderer()) {
                 SPDLOG_INFO("Hiding BZ Plot...");
                 vtkRenderer->setBZPlotVisible(false);
             }
             
-            // 2. 기존 객체 다시 표시 (원자, 결합, Unit Cell)
+            // 2. ���� ��ü �ٽ� ǥ�� (����, ����, Unit Cell)
             SPDLOG_INFO("Showing crystal structure...");
             
             if (auto* vtkRenderer = m_parent->vtkRenderer()) {
@@ -539,7 +539,7 @@ void BZPlotUI::renderBZplot() {
             showingBZ = false;
         }
         
-        // 렌더링 업데이트
+        // ������ ������Ʈ
         render::application::GetRenderGateway().RequestRender();
     }
     
@@ -547,12 +547,12 @@ void BZPlotUI::renderBZplot() {
         ImGui::SameLine();
     }
     
-    // Clear 버튼
+    // Clear ��ư
     if (ImGui::Button("Clear BZ", buttonSize)) {
         if (auto* vtkRenderer = m_parent->vtkRenderer()) {
             vtkRenderer->clearBZPlot();
             
-            // Crystal 모드로 돌아가기
+            // Crystal ���� ���ư���
             if (showingBZ) {
                 if (auto* restoreRenderer = m_parent->vtkRenderer()) {
                     restoreRenderer->setAllAtomGroupsVisible(true);
@@ -572,15 +572,15 @@ void BZPlotUI::renderBZplot() {
     }
     
     // ========================================================================
-    // 3. 상태 표시
+    // 3. ���� ǥ��
     // ========================================================================
     
     ImGui::Spacing();
     
-    // 현재 모드 표시
+    // ���� ��� ǥ��
     if (showingBZ) {
         ImGui::TextColored(ImVec4(0.0f, 0.5f, 1.0f, 1.0f), 
-                         "● BZ Plot Mode");
+                         "�� BZ Plot Mode");
         ImGui::SameLine();
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), 
                          "(vectors: %s, labels: %s)", 
@@ -588,10 +588,10 @@ void BZPlotUI::renderBZplot() {
                          showLabels ? "ON" : "OFF");
     } else {
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), 
-                         "● Crystal Mode");
+                         "�� Crystal Mode");
     }
     
-    // 에러 메시지 표시
+    // ���� �޽��� ǥ��
     if (!lastErrorMessage.empty()) {
         ImGui::Spacing();
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
@@ -600,19 +600,19 @@ void BZPlotUI::renderBZplot() {
     }
     
     // ========================================================================
-    // 4. 추가 정보
+    // 4. �߰� ����
     // ========================================================================
     
     ImGui::Spacing();
     
-    // 격자 타입
+    // ���� Ÿ��
     std::string latticeType;
     latticeType = atoms::domain::SpecialPointsDatabase::detectLatticeType(cellInfo.matrix);
 
-    // special points 가져오기
+    // special points ��������
     auto special_points = atoms::domain::SpecialPointsDatabase::getSpecialPoints(latticeType);
 
-    // special points 출력
+    // special points ���
     // atoms::domain::SpecialPointsDatabase::printSpecialPointsTable(special_points);
     
     if (special_points.empty()) {
@@ -624,37 +624,37 @@ void BZPlotUI::renderBZplot() {
         ImGui::Separator();
         ImGui::Spacing();
         
-        // ImGui 테이블 생성
+        // ImGui ���̺� ����
         ImGuiTableFlags tableFlags = 
             ImGuiTableFlags_Borders | 
             ImGuiTableFlags_RowBg | 
             ImGuiTableFlags_SizingFixedFit;
         
         ImGui::BeginTable("SpecialPointsTable", 4, tableFlags);
-        // 헤더 설정
+        // ��� ����
         ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 60.0f);
         ImGui::TableSetupColumn("a", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("b", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("c", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableHeadersRow();
         
-        // 데이터 행
+        // ������ ��
         for (const auto& [label, coords] : special_points) {
             ImGui::TableNextRow();
             
-            // Label 열
+            // Label ��
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("%s", label.c_str());
             
-            // a 열
+            // a ��
             ImGui::TableSetColumnIndex(1);
             ImGui::Text("%.6f", coords[0]);
             
-            // b 열
+            // b ��
             ImGui::TableSetColumnIndex(2);
             ImGui::Text("%.6f", coords[1]);
             
-            // c 열
+            // c ��
             ImGui::TableSetColumnIndex(3);
             ImGui::Text("%.6f", coords[2]);
         }

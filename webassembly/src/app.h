@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "config/log_config.h"
 #include "enum/app_enums.h"
@@ -60,7 +60,7 @@ public:
     static void ShowAdvancedViewWindow(bool show = true);
     static void ShowSliceViewerWindow(bool show = true);
     // Backward-compatible wrapper for the old Atomistic Model Builder name.
-    static void ShowAtomsTemplateWindow(bool show = true);
+    static void ShowWorkspaceRuntimeModelWindow(bool show = true);
     static void RequestLayout1();
 
 private:

@@ -52,6 +52,11 @@ class ShellStateQueryService;
 class ShellStateCommandService;
 class WorkbenchController;
 } // namespace application
+namespace presentation {
+namespace atoms {
+class AtomsWindowPresenter;
+} // namespace atoms
+} // namespace presentation
 namespace domain {
 enum class ShellLayoutPreset;
 enum class ShellWindowId;
@@ -130,6 +135,11 @@ public:
      * @brief Returns density feature service facade.
      */
     density::application::DensityService& DensityFeature();
+
+    /**
+     * @brief Returns atoms split-window presenter facade.
+     */
+    shell::presentation::atoms::AtomsWindowPresenter& AtomsWindowFeature();
 
     /**
      * @brief Returns model tree panel facade.

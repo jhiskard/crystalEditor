@@ -1,10 +1,10 @@
 ﻿#include "parser_worker_service.h"
 
-#include "import_runtime_port.h"
+#include "import_chgcar_service.h"
+#include "import_xsf_service.h"
 #include "../../config/log_config.h"
 
 // Standard library
-#include <fstream>
 #include <thread>
 #include <utility>
 
@@ -12,20 +12,6 @@ namespace io::application {
 
 ParserWorkerService::ParserWorkerService(WorkerPort& workerPort, ProgressPort& progressPort)
     : m_WorkerPort(workerPort), m_ProgressPort(progressPort) {}
-
-bool ParserWorkerService::ContainsDatagrid3d(const std::string& filePath) {
-    std::ifstream fin(filePath);
-    if (!fin) {
-        return false;
-    }
-    std::string line;
-    while (std::getline(fin, line)) {
-        if (line.find("DATAGRID_3D") != std::string::npos) {
-            return true;
-        }
-    }
-    return false;
-}
 
 void ParserWorkerService::DispatchToMainThread(ParserResultCallback callback, ParserWorkerResult* result) const {
     if (callback == nullptr) {
@@ -41,15 +27,14 @@ void ParserWorkerService::ProcessStructureFile(
     ParserResultCallback callback) const {
     std::thread([this, fileName, callback]() {
         const std::string filePath = "/" + fileName;
-        if (ContainsDatagrid3d(filePath)) {
+        ImportXsfService xsfService;
+        if (xsfService.ContainsDatagrid3d(filePath)) {
             SPDLOG_INFO("Detected DATAGRID_3D in structure file: {}", fileName);
-
-            atoms::infrastructure::FileIOManager loader(GetImportRuntimePort().LegacyParent());
-            loader.SetProgressCallback([this](float progress) {
-                m_ProgressPort.ReportProgress(progress);
-            });
-
-            auto parseResult = loader.load3DGridXSFFile(filePath);
+            auto parseResult = xsfService.ParseXsfGridFile(
+                filePath,
+                [this](float progress) {
+                    m_ProgressPort.ReportProgress(progress);
+                });
             auto* result = new ParserWorkerResult();
             result->kind = ParsedImportKind::XsfGrid;
             result->filePath = filePath;
@@ -59,12 +44,11 @@ void ParserWorkerService::ProcessStructureFile(
         }
 
         SPDLOG_INFO("Starting XSF structure file processing (background): {}", fileName);
-        atoms::infrastructure::FileIOManager loader(GetImportRuntimePort().LegacyParent());
-        loader.SetProgressCallback([this](float progress) {
-            m_ProgressPort.ReportProgress(progress);
-        });
-
-        auto parseResult = loader.loadXSFFile(filePath);
+        auto parseResult = xsfService.ParseXsfFile(
+            filePath,
+            [this](float progress) {
+                m_ProgressPort.ReportProgress(progress);
+            });
         auto* result = new ParserWorkerResult();
         result->kind = ParsedImportKind::XsfStructure;
         result->filePath = filePath;
@@ -79,13 +63,12 @@ void ParserWorkerService::ProcessXsfFile(
     std::thread([this, fileName, callback]() {
         SPDLOG_INFO("Starting XSF file processing (background): {}", fileName);
         const std::string filePath = "/" + fileName;
-
-        atoms::infrastructure::FileIOManager loader(GetImportRuntimePort().LegacyParent());
-        loader.SetProgressCallback([this](float progress) {
-            m_ProgressPort.ReportProgress(progress);
-        });
-
-        auto parseResult = loader.loadXSFFile(filePath);
+        ImportXsfService xsfService;
+        auto parseResult = xsfService.ParseXsfFile(
+            filePath,
+            [this](float progress) {
+                m_ProgressPort.ReportProgress(progress);
+            });
         auto* result = new ParserWorkerResult();
         result->kind = ParsedImportKind::XsfStructure;
         result->filePath = filePath;
@@ -100,13 +83,12 @@ void ParserWorkerService::ProcessXsfGridFile(
     std::thread([this, fileName, callback]() {
         SPDLOG_INFO("Starting XSF grid file processing (background): {}", fileName);
         const std::string filePath = "/" + fileName;
-
-        atoms::infrastructure::FileIOManager loader(GetImportRuntimePort().LegacyParent());
-        loader.SetProgressCallback([this](float progress) {
-            m_ProgressPort.ReportProgress(progress);
-        });
-
-        auto parseResult = loader.load3DGridXSFFile(filePath);
+        ImportXsfService xsfService;
+        auto parseResult = xsfService.ParseXsfGridFile(
+            filePath,
+            [this](float progress) {
+                m_ProgressPort.ReportProgress(progress);
+            });
         auto* result = new ParserWorkerResult();
         result->kind = ParsedImportKind::XsfGrid;
         result->filePath = filePath;
@@ -121,8 +103,9 @@ void ParserWorkerService::ProcessChgcarFile(
     std::thread([this, fileName, callback]() {
         SPDLOG_INFO("Starting CHGCAR file processing (background): {}", fileName);
         const std::string filePath = "/" + fileName;
+        ImportChgcarService chgcarService;
 
-        auto parseResult = atoms::infrastructure::ChgcarParser::parse(
+        auto parseResult = chgcarService.ParseChgcarFile(
             filePath,
             [this](float progress) {
                 m_ProgressPort.ReportProgress(progress);

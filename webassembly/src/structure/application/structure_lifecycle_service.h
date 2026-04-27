@@ -11,7 +11,7 @@ namespace structure {
 namespace application {
 
 /**
- * @brief Lifecycle/BZ use-case facade extracted from AtomsTemplate.
+ * @brief Lifecycle/BZ use-case facade extracted from WorkspaceRuntimeModel.
  * @details Application layer delegates to legacy runtime in W5.4 thin-shim mode.
  */
 class StructureLifecycleService {
