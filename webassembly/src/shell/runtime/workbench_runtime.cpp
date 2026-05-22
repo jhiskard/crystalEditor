@@ -1,4 +1,4 @@
-#include "workbench_runtime.h"
+﻿#include "workbench_runtime.h"
 
 #include "../../app.h"
 #include "../../io/application/import_entry_service.h"
@@ -75,9 +75,19 @@ shell::presentation::atoms::AtomsWindowPresenter& runtimeAtomsWindowFeature() {
     static shell::presentation::atoms::AtomsWindowPresenter presenter;
     return presenter;
 }
+
+FontManager& runtimeFontRegistry() {
+    static FontManager registry;
+    return registry;
+}
+
+VtkViewer& runtimeViewer() {
+    static VtkViewer viewer;
+    return viewer;
+}
 } // namespace
 
-WorkbenchRuntime& WorkbenchRuntime::Instance() {
+WorkbenchRuntime& WorkbenchRuntime::Shared() {
     static WorkbenchRuntime runtime;
     return runtime;
 }
@@ -92,7 +102,7 @@ App& WorkbenchRuntime::AppController() {
 }
 
 FontManager& WorkbenchRuntime::FontRegistry() {
-    return FontManager::Instance();
+    return runtimeFontRegistry();
 }
 
 Toolbar& WorkbenchRuntime::ToolbarPanel() {
@@ -101,7 +111,7 @@ Toolbar& WorkbenchRuntime::ToolbarPanel() {
 }
 
 VtkViewer& WorkbenchRuntime::Viewer() {
-    return VtkViewer::Instance();
+    return runtimeViewer();
 }
 
 structure::application::StructureService& WorkbenchRuntime::StructureFeature() {
@@ -315,9 +325,10 @@ void WorkbenchRuntime::PrintMeshTree() {
 }
 
 WorkbenchRuntime& GetWorkbenchRuntime() {
-    return WorkbenchRuntime::Instance();
+    return WorkbenchRuntime::Shared();
 }
 
 const WorkbenchRuntime& GetWorkbenchRuntimeConst() {
-    return WorkbenchRuntime::Instance();
+    return WorkbenchRuntime::Shared();
 }
+

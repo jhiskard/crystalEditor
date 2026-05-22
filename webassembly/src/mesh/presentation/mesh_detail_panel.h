@@ -12,7 +12,7 @@ public:
      * @brief Compatibility accessor resolved via runtime-owned panel instance.
      * @note Phase 11 runtime shim. Remove this wrapper in Phase 12.
      */
-    static MeshDetail& Instance();
+    static MeshDetail& Shared();
 
     MeshDetail();
     ~MeshDetail();
@@ -162,5 +162,6 @@ private:
 
     void syncSharedVolumeUiFromSettings(const mesh::domain::MeshRepository::VolumeDisplaySettings& settings);
 };
+
 
 

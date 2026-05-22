@@ -1,7 +1,7 @@
 // webassembly/src/atoms/ui/atom_editor_ui.cpp
 #include "atom_editor_ui.h"
 #include "ui_color_utils.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../../structure/domain/atoms/atom_manager.h"
 #include "../../../structure/domain/atoms/bond_manager.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
@@ -27,18 +27,18 @@ AtomEditorUI::AtomEditorUI(WorkspaceRuntimeModel* parent)
 }
 
 void AtomEditorUI::render() {
-    // ���� ��� ���� (static���� ����)
+    // 占쏙옙占쏙옙 占쏙옙占?占쏙옙占쏙옙 (static占쏙옙占쏙옙 占쏙옙占쏙옙)
     static bool editMode = false;
-    static bool hasChanges = false; // ������� ����
+    static bool hasChanges = false; // 占쏙옙占쏙옙占쏙옙占?占쏙옙占쏙옙
     static bool useFractionalCoords = false;
 
-    // �⺻ ���� ǥ��
+    // 占썩본 占쏙옙占쏙옙 표占쏙옙
     ImGui::Text("Total atoms: %d", (int)createdAtoms.size());
     ImGui::Text("Total bonds: %d", (int)createdBonds.size());
 
     ImGui::Separator();
 
-    // Fractional coordinates üũ�ڽ� �߰�
+    // Fractional coordinates 체크占쌘쏙옙 占쌩곤옙
     if (ImGui::Checkbox("Fractional coordinates", &useFractionalCoords)) {
         SPDLOG_DEBUG("Fractional coordinates mode changed to: {}", useFractionalCoords ? "enabled" : "disabled");
     }
@@ -48,8 +48,8 @@ void AtomEditorUI::render() {
 
     ImGui::SameLine();
         
-    // Boundary atoms üũ�ڽ�
-    // UI ���´� WorkspaceRuntimeModel::isSurroundingsVisible()�� �׻� ����ȭ
+    // Boundary atoms 체크占쌘쏙옙
+    // UI 占쏙옙占승댐옙 WorkspaceRuntimeModel::isSurroundingsVisible()占쏙옙 占쌓삼옙 占쏙옙占쏙옙화
     if (m_parent) {
         m_boundaryAtomsEnabled = m_parent->isSurroundingsVisible();
     }
@@ -64,22 +64,22 @@ void AtomEditorUI::render() {
         }
     }
 
-    // ���� �ؽ�Ʈ
+    // 占쏙옙占쏙옙 占쌔쏙옙트
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Show/hide atoms at unit cell boundaries\nand their bonds with original atoms");
     }
 
     ImGui::SameLine();
     
-    // Edit mode üũ�ڽ� �߰�
+    // Edit mode 체크占쌘쏙옙 占쌩곤옙
     bool previousEditMode = editMode;
     if (ImGui::Checkbox("Edit mode##atomEdit", &editMode)) {
         if (!editMode && previousEditMode && hasChanges) {
-            // Edit mode ���� �� ������� ���� �� ������Ʈ
+            // Edit mode 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙占쏙옙占?占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙占쏙옙트
             SPDLOG_INFO("Exiting edit mode - applying changes and updating rendering");
             
-            // ?? ������: applyAtomChanges()�� ���ο��� BatchGuard ���
-            // UI �����忡�� ���� ȣ�� ����
+            // ?? 占쏙옙占쏙옙占쏙옙: applyAtomChanges()占쏙옙 占쏙옙占싸울옙占쏙옙 BatchGuard 占쏙옙占?
+            // UI 占쏙옙占쏙옙占썲에占쏙옙 占쏙옙占쏙옙 호占쏙옙 占쏙옙占쏙옙
             if (m_parent) {
                 m_parent->ApplyAtomChangesFromEditor();
             }
@@ -99,13 +99,13 @@ void AtomEditorUI::render() {
     
     ImGui::Separator();
     
-    // ?? ������: ��ġ ��� ���� ǥ�� �߰� (����� �ǵ��)
+    // ?? 占쏙옙占쏙옙占쏙옙: 占쏙옙치 占쏙옙占?占쏙옙占쏙옙 표占쏙옙 占쌩곤옙 (占쏙옙占쏙옙占?占실듸옙占?
     if (m_parent && m_parent->isBatchMode()) {
         ImGui::TextColored(ImVec4(0.2f, 0.8f, 0.2f, 1.0f), "? Batch mode active - updates optimized");
         ImGui::Separator();
     }
     
-    // ���� ���̺� ������ - editMode�� useFractionalCoords�� ����
+    // 占쏙옙占쏙옙 占쏙옙占싱븝옙 占쏙옙占쏙옙占쏙옙 - editMode占쏙옙 useFractionalCoords占쏙옙 占쏙옙占쏙옙
     bool tableHasChanges = renderAtomTable(editMode, useFractionalCoords);
     if (tableHasChanges) {
         hasChanges = true;
@@ -115,15 +115,15 @@ void AtomEditorUI::render() {
 bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
     static std::vector<atoms::domain::AtomInfo> lastDeletedAtoms;
 
-    // ?? ���� ���� ����Ʈ ���� (ORIGINAL + SURROUNDING)
-    std::vector<std::pair<atoms::domain::AtomInfo*, bool>> allAtoms; // pair<����������, ��������>
+    // ?? 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙트 占쏙옙占쏙옙 (ORIGINAL + SURROUNDING)
+    std::vector<std::pair<atoms::domain::AtomInfo*, bool>> allAtoms; // pair<占쏙옙占쏙옙占쏙옙占쏙옙占쏙옙, 占쏙옙占쏙옙占쏙옙占쏙옙>
     
-    // ���� ���ڵ� �߰�
+    // 占쏙옙占쏙옙 占쏙옙占쌘듸옙 占쌩곤옙
     for (auto& atom : createdAtoms) {
         allAtoms.push_back({&atom, true});
     }
     
-    // �ֺ� ���ڵ� �߰� (surroundingsVisible�� ����)
+    // 占쌍븝옙 占쏙옙占쌘듸옙 占쌩곤옙 (surroundingsVisible占쏙옙 占쏙옙占쏙옙)
     if (m_parent && m_parent->isSurroundingsVisible()) {
         for (auto& atom : surroundingAtoms) {
             allAtoms.push_back({&atom, false});
@@ -135,11 +135,11 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         return false;
     }
     
-    // ?? ���� ���� ID �� �ε��� ���� ���� (SURROUNDING ���� ǥ�ÿ�)
+    // ?? 占쏙옙占쏙옙 占쏙옙占쏙옙 ID 占쏙옙 占싸듸옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 (SURROUNDING 占쏙옙占쏙옙 표占시울옙)
     std::map<uint32_t, size_t> originalIdToIndex;
     for (size_t i = 0; i < createdAtoms.size(); ++i) {
         if (createdAtoms[i].id != 0) {
-            originalIdToIndex[createdAtoms[i].id] = i + 1; // 1-based �ε���
+            originalIdToIndex[createdAtoms[i].id] = i + 1; // 1-based 占싸듸옙占쏙옙
         }
     }
     
@@ -153,24 +153,24 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
 
     ImGuiTableFlags columnFlags = ImGuiTableColumnFlags_WidthStretch;
     
-    // ���̺� ���� - ���� ������ ���� ũ�� ����
+    // 占쏙옙占싱븝옙 占쏙옙占쏙옙 - 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 크占쏙옙 占쏙옙占쏙옙
     ImVec2 tableSize = ImVec2(0.0f, 0.0f);
     if (allAtoms.size() > 20) {
         tableSize = ImVec2(0.0f, 1000.0f);
         tableFlags |= ImGuiTableFlags_ScrollY;  
     }
     
-    // ?? �÷� �� ���� - Radius �÷� �߰�
-    int columnCount = editMode ? 9 : 8; // Edit ���: Select + Edit + Radius �÷� ǥ��
+    // ?? 占시뤄옙 占쏙옙 占쏙옙占쏙옙 - Radius 占시뤄옙 占쌩곤옙
+    int columnCount = editMode ? 9 : 8; // Edit 占쏙옙占? Select + Edit + Radius 占시뤄옙 표占쏙옙
     
     if (ImGui::BeginTable("AtomsTable", columnCount, tableFlags, tableSize)) {
         
-        // ?? ���̺� ��� ���� - Edit ��忡���� Select �÷� ����
+        // ?? 占쏙옙占싱븝옙 占쏙옙占?占쏙옙占쏙옙 - Edit 占쏙옙恙∽옙占쏙옙占?Select 占시뤄옙 占쏙옙占쏙옙
         ImGui::TableSetupColumn("#", ImGuiTableColumnFlags_WidthFixed);
-        ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed); // �׻� ǥ��
+        ImGui::TableSetupColumn("Select", ImGuiTableColumnFlags_WidthFixed); // 占쌓삼옙 표占쏙옙
         
         if (editMode) {
-            ImGui::TableSetupColumn("Edit", ImGuiTableColumnFlags_WidthFixed); // Edit ��忡���� �߰�
+            ImGui::TableSetupColumn("Edit", ImGuiTableColumnFlags_WidthFixed); // Edit 占쏙옙恙∽옙占쏙옙占?占쌩곤옙
         }
         
         ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
@@ -190,22 +190,22 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
         
-        // ?? ���յ� ���� ������ ������
+        // ?? 占쏙옙占쌌듸옙 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙
         for (size_t i = 0; i < allAtoms.size(); ++i) {
             atoms::domain::AtomInfo* atom = allAtoms[i].first;
             bool isOriginal = allAtoms[i].second;
             
             ImGui::TableNextRow();
             
-            // 1. �Ϸù�ȣ (#)
+            // 1. 占싹련뱄옙호 (#)
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("%zu", i + 1);
             
-            // 2. ���� üũ�ڽ� (Select) - �׻� ǥ��
+            // 2. 占쏙옙占쏙옙 체크占쌘쏙옙 (Select) - 占쌓삼옙 표占쏙옙
             ImGui::TableSetColumnIndex(1);
-            ImGui::PushID(static_cast<int>(i * 2)); // Edit �÷��� ID �浹 ����
+            ImGui::PushID(static_cast<int>(i * 2)); // Edit 占시뤄옙占쏙옙 ID 占썸돌 占쏙옙占쏙옙
             
-            // SURROUNDING ���ڴ� ���� �Ұ�
+            // SURROUNDING 占쏙옙占쌘댐옙 占쏙옙占쏙옙 占쌀곤옙
             if (isOriginal) {
                 bool selected = atom->selected;
                 if (ImGui::Checkbox("##select", &selected)) {
@@ -217,7 +217,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                                i + 1, atom->symbol, selected ? "selected" : "deselected");
                 }
             } else {
-                // SURROUNDING ���ڴ� ��Ȱ��ȭ�� üũ�ڽ�
+                // SURROUNDING 占쏙옙占쌘댐옙 占쏙옙활占쏙옙화占쏙옙 체크占쌘쏙옙
                 ImGui::BeginDisabled();
                 bool dummySelected = false;
                 ImGui::Checkbox("##select_disabled", &dummySelected);
@@ -228,25 +228,25 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
             }
             ImGui::PopID();
             
-            // ?? 3. ���� ǥ�� (Edit) - Edit ��忡���� ǥ��
+            // ?? 3. 占쏙옙占쏙옙 표占쏙옙 (Edit) - Edit 占쏙옙恙∽옙占쏙옙占?표占쏙옙
             int nextColumnIndex = 2;
             if (editMode) {
                 ImGui::TableSetColumnIndex(2);
-                ImGui::PushID(static_cast<int>(i * 2 + 1)); // Select �÷��� ID �浹 ����
+                ImGui::PushID(static_cast<int>(i * 2 + 1)); // Select 占시뤄옙占쏙옙 ID 占썸돌 占쏙옙占쏙옙
                 
                 if (isOriginal && atom->modified) {
                     ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), "MOD");
                 } else if (isOriginal) {
                     ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "---");
                 } else {
-                    // SURROUNDING ���ڴ� ���� �Ұ� ǥ��
+                    // SURROUNDING 占쏙옙占쌘댐옙 占쏙옙占쏙옙 占쌀곤옙 표占쏙옙
                     ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "N/A");
                 }
                 ImGui::PopID();
                 nextColumnIndex = 3;
             }
             
-            // 4 (�Ǵ� 3). Type �÷� (���� Ÿ�� ����)
+            // 4 (占실댐옙 3). Type 占시뤄옙 (占쏙옙占쏙옙 타占쏙옙 占쏙옙占쏙옙)
             ImGui::TableSetColumnIndex(nextColumnIndex);
             if (atom->atomType == atoms::domain::AtomType::ORIGINAL) {
                 ImGui::TextColored(ImVec4(0.2f, 0.8f, 0.2f, 1.0f), "ORIG");
@@ -254,14 +254,14 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::TextColored(ImVec4(0.8f, 0.6f, 0.2f, 1.0f), "SURR");
             }
             
-            // ID ������ �������� ǥ�� (���� ���� ���� ����)
+            // ID 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙 표占쏙옙 (占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙)
             if (ImGui::IsItemHovered()) {
                 std::string tooltipText = "Atom ID: " + std::to_string(atom->id) + 
                                         "\nInstance Index: " + std::to_string(atom->instanceIndex) + 
                                         "\nInstanced: " + (atom->isInstanced ? "Yes" : "No") +
                                         "\nEditable: " + (isOriginal ? "Yes" : "No");
                 
-                // ?? SURROUNDING ������ ��� ���� ���� ���� �߰�
+                // ?? SURROUNDING 占쏙옙占쏙옙占쏙옙 占쏙옙占?占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쌩곤옙
                 if (!isOriginal && atom->originalAtomId != 0) {
                     auto it = originalIdToIndex.find(atom->originalAtomId);
                     if (it != originalIdToIndex.end()) {
@@ -276,14 +276,14 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::SetTooltip("%s", tooltipText.c_str());
             }
             
-            // 5 (�Ǵ� 4). ���� ��ȣ (Symbol) - ?? SURROUNDING ���ڴ� ���� ID ���� ǥ��
+            // 5 (占실댐옙 4). 占쏙옙占쏙옙 占쏙옙호 (Symbol) - ?? SURROUNDING 占쏙옙占쌘댐옙 占쏙옙占쏙옙 ID 占쏙옙占쏙옙 표占쏙옙
             ImGui::TableSetColumnIndex(nextColumnIndex + 1);
             
-            // SURROUNDING ���ڴ� ������ �ణ ��Ӱ� ǥ��
+            // SURROUNDING 占쏙옙占쌘댐옙 占쏙옙占쏙옙占쏙옙 占썅간 占쏙옙緞占?표占쏙옙
             // ImVec4 bgColor = atom->color;
             ImVec4 bgColor = atoms::ui::ToImVec4(atom->color);
             if (!isOriginal) {
-                // SURROUNDING ���ڴ� ������ �� ��Ӱ�
+                // SURROUNDING 占쏙옙占쌘댐옙 占쏙옙占쏙옙占쏙옙 占쏙옙 占쏙옙緞占?
                 bgColor.x *= 0.7f;
                 bgColor.y *= 0.7f;
                 bgColor.z *= 0.7f;
@@ -295,30 +295,30 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
             ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::ColorConvertFloat4ToU32(bgColor));
             
             if (!editMode || !isOriginal) {
-                // �б� ���� ��� �Ǵ� SURROUNDING ����
+                // 占싻깍옙 占쏙옙占쏙옙 占쏙옙占?占실댐옙 SURROUNDING 占쏙옙占쏙옙
                 if (isOriginal) {
-                    // ORIGINAL ����: �Ϲ� ǥ��
+                    // ORIGINAL 占쏙옙占쏙옙: 占싹뱄옙 표占쏙옙
                     ImGui::TextColored(textColor, "%s", atom->symbol.c_str());
                 } else {
-                    // ?? SURROUNDING ����: Symbol(OriginalID) �������� ǥ��
+                    // ?? SURROUNDING 占쏙옙占쏙옙: Symbol(OriginalID) 占쏙옙占쏙옙占쏙옙占쏙옙 표占쏙옙
                     std::string displayText;
                     if (atom->originalAtomId != 0) {
                         auto it = originalIdToIndex.find(atom->originalAtomId);
                         if (it != originalIdToIndex.end()) {
-                            // ���� ���ڸ� ã�� ���: Symbol(#Index)
+                            // 占쏙옙占쏙옙 占쏙옙占쌘몌옙 찾占쏙옙 占쏙옙占? Symbol(#Index)
                             displayText = atom->symbol + "(#" + std::to_string(it->second) + ")";
                         } else {
-                            // ���� ���ڸ� ã�� ���� ���: Symbol(ID:XXX)
+                            // 占쏙옙占쏙옙 占쏙옙占쌘몌옙 찾占쏙옙 占쏙옙占쏙옙 占쏙옙占? Symbol(ID:XXX)
                             displayText = atom->symbol + "(ID:" + std::to_string(atom->originalAtomId) + ")";
                         }
                     } else {
-                        // originalAtomId�� �������� ���� ���: Symbol(?)
+                        // originalAtomId占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占? Symbol(?)
                         displayText = atom->symbol + "(?)";
                     }
                     
                     ImGui::TextColored(textColor, "%s", displayText.c_str());
                     
-                    // ?? SURROUNDING ���� Symbol�� ���콺 ���� �� �� ���� ǥ��
+                    // ?? SURROUNDING 占쏙옙占쏙옙 Symbol占쏙옙 占쏙옙占쎌스 占쏙옙占쏙옙 占쏙옙 占쏙옙 占쏙옙占쏙옙 표占쏙옙
                     if (ImGui::IsItemHovered()) {
                         if (atom->originalAtomId != 0) {
                             auto it = originalIdToIndex.find(atom->originalAtomId);
@@ -335,13 +335,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                     }
                 }
             } else {
-                // ���� ��� (ORIGINAL ���ڸ�)
+                // 占쏙옙占쏙옙 占쏙옙占?(ORIGINAL 占쏙옙占쌘몌옙)
                 char symbolBuffer[16];
                 strncpy(symbolBuffer, atom->tempSymbol.c_str(), sizeof(symbolBuffer) - 1);
                 symbolBuffer[sizeof(symbolBuffer) - 1] = '\0';
                 
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 5)); // Symbol InputText ���� ID
+                ImGui::PushID(static_cast<int>(i * 10 + 5)); // Symbol InputText 占쏙옙占쏙옙 ID
                 if (ImGui::InputText("##symbol", symbolBuffer, sizeof(symbolBuffer))) {
                     atom->tempSymbol = std::string(symbolBuffer);
                     atom->modified = true;
@@ -351,7 +351,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
             
-            // ?? ��ǥ ǥ�� �� ���� (�÷� �ε���: nextColumnIndex + 2, 3, 4)
+            // ?? 占쏙옙표 표占쏙옙 占쏙옙 占쏙옙占쏙옙 (占시뤄옙 占싸듸옙占쏙옙: nextColumnIndex + 2, 3, 4)
             float* coords;
             float* tempCoords;
             
@@ -363,13 +363,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 tempCoords = atom->tempPosition;
             }
             
-            // ù ��° ��ǥ (X �Ǵ� a)
+            // 첫 占쏙옙째 占쏙옙표 (X 占실댐옙 a)
             ImGui::TableSetColumnIndex(nextColumnIndex + 2);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", coords[0]);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 6)); // Coord0 InputFloat ���� ID
+                ImGui::PushID(static_cast<int>(i * 10 + 6)); // Coord0 InputFloat 占쏙옙占쏙옙 ID
                 if (ImGui::InputFloat("##coord0", &tempCoords[0], 0.01f, 0.1f, "%.4f")) {
                     atom->modified = true;
                     hasChanges = true;
@@ -384,13 +384,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
             
-            // �� ��° ��ǥ (Y �Ǵ� b)
+            // 占쏙옙 占쏙옙째 占쏙옙표 (Y 占실댐옙 b)
             ImGui::TableSetColumnIndex(nextColumnIndex + 3);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", coords[1]);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 7)); // Coord1 InputFloat ���� ID
+                ImGui::PushID(static_cast<int>(i * 10 + 7)); // Coord1 InputFloat 占쏙옙占쏙옙 ID
                 if (ImGui::InputFloat("##coord1", &tempCoords[1], 0.01f, 0.1f, "%.4f")) {
                     atom->modified = true;
                     hasChanges = true;
@@ -405,13 +405,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
             
-            // �� ��° ��ǥ (Z �Ǵ� c)
+            // 占쏙옙 占쏙옙째 占쏙옙표 (Z 占실댐옙 c)
             ImGui::TableSetColumnIndex(nextColumnIndex + 4);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", coords[2]);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 8)); // Coord2 InputFloat ���� ID
+                ImGui::PushID(static_cast<int>(i * 10 + 8)); // Coord2 InputFloat 占쏙옙占쏙옙 ID
                 if (ImGui::InputFloat("##coord2", &tempCoords[2], 0.01f, 0.1f, "%.4f")) {
                     atom->modified = true;
                     hasChanges = true;
@@ -426,13 +426,13 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
                 ImGui::PopID();
             }
 
-            // Radius �÷� (Z/c ��)
+            // Radius 占시뤄옙 (Z/c 占쏙옙)
             ImGui::TableSetColumnIndex(nextColumnIndex + 5);
             if (!editMode || !isOriginal) {
                 ImGui::Text("%.4f", atom->radius);
             } else {
                 ImGui::SetNextItemWidth(-1);
-                ImGui::PushID(static_cast<int>(i * 10 + 9)); // Radius InputFloat ���� ID
+                ImGui::PushID(static_cast<int>(i * 10 + 9)); // Radius InputFloat 占쏙옙占쏙옙 ID
                 float tempRadius = atom->tempRadius;
                 if (ImGui::InputFloat("##radius", &tempRadius, 0.01f, 0.1f, "%.4f")) {
                     const float clampedRadius = std::max(tempRadius, 0.001f);
@@ -452,10 +452,10 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
 
     renderSelectionPanel(editMode, useFractionalCoords, &hasChanges);
     
-    // ?? ���̺� �ϴ� ���� - ���յ� ��� ǥ�� (���� ���� ���� ����)
+    // ?? 占쏙옙占싱븝옙 占싹댐옙 占쏙옙占쏙옙 - 占쏙옙占쌌듸옙 占쏙옙占?표占쏙옙 (占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙)
     ImGui::Text("Showing %zu atoms", allAtoms.size());
     
-    // Ÿ�Ժ� ���� ��� �� ǥ��
+    // 타占쌉븝옙 占쏙옙占쏙옙 占쏙옙占?占쏙옙 표占쏙옙
     int originalCount = 0, surroundingCount = 0;
     int trackedSurrounding = 0, untrackedSurrounding = 0;
     
@@ -464,7 +464,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
             originalCount++;
         } else {
             surroundingCount++;
-            // ?? SURROUNDING ������ ���� ���� ���� Ȯ��
+            // ?? SURROUNDING 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 확占쏙옙
             if (atom->originalAtomId != 0) {
                 auto it = originalIdToIndex.find(atom->originalAtomId);
                 if (it != originalIdToIndex.end()) {
@@ -484,7 +484,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::SameLine();
         ImGui::TextColored(ImVec4(0.8f, 0.6f, 0.2f, 1.0f), "+ %d SURR)", surroundingCount);
         
-        // ?? SURROUNDING ������ ���� ���� ǥ��
+        // ?? SURROUNDING 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 표占쏙옙
         if (trackedSurrounding > 0 || untrackedSurrounding > 0) {
             ImGui::SameLine();
             if (trackedSurrounding > 0) {
@@ -507,7 +507,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 1.0f, 1.0f), "(Scrollable)");
     }
     
-    // ?? ��� ���� ǥ�� - Edit ��忡���� ���� ��� ���
+    // ?? 占쏙옙占?占쏙옙占쏙옙 표占쏙옙 - Edit 占쏙옙恙∽옙占쏙옙占?占쏙옙占쏙옙 占쏙옙占?占쏙옙占?
     ImGui::SameLine();
     if (editMode) {
         ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), "[Edit + Select Mode]");
@@ -527,7 +527,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
 
 // void AtomEditorUI::renderEditPanel() {
 
-    // ���õ� ���� ���� ǥ�� (ORIGINAL ���ڸ� ���) - Edit ��忡���� ǥ��
+    // 占쏙옙占시듸옙 占쏙옙占쏙옙 占쏙옙占쏙옙 표占쏙옙 (ORIGINAL 占쏙옙占쌘몌옙 占쏙옙占? - Edit 占쏙옙恙∽옙占쏙옙占?표占쏙옙
     ImGui::Separator();
     
     std::vector<size_t> selectedAtomIndices;
@@ -537,7 +537,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         atoms::domain::AtomInfo* atom = allAtoms[i].first;
         bool isOriginal = allAtoms[i].second;
         
-        // ORIGINAL ���ڸ� ���� �����ϹǷ� ORIGINAL ���ڸ� ���
+        // ORIGINAL 占쏙옙占쌘몌옙 占쏙옙占쏙옙 占쏙옙占쏙옙占싹므뤄옙 ORIGINAL 占쏙옙占쌘몌옙 占쏙옙占?
         if (isOriginal && atom->selected) {
             selectedAtomIndices.push_back(i + 1);
             selectedElementCounts[atom->symbol]++;
@@ -669,7 +669,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "No atoms selected");
     }
     
-    // ?? SURROUNDING ���� ���� ǥ�� (���� ���� ���� ����)
+    // ?? SURROUNDING 占쏙옙占쏙옙 占쏙옙占쏙옙 표占쏙옙 (占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙)
     if (surroundingCount > 0) {
         ImGui::TextColored(ImVec4(0.8f, 0.6f, 0.2f, 1.0f), "Surrounding atoms: %d (view only)", surroundingCount);
         if (trackedSurrounding > 0) {
@@ -686,7 +686,7 @@ bool AtomEditorUI::renderAtomTable(bool editMode, bool useFractionalCoords) {
         }
     }
     
-    // Edit ��忡�� ���� ���� ���� �߰� ǥ��
+    // Edit 占쏙옙恙∽옙占?占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쌩곤옙 표占쏙옙
     if (editMode) {
         ImGui::Separator();
         

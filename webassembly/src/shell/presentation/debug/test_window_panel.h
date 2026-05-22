@@ -12,7 +12,7 @@ public:
      * @brief Compatibility accessor resolved via runtime-owned panel instance.
      * @note Phase 11 runtime shim. Remove this wrapper in Phase 12.
      */
-    static TestWindow& Instance();
+    static TestWindow& Shared();
 
     TestWindow();
     ~TestWindow();
@@ -22,3 +22,4 @@ public:
 private:
     std::vector<void*> m_TestPtrs;
 };
+

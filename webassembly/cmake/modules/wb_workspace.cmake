@@ -3,7 +3,7 @@ target_sources(wb_workspace PRIVATE
   webassembly/src/workspace/application/workspace_query_service.cpp
   webassembly/src/workspace/application/workspace_command_service.cpp
   webassembly/src/workspace/runtime/atoms_template_facade.cpp
-  webassembly/src/workspace/runtime/legacy_atoms_runtime.cpp
+  webassembly/src/workspace/runtime/workspace_runtime_model_ref.cpp
   webassembly/src/shell/presentation/atoms/atom_editor_ui.cpp
   webassembly/src/shell/presentation/atoms/atoms_template_main_window_ui.cpp
   webassembly/src/shell/presentation/atoms/atoms_window_presenter.cpp

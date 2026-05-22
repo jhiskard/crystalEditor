@@ -96,8 +96,8 @@ private:
     const char* IMGUI_FONT_SIZE_KEY { "App-FontSize" };
 
     ColorStyle m_ColorStyle { ColorStyle::Dark };
-    FontSizePreset m_FontSizePreset { FontSizePreset::Small };
-    float m_kUiScale { 1.0f };
+    FontSizePreset m_FontSizePreset { FontSizePreset::Large };
+    float m_kUiScale { 1.5f };
 
     bool m_bShowAboutPopup = false;
 
@@ -130,7 +130,7 @@ private:
     bool m_ShouldApplyInitialLayout = false;
 
 
-    LayoutPreset m_PendingLayoutPreset { LayoutPreset::None };
+    LayoutPreset m_PendingLayoutPreset { LayoutPreset::DefaultFloating };
 
     float m_Progress { 0.0f };
     std::string m_PopupTitle { "Loading..." };

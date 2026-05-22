@@ -5,6 +5,7 @@
 #include "../../mesh/presentation/mesh_detail_panel.h"
 #include "../../structure/application/structure_interaction_service.h"
 #include "../../shell/runtime/workbench_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 #include <vtkCommand.h>
 
@@ -111,6 +112,7 @@ void VtkViewer::processEvents() {
     bool requestRender = false;
     measurement::application::MeasurementService& measurementService =
         GetWorkbenchRuntime().MeasurementFeature();
+    WorkspaceRuntimeModel& runtimeModel = workspace::legacy::WorkspaceRuntimeModelRef();
     structure::application::StructureInteractionService& structureInteraction =
         GetWorkbenchRuntime().StructureInteractionFeature();
     const bool measurementModeActive = measurementService.IsModeActive();
@@ -218,7 +220,7 @@ void VtkViewer::processEvents() {
                 const int dragY0 = static_cast<int>(std::lround(m_DragSelection.startPos.y));
                 const int dragX1 = static_cast<int>(std::lround(m_DragSelection.currentPos.x));
                 const int dragY1 = static_cast<int>(std::lround(m_DragSelection.currentPos.y));
-                measurementService.HandleDragSelectionInScreenRect(
+                runtimeModel.HandleDragSelectionInScreenRect(
                     dragX0,
                     dragY0,
                     dragX1,
@@ -235,7 +237,7 @@ void VtkViewer::processEvents() {
                     if (m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
                         vtkActor* pickedActor = m_Picker->GetActor();
                         double* pickPos = m_Picker->GetPickPosition();
-                        const auto pickedInfo = measurementService.ResolvePickedAtomInfo(pickedActor, pickPos);
+                        const auto pickedInfo = runtimeModel.ResolvePickedAtomInfo(pickedActor, pickPos);
                         measurementService.HandlePickerClick(pickedInfo);
                     } else {
                         measurementService.HandleEmptyClick();
@@ -286,7 +288,7 @@ void VtkViewer::processEvents() {
             if (m_Picker->Pick(pickX, pickY, 0, m_Renderer)) {
                 vtkActor* pickedActor = m_Picker->GetActor();
                 double* pickPos = m_Picker->GetPickPosition();
-                const auto pickedInfo = measurementService.ResolvePickedAtomInfo(pickedActor, pickPos);
+                const auto pickedInfo = runtimeModel.ResolvePickedAtomInfo(pickedActor, pickPos);
                 measurementService.HandlePickerClick(pickedInfo);
             } else {
                 measurementService.HandleEmptyClick();

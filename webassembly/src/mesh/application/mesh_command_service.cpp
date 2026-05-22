@@ -1,11 +1,11 @@
-#include "mesh_command_service.h"
+﻿#include "mesh_command_service.h"
 
 #include "../domain/mesh_repository.h"
 
 namespace mesh {
 namespace application {
 
-MeshCommandService& MeshCommandService::Instance() {
+MeshCommandService& MeshCommandService::Shared() {
     static MeshCommandService service;
     return service;
 }
@@ -51,9 +51,10 @@ void MeshCommandService::DeleteAllXsfStructures() {
 }
 
 MeshCommandService& GetMeshCommandService() {
-    return MeshCommandService::Instance();
+    return MeshCommandService::Shared();
 }
 
 } // namespace application
 } // namespace mesh
+
 

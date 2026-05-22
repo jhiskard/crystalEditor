@@ -1,5 +1,5 @@
 #include "atom_manager.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "bond_manager.h"
 #include "element_database.h"
 #include "cell_manager.h"
@@ -12,7 +12,7 @@
 namespace atoms {
 namespace domain {
 
-// ���� ���� ���� ���� (���� �޸� �Ҵ�)
+// 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 (占쏙옙占쏙옙 占쌨몌옙 占쌀댐옙)
 std::vector<atoms::domain::AtomInfo>& GetCreatedAtoms() {
     return structure::domain::GetStructureRepository().CreatedAtoms();
 }
@@ -434,7 +434,7 @@ bool getAtomPositionAndRadius(
         const double bondRadius = static_cast<double>(
             std::max(atom.bondRadius, 0.001f));
 
-        // ���� ��忡���� �ӽ� ��ġ�� ��� (���� �ݰ��� ���� bondRadius ����)
+        // 占쏙옙占쏙옙 占쏙옙恙∽옙占쏙옙占?占쌈쏙옙 占쏙옙치占쏙옙 占쏙옙占?(占쏙옙占쏙옙 占쌥곤옙占쏙옙 占쏙옙占쏙옙 bondRadius 占쏙옙占쏙옙)
         if (atom.modified) {
             position[0] = static_cast<double>(atom.tempPosition[0]);
             position[1] = static_cast<double>(atom.tempPosition[1]);
@@ -443,7 +443,7 @@ bool getAtomPositionAndRadius(
             return true;
         }
         
-        // ? AtomInfo�� �⺻ ��ġ + ���� ���� �ݰ� ���
+        // ? AtomInfo占쏙옙 占썩본 占쏙옙치 + 占쏙옙占쏙옙 占쏙옙占쏙옙 占쌥곤옙 占쏙옙占?
         position[0] = static_cast<double>(atom.position[0]);
         position[1] = static_cast<double>(atom.position[1]);
         position[2] = static_cast<double>(atom.position[2]);

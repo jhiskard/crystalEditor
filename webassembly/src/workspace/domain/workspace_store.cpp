@@ -1,9 +1,9 @@
-#include "workspace_store.h"
+﻿#include "workspace_store.h"
 
 namespace workspace {
 namespace domain {
 
-WorkspaceStore& WorkspaceStore::Instance() {
+WorkspaceStore& WorkspaceStore::Shared() {
     static WorkspaceStore store;
     return store;
 }
@@ -16,9 +16,10 @@ void WorkspaceStore::Reset() {
 }
 
 WorkspaceStore& GetWorkspaceStore() {
-    return WorkspaceStore::Instance();
+    return WorkspaceStore::Shared();
 }
 
 } // namespace domain
 } // namespace workspace
+
 

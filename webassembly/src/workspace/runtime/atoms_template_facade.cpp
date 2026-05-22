@@ -1,11 +1,11 @@
-#include "atoms_template_facade.h"
+﻿#include "atoms_template_facade.h"
 #include "../../app.h"
 #include "../../mesh/presentation/model_tree_panel.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
 #include "../../mesh/domain/mesh_repository.h"
 #include "../../mesh/application/mesh_query_service.h"
 #include "../../mesh/application/mesh_command_service.h"
-#include "../../config/log_config.h" // spdlog ?ㅻ뜑 寃쎈줈 ?섏젙 - 濡쒓퉭 ?ㅼ젙 ?뚯씪 ?ъ슜
+#include "../../config/log_config.h" // spdlog ??삳쐭 野껋럥以???륁젟 - 嚥≪뮄????쇱젟 ???뵬 ????
 #include "../../structure/application/structure_service.h"
 #include "../../measurement/application/measurement_service.h"
 #include "../../density/application/density_service.h"
@@ -615,13 +615,13 @@ std::string formatDistanceText(double distance) {
 
 std::string formatAngleText(double angleDeg) {
     std::ostringstream oss;
-    oss << std::fixed << std::setprecision(4) << angleDeg << "°";
+    oss << std::fixed << std::setprecision(4) << angleDeg << " deg";
     return oss.str();
 }
 
 std::string formatDihedralText(double angleDeg) {
     std::ostringstream oss;
-    oss << std::fixed << std::setprecision(4) << angleDeg << "°";
+    oss << std::fixed << std::setprecision(4) << angleDeg << " deg";
     return oss.str();
 }
 
@@ -785,7 +785,7 @@ vtkSmartPointer<vtkActor2D> createCircleTextActor(
     const std::array<double, 3>& color,
     double opacity) {
     vtkSmartPointer<vtkTextActor> actor = vtkSmartPointer<vtkTextActor>::New();
-    actor->SetInput("●");
+    actor->SetInput("+");
 
     vtkTextProperty* property = actor->GetTextProperty();
     if (property) {
@@ -902,23 +902,23 @@ vtkSmartPointer<vtkActor2D> createMeasurementOrderTextActor(
 // (251212) ATOM RENDERING SYSTEM
 // ============================================================================
 
-// (251211) 濡쒖쭅 ?뚰듃??domain layer濡?遺꾨━??
+// (251211) 嚥≪뮇彛???곕뱜??domain layer嚥??브쑬???
 // addAtomToGroup, initializeAtomGroup, removeAtomFromGroup
 
 /*
  * Called by applyAtomChanges, createAtomSphere
- * m_vtkRenderer ?묎렐???꾪븳 wrapper
+ * m_vtkRenderer ?臾롫젏???袁る립 wrapper
 */
 void initializeAtomGroup(const std::string& symbol, float radius) {
-    // ?꾨찓?? 洹몃９ ?곗씠???앹꽦/?낅뜲?댄듃
+    // ?袁⑥컭?? 域밸챶竊??怨쀬뵠????밴쉐/??낅쑓??꾨뱜
     atoms::domain::initializeAtomGroup(symbol, radius);
 
-    // ?ㅼ??ㅽ듃?덉씠?? ?뚮뜑留??뚯씠?꾨씪??珥덇린?붾뒗 WorkspaceRuntimeModel媛 ?대떦
+    // ?????쎈뱜??됱뵠?? ???쐭筌????뵠?袁⑥뵬???λ뜃由?遺얜뮉 WorkspaceRuntimeModel揶쎛 ????
     workspace::legacy::WorkspaceRuntimeModelRef().initializeUnifiedAtomGroupVTK(symbol, radius);
 }
 
 /**
- * 諛곗튂?낅뜲?댄듃 ?쒖뒪?쒖뿉???ъ슜?? * m_vtkRenderer ?묎렐???꾪븳 wrapper
+ * 獄쏄퀣???낅쑓??꾨뱜 ??뽯뮞??뽯퓠??????? * m_vtkRenderer ?臾롫젏???袁る립 wrapper
  */
 void updateUnifiedAtomGroupVTK(const std::string& symbol) {
     workspace::legacy::WorkspaceRuntimeModelRef().updateUnifiedAtomGroupVTK(symbol);
@@ -927,13 +927,13 @@ void updateUnifiedAtomGroupVTK(const std::string& symbol) {
 /*
  * Called by applyAtomChanges, LoadXSFFile, 
  *           createSurroundingAtoms, hideSurroundingAtoms
- * ?쒓굅 濡쒖쭅? domain??遺꾨━
+ * ??볤탢 嚥≪뮇彛?? domain???브쑬??
 */
 void removeAtomFromGroup(const std::string& symbol, uint32_t atomId) {
-    // ?꾨찓?? 洹몃９ ?곗씠????젣
+    // ?袁⑥컭?? 域밸챶竊??怨쀬뵠??????
     bool removed = atoms::domain::removeAtomFromGroup(symbol, atomId);
 
-    // ?ㅼ??ㅽ듃?덉씠?? VTK ?낅뜲?댄듃??WorkspaceRuntimeModel媛 ?ㅼ?以꾨쭅
+    // ?????쎈뱜??됱뵠?? VTK ??낅쑓??꾨뱜??WorkspaceRuntimeModel揶쎛 ???餓κ쑬彛?
     if (removed) {
         if (auto* batch = workspace::legacy::WorkspaceRuntimeModelRef().batchSystem()) {
             batch->scheduleAtomGroupUpdate(symbol);
@@ -947,8 +947,8 @@ void removeAtomFromGroup(const std::string& symbol, uint32_t atomId) {
 
 static float bondScalingFactor = 1.0f; // Default scaling factor
 static float bondToleranceFactor = 0.10f;
-static float bondThickness = 1.0f;      // 寃고빀 ?먭퍡 (湲곕낯媛?1.0)
-static float bondOpacity = 1.0f;        // 寃고빀 ?щ챸??(湲곕낯媛?1.0)
+static float bondThickness = 1.0f;      // 野껉퀬鍮 ?癒?뜞 (疫꿸퀡??첎?1.0)
+static float bondOpacity = 1.0f;        // 野껉퀬鍮 ??梨??(疫꿸퀡??첎?1.0)
 
 
 // ============================================================================
@@ -956,27 +956,27 @@ static float bondOpacity = 1.0f;        // 寃고빀 ?щ챸??(湲곕낯媛?1.0)
 // ============================================================================
 
 /**
- * @brief 寃고빀 洹몃９ 珥덇린??(?꾩뿭 ?⑥닔 ?섑띁)
+ * @brief 野껉퀬鍮 域밸챶竊??λ뜃由??(?袁⑸열 ??λ땾 ??묐쓠)
  */
 void initializeBondGroup(const std::string& key, float radius) {
-    // ?꾨찓?? 洹몃９ ?곗씠???앹꽦/?낅뜲?댄듃
+    // ?袁⑥컭?? 域밸챶竊??怨쀬뵠????밴쉐/??낅쑓??꾨뱜
     atoms::domain::initializeBondGroup(key, radius);
 
-    // ?ㅼ??ㅽ듃?덉씠?? ?뚮뜑留??뚯씠?꾨씪??珥덇린?붾뒗 WorkspaceRuntimeModel媛 ?대떦
+    // ?????쎈뱜??됱뵠?? ???쐭筌????뵠?袁⑥뵬???λ뜃由?遺얜뮉 WorkspaceRuntimeModel揶쎛 ????
     workspace::legacy::WorkspaceRuntimeModelRef().initializeBondGroupVTK(key, radius);
 }
 
 /**
- * @brief 紐⑤뱺 寃고빀 洹몃９ ?뺣━ (?꾩뿭 ?⑥닔 ?섑띁)
+ * @brief 筌뤴뫀諭?野껉퀬鍮 域밸챶竊??類ｂ봺 (?袁⑸열 ??λ땾 ??묐쓠)
  */
 void clearAllBondGroups() {
     SPDLOG_INFO("Clearing all 2-color bond groups...");
     
     try {
-        // VTKRenderer瑜??듯븳 VTK ?뚯씠?꾨씪???뺣━
+        // VTKRenderer?????립 VTK ???뵠?袁⑥뵬???類ｂ봺
         workspace::legacy::WorkspaceRuntimeModelRef().clearAllBondGroupsVTK();
         
-        // bondGroups ?곗씠??援ъ“ ?뺣━
+        // bondGroups ?怨쀬뵠???닌듼??類ｂ봺
         atoms::domain::clearAllBondGroups();
         
         SPDLOG_INFO("All 2-color bond groups cleared successfully");
@@ -987,13 +987,13 @@ void clearAllBondGroups() {
 }
 
 // ============================================================================
-// ?앹꽦?? ?뚮㈇?? 硫붿씤 ?뚮뜑留??⑥닔 
+// ??밴쉐?? ???늾?? 筌롫뗄?????쐭筌???λ땾 
 // ============================================================================
 
 WorkspaceRuntimeModel::WorkspaceRuntimeModel() {
     atoms::domain::setSurroundingsVisible(false);
 
-    // *** 異붽?: ElementDatabase 珥덇린??***
+    // *** ?곕떽?: ElementDatabase ?λ뜃由??***
     m_elementDB = &atoms::domain::ElementDatabase::getInstance();
     
     float identity[3][3] = {
@@ -1004,43 +1004,43 @@ WorkspaceRuntimeModel::WorkspaceRuntimeModel() {
     atoms::domain::setCellMatrix(identity);
     atoms::domain::setCellModified(false);
     
-    // BatchUpdateSystem 초기화
+    // BatchUpdateSystem 珥덇린??
     m_batchSystem = std::make_unique<atoms::infrastructure::BatchUpdateSystem>(this);
 
-    // VTKRenderer 珥덇린??(Phase 2 異붽?)
+    // VTKRenderer ?λ뜃由??(Phase 2 ?곕떽?)
     m_vtkRenderer = std::make_unique<atoms::infrastructure::VTKRenderer>();
 
-    // BondRenderer 珥덇린??(CP2 異붽?)
+    // BondRenderer ?λ뜃由??(CP2 ?곕떽?)
     m_bondRenderer = std::make_unique<atoms::infrastructure::BondRenderer>(m_vtkRenderer.get());
 
-    // [異붽?] FileIOManager 珥덇린??(Phase 3)
+    // [?곕떽?] FileIOManager ?λ뜃由??(Phase 3)
     m_fileIOManager = std::make_unique<atoms::infrastructure::FileIOManager>(this);
 
-    // AtomEditorUI 초기화
+    // AtomEditorUI 珥덇린??
     m_atomEditorUI = std::make_unique<atoms::ui::AtomEditorUI>(this);
 
-    // BondUI 초기화
+    // BondUI 珥덇린??
     m_bondUI = std::make_unique<atoms::ui::BondUI>(this);
 
-    // CellInfoUI 초기화
+    // CellInfoUI 珥덇린??
     m_cellInfoUI = std::make_unique<atoms::ui::CellInfoUI>(this);
 
-    // BZPlotUI 초기화
+    // BZPlotUI 珥덇린??
     m_bzPlotUI = std::make_unique<atoms::ui::BZPlotUI>(this);
     m_bzPlotController = std::make_unique<atoms::domain::BZPlotController>();
 
-    // SurroundingAtomManager 珥덇린??(CP8 異붽?)
+    // SurroundingAtomManager ?λ뜃由??(CP8 ?곕떽?)
     m_surroundingAtomManager = std::make_unique<atoms::domain::SurroundingAtomManager>(this);
 
-    // PeriodicTableUI 초기화
+    // PeriodicTableUI 珥덇린??
     m_periodicTableUI = std::make_unique<atoms::ui::PeriodicTableUI>(this);
 
-    // BravaisLatticeUI 초기화
+    // BravaisLatticeUI 珥덇린??
     m_bravaisLatticeUI = std::make_unique<atoms::ui::BravaisLatticeUI>(this);
 
     SPDLOG_DEBUG("WorkspaceRuntimeModel initialized with clean state");
 
-    // ChargeDensityUI 초기화
+    // ChargeDensityUI 珥덇린??
     m_chargeDensityUI = std::make_unique<atoms::ui::ChargeDensityUI>(this);
 
     // Phase 17-R6 service facades (direct ownership path)
@@ -1061,14 +1061,14 @@ WorkspaceRuntimeModel::~WorkspaceRuntimeModel() {
         clearAllAngleMeasurements();
         clearAllDistanceMeasurements();
 
-        // VTKRenderer瑜??듯븳 ?뺣━
+        // VTKRenderer?????립 ?類ｂ봺
         if (m_vtkRenderer) {
             m_vtkRenderer->clearAllAtomGroupsVTK();
             m_vtkRenderer->clearAllBondGroups();
             m_vtkRenderer->clearUnitCell();
         }
         
-        // ?곗씠??援ъ“ ?뺣━
+        // ?怨쀬뵠???닌듼??類ｂ봺
         createdAtoms.clear();
         createdBonds.clear();
         surroundingAtoms.clear();
@@ -1080,7 +1080,7 @@ WorkspaceRuntimeModel::~WorkspaceRuntimeModel() {
         
         SPDLOG_INFO("WorkspaceRuntimeModel destructor completed successfully");
     
-    // ChargeDensityUI 초기화
+    // ChargeDensityUI 珥덇린??
     m_chargeDensityUI = std::make_unique<atoms::ui::ChargeDensityUI>(this);
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Critical exception in WorkspaceRuntimeModel destructor: {}", e.what());
@@ -1166,7 +1166,7 @@ bool WorkspaceRuntimeModel::IsAtomGroupVisible(const std::string& symbol) const 
     if (it != m_AtomGroupVisibility.end()) {
         return it->second;
     }
-    // 湲곕낯媛? ?꾩껜 援ъ“ visibility ?곕쫫
+    // 疫꿸퀡??첎? ?袁⑷퍥 ?닌듼?visibility ?怨뺤カ
     return m_StructureVisible;
 }
 
@@ -1312,7 +1312,7 @@ void WorkspaceRuntimeModel::SetBondLabelVisibilityForIds(const std::vector<uint3
 std::vector<std::pair<std::string, size_t>> WorkspaceRuntimeModel::GetAtomGroupSummary() const {
     std::vector<std::pair<std::string, size_t>> summary;
     for (const auto& [symbol, group] : atomGroups) {
-        // createdAtoms에서 해당 symbol의 개수 카운트
+        // createdAtoms?먯꽌 ?대떦 symbol??媛쒖닔 移댁슫??
         size_t count = 0;
         for (const auto& atom : createdAtoms) {
             if (atom.symbol == symbol) {
@@ -1412,7 +1412,7 @@ void WorkspaceRuntimeModel::setChargeDensityGridMeshVisibilityImmediate(
 
     const bool anyVisible = surfaceVisible || volumeVisible;
     if (anyVisible) {
-        MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
+        MeshDetail::Shared().SetUiVolumeMeshVisibility(true);
     }
     mesh->SetVolumeSurfaceVisibility(surfaceVisible);
     mesh->SetVolumeRenderVisibility(volumeVisible);
@@ -1680,7 +1680,7 @@ void WorkspaceRuntimeModel::renderChargeDensityViewerContent() {
     static int selectedIndex = 0;
     static int32_t lastTreeSelection = -1;
 
-    int32_t treeSelected = ModelTree::Instance().GetSelectedMeshId();
+    int32_t treeSelected = ModelTree::Shared().GetSelectedMeshId();
     if (treeSelected != -1 && treeSelected != lastTreeSelection) {
         auto it = std::find(volumeMeshIds.begin(), volumeMeshIds.end(), treeSelected);
         if (it != volumeMeshIds.end()) {
@@ -1707,7 +1707,7 @@ void WorkspaceRuntimeModel::renderChargeDensityViewerContent() {
 
     int32_t activeMeshId = volumeMeshIds[selectedIndex];
     m_ActiveChargeDensityGridMeshId = activeMeshId;
-    MeshDetail::Instance().RenderVolumeControls(
+    MeshDetail::Shared().RenderVolumeControls(
         activeMeshId, "ChargeDensityVolumeControls", false);
 }
 
@@ -1857,10 +1857,10 @@ void WorkspaceRuntimeModel::Render(bool* openBuilder, bool* openEditor) {
 
     };
 
-    // Crystal Builder 창
+    // Crystal Builder 李?
     if (openBuilder != nullptr) {
         if (*openBuilder) {
-            // ??李??ш린 ?ㅼ젙 (泥섏쓬 ?대┫ ?뚮쭔 ?곸슜)
+            // ??筌???由???쇱젟 (筌ｌ꼷?????????춸 ?怨몄뒠)
             ImGui::SetNextWindowSize(ImVec2(500, 600), ImGuiCond_FirstUseEver);
             applyForcedWindowLayout(m_BuilderWindowLayoutRequest);
             
@@ -1880,10 +1880,10 @@ void WorkspaceRuntimeModel::Render(bool* openBuilder, bool* openEditor) {
         ImGui::End();
     }
 
-    // Crystal Editor 창
+    // Crystal Editor 李?
     if (openEditor != nullptr) {
         if (*openEditor) {
-            // ??李??ш린 ?ㅼ젙 (泥섏쓬 ?대┫ ?뚮쭔 ?곸슜)
+            // ??筌???由???쇱젟 (筌ｌ꼷?????????춸 ?怨몄뒠)
             ImGui::SetNextWindowSize(ImVec2(450, 500), ImGuiCond_FirstUseEver);
             applyForcedWindowLayout(m_EditorWindowLayoutRequest);
             
@@ -1972,7 +1972,7 @@ void WorkspaceRuntimeModel::RenderAdvancedView(bool* openAdvanced) {
                     static int selectedIndex = 0;
                     static int32_t lastTreeSelection = -1;
 
-                    int32_t treeSelected = ModelTree::Instance().GetSelectedMeshId();
+                    int32_t treeSelected = ModelTree::Shared().GetSelectedMeshId();
                     if (treeSelected != -1 && treeSelected != lastTreeSelection) {
                         auto it = std::find(volumeMeshIds.begin(), volumeMeshIds.end(), treeSelected);
                         if (it != volumeMeshIds.end()) {
@@ -1998,7 +1998,7 @@ void WorkspaceRuntimeModel::RenderAdvancedView(bool* openAdvanced) {
                                  static_cast<int>(nameCstrs.size()));
 
                     int32_t activeMeshId = volumeMeshIds[selectedIndex];
-                    MeshDetail::Instance().RenderVolumeControls(
+                    MeshDetail::Shared().RenderVolumeControls(
                         activeMeshId, "ChargeDensityVolumeControls", false);
                 }
             }
@@ -2095,7 +2095,7 @@ void WorkspaceRuntimeModel::LoadXSFFile(const std::string& filePath) {
         m_bzPlotUI->SetShowingBZ(false);
     }
 
-    // 기존 구조 초기화
+    // 湲곗〈 援ъ“ 珥덇린??
     BatchGuard guard = createBatchGuard();
 
     if (!m_fileIOManager) {
@@ -2191,17 +2191,17 @@ bool WorkspaceRuntimeModel::LoadXSFParsedData(const atoms::infrastructure::FileI
     }
 }
 
-// setBravaisLattice, LoadXSFFile에서 호출
+// setBravaisLattice, LoadXSFFile?먯꽌 ?몄텧
 void WorkspaceRuntimeModel::clearAllUnifiedAtomGroups() {
     SPDLOG_INFO("Clearing all unified atom groups...");
     try {
-        // 1) ?뚮뜑留??뚯씠?꾨씪???뺣━ (?명봽??
+        // 1) ???쐭筌????뵠?袁⑥뵬???類ｂ봺 (?紐낅늄??
         if (m_vtkRenderer) {
             m_vtkRenderer->clearAllAtomGroupsVTK();
             m_vtkRenderer->clearAllAtomLabelActors();
         }
 
-        // 2) ?꾨찓???곗씠???뺣━
+        // 2) ?袁⑥컭???怨쀬뵠???類ｂ봺
         atoms::domain::clearAllAtomGroups();
 
         SPDLOG_INFO("Successfully cleared all unified atom groups");
@@ -2236,18 +2236,18 @@ void WorkspaceRuntimeModel::resetStructure() {
 
 }
 
-// struct CellInfo --> cell_manager.h 濡??대룞
+// struct CellInfo --> cell_manager.h 嚥???猷?
 
 bool WorkspaceRuntimeModel::isCellVisible() const {
     return atoms::domain::isCellVisible();
 }
 
-// cellInfo가 수정되었거나, 단위행렬이 아니면 Cell이 정의된 것으로 판단
+// cellInfo媛 ?섏젙?섏뿀嫄곕굹, ?⑥쐞?됰젹???꾨땲硫?Cell???뺤쓽??寃껋쑝濡??먮떒
 bool WorkspaceRuntimeModel::hasUnitCell() const {
     return atoms::domain::hasUnitCell();
 }
 
-// Surroundings visible getter/setter 援ы쁽 異붽?
+// Surroundings visible getter/setter ?닌뗭겱 ?곕떽?
 bool WorkspaceRuntimeModel::isSurroundingsVisible() const {
     return atoms::domain::isSurroundingsVisible();
 }
@@ -2280,7 +2280,7 @@ void WorkspaceRuntimeModel::setBravaisLattice(
     bool preserveExistingAtoms
 ) {
     SPDLOG_INFO("Setting Bravais lattice: type={}, a={:.3f}, b={:.3f}, c={:.3f}, "
-                "alpha={:.1f}째, beta={:.1f}째, gamma={:.1f}째",
+                "alpha={:.1f} deg, beta={:.1f} deg, gamma={:.1f} deg",
                 static_cast<int>(type), params.a, params.b, params.c,
                 params.alpha, params.beta, params.gamma);
 
@@ -2295,11 +2295,11 @@ void WorkspaceRuntimeModel::setBravaisLattice(
     }
 
     try {
-        // 기존 구조 초기화
+        // 湲곗〈 援ъ“ 珥덇린??
         BatchGuard guard = createBatchGuard();
 
         // ========================================================================
-        // 1. Domain Layer?먯꽌 寃⑹옄 踰≫꽣 怨꾩궛
+        // 1. Domain Layer?癒?퐣 野꺿뫗??甕겸돧苑??④쑴沅?
         // ========================================================================
         float cellMatrix[3][3];
         atoms::domain::CrystalStructureGenerator::generateLatticeVectors(
@@ -2316,7 +2316,7 @@ void WorkspaceRuntimeModel::setBravaisLattice(
         
         if (preserveExistingAtoms) {
             // ========================================================================
-            // 2. Unit Cell 媛깆떊 (?먯옄 ?좎?)
+            // 2. Unit Cell 揶쏄퉮??(?癒?쁽 ?醫?)
             // ========================================================================
             SPDLOG_INFO("Updating unit cell while preserving existing atoms...");
             clearUnitCell();
@@ -2324,7 +2324,7 @@ void WorkspaceRuntimeModel::setBravaisLattice(
 
             for (auto& atom : createdAtoms) {
                 float cartPos[3];
-                // Direct(분수) 좌표 -> Cartesian 변환
+                // Direct(遺꾩닔) 醫뚰몴 -> Cartesian 蹂??
                 atoms::domain::fractionalToCartesian(atom.fracPosition, cartPos, cellMatrix);
 
                 atom.position[0] = cartPos[0];
@@ -2378,7 +2378,7 @@ void WorkspaceRuntimeModel::setBravaisLattice(
             }
         } else {
             // ========================================================================
-            // 2. Unit Cell 媛깆떊 (援ъ“ 珥덇린??
+            // 2. Unit Cell 揶쏄퉮??(?닌듼??λ뜃由??
             // ========================================================================
             SPDLOG_INFO("Resetting structure for new lattice...");
             resetStructure();
@@ -2387,7 +2387,7 @@ void WorkspaceRuntimeModel::setBravaisLattice(
         }
         
         // ========================================================================
-        // 3. Unit Cell ?쒓컖???쒖꽦??        // ========================================================================
+        // 3. Unit Cell ??볦퍟????뽮쉐??        // ========================================================================
         if (m_vtkRenderer) {
             m_vtkRenderer->setUnitCellVisible(true);
         }
@@ -2398,7 +2398,7 @@ void WorkspaceRuntimeModel::setBravaisLattice(
                     createdAtoms.size());
         
     } catch (const std::exception& e) {
-        // ?ㅻ쪟 諛쒖깮 ?쒖뿉???꾨줈洹몃옩??怨꾩냽 ?ㅽ뻾?섎룄濡??덉쇅瑜??ㅼ떆 ?섏?吏 ?딆쓬
+        // ??살첒 獄쏆뮇源???뽯퓠???袁⑥쨮域밸챶????④쑴????쎈뻬??롫즲嚥???됱뇚????쇰뻻 ???筌왖 ??놁벉
         SPDLOG_ERROR("Failed to set Bravais lattice: {}", e.what());
     }
 }
@@ -2443,7 +2443,7 @@ void WorkspaceRuntimeModel::exitBZPlotMode() {
 }
 
 // ============================================================================
-// (251212) ATOM RENDERING SYSTEM - VTK ?명꽣?섏씠??// ============================================================================
+// (251212) ATOM RENDERING SYSTEM - VTK ?紐낃숲??륁뵠??// ============================================================================
 
 void WorkspaceRuntimeModel::initializeUnifiedAtomGroupVTK(const std::string& symbol, float radius) {
     if (m_vtkRenderer) {
@@ -2481,7 +2481,7 @@ void WorkspaceRuntimeModel::updateUnifiedAtomGroupVTK(const std::string& symbol)
 }
 
 // ============================================================================
-// 寃고빀 洹몃９ VTK ?⑥닔??[異붽? - 硫ㅻ쾭 ?⑥닔]
+// 野껉퀬鍮 域밸챶竊?VTK ??λ땾??[?곕떽? - 筌롢끇苡???λ땾]
 // ============================================================================
 
 void WorkspaceRuntimeModel::initializeBondGroupVTK(const std::string& bondTypeKey, float radius) {
@@ -2555,15 +2555,15 @@ void WorkspaceRuntimeModel::clearAllBondGroupsVTK() {
 }
 
 /**
- * @brief 吏?뺣맂 ?먯옄??媛꾩쓽 寃고빀???앹꽦?섎뒗 怨좎꽦???⑥닔 (ID 湲곕컲?쇰줈 ?섏젙??
- * @param atomIds 寃고빀???앹꽦???먯옄?ㅼ쓽 ID 諛곗뿴 (鍮꾩뼱?덉쑝硫?紐⑤뱺 ?먯옄)
- * @param includeOriginal ?먮낯 ?먯옄 ?ы븿 ?щ?
- * @param includeSurrounding 二쇰? ?먯옄 ?ы븿 ?щ?
- * @param clearExisting 湲곗〈 寃고빀 ?쒓굅 ?щ?
+ * @brief 筌왖?類ｋ쭆 ?癒?쁽??揶쏄쑴??野껉퀬鍮????밴쉐??롫뮉 ?⑥쥙苑????λ땾 (ID 疫꿸퀡而??곗쨮 ??륁젟??
+ * @param atomIds 野껉퀬鍮????밴쉐???癒?쁽??쇱벥 ID 獄쏄퀣肉?(??쑴堉??됱몵筌?筌뤴뫀諭??癒?쁽)
+ * @param includeOriginal ?癒?궚 ?癒?쁽 ??釉????
+ * @param includeSurrounding 雅뚯눖? ?癒?쁽 ??釉????
+ * @param clearExisting 疫꿸퀣??野껉퀬鍮 ??볤탢 ???
  */
 // createAllBonds, createSurroundingAtoms, hideSurroundingAtoms
 void WorkspaceRuntimeModel::createBondsForAtoms(
-    const std::vector<uint32_t>& atomIds,  // ?뵩 ???蹂寃? size_t ??uint32_t
+    const std::vector<uint32_t>& atomIds,  // ?逾?????癰궰野? size_t ??uint32_t
     bool includeOriginal, bool includeSurrounding, bool clearExisting
 ) {
     atoms::domain::createBondsForAtoms(
@@ -2578,7 +2578,7 @@ void WorkspaceRuntimeModel::createBondsForAtoms(
 }
 
 /**
- * @brief createBondsForAtoms({}, true, true, true) ?ㅽ뻾
+ * @brief createBondsForAtoms({}, true, true, true) ??쎈뻬
  */
 void WorkspaceRuntimeModel::createAllBonds() {
     // Full rebuild path: restart bond serial numbering.
@@ -2587,12 +2587,12 @@ void WorkspaceRuntimeModel::createAllBonds() {
 }
 
 /**
- * @brief 紐⑤뱺 寃고빀 ?쒓굅 - CPU ?몄뒪?댁떛 紐⑤뱶留?泥섎━
+ * @brief 筌뤴뫀諭?野껉퀬鍮 ??볤탢 - CPU ?紐꾨뮞??곷뼓 筌뤴뫀諭띰쭕?筌ｌ꼶??
  * 
- * ?뵩 蹂寃쎌궗??
- * - VTK 媛쒕퀎 ?≫꽣 ?쒓굅 猷⑦봽 ?꾩쟾 ?쒓굅
- * - 洹몃９ 湲곕컲 ?뺣━留??섑뻾
- * - BondInfo??VTK 媛앹껜媛 ?놁쑝誘濡?愿??肄붾뱶 遺덊븘?? */
+ * ?逾?癰궰野껋럩沅??
+ * - VTK 揶쏆뮆????リ숲 ??볤탢 ?룐뫂遊??袁⑹읈 ??볤탢
+ * - 域밸챶竊?疫꿸퀡而??類ｂ봺筌???묐뻬
+ * - BondInfo??VTK 揶쏆빘猿쒎첎? ??곸몵沃샕嚥??온???꾨뗀諭??븍뜇釉?? */
 void WorkspaceRuntimeModel::clearAllBonds() {
     atoms::domain::clearAllBonds(this);
     resetBondIdCounter();
@@ -2605,12 +2605,12 @@ void WorkspaceRuntimeModel::clearAllBonds() {
 
 // shouldCreateBond --> createBond
 /**
- * @brief 寃고빀 ?앹꽦 ?⑥닔 - ?듯빀 CPU ?몄뒪?댁떛 紐⑤뱶留??ъ슜
+ * @brief 野껉퀬鍮 ??밴쉐 ??λ땾 - ???? CPU ?紐꾨뮞??곷뼓 筌뤴뫀諭띰쭕?????
  * 
- * ?뵩 蹂寃쎌궗??
- * - VTK 媛쒕퀎 ?≫꽣 ?앹꽦 ?꾩쟾 ?쒓굅
- * - BondInfo??VTK 媛앹껜 ?좊떦 肄붾뱶 ?쒓굅
- * - ??긽 isInstanced = true濡??ㅼ젙
+ * ?逾?癰궰野껋럩沅??
+ * - VTK 揶쏆뮆????リ숲 ??밴쉐 ?袁⑹읈 ??볤탢
+ * - BondInfo??VTK 揶쏆빘猿??醫딅뼣 ?꾨뗀諭???볤탢
+ * - ??湲?isInstanced = true嚥???쇱젟
  */
 void WorkspaceRuntimeModel::createBond(
     const atoms::domain::AtomInfo& atom1, 
@@ -2648,19 +2648,19 @@ int WorkspaceRuntimeModel::getTotalBondCount() {
     return totalCount;
 }
 
-// 諛곗튂 ?낅뜲?댄듃 愿??
-// 5. addBondsToGroups() ?⑥닔 ?듯빀 - ?몃뜳??愿由?媛쒖꽑 (atoms_template.cpp)
+// 獄쏄퀣????낅쑓??꾨뱜 ?온??
+// 5. addBondsToGroups() ??λ땾 ???? - ?紐껊쑔???온??揶쏆뮇苑?(atoms_template.cpp)
 void WorkspaceRuntimeModel::addBondsToGroups(int atomIndex) {
     atoms::domain::addBondsToGroups(this, atomIndex, bondScalingFactor, *m_elementDB);
 }
 
-// [?섏젙] VTKRenderer ?ъ슜
+// [??륁젟] VTKRenderer ????
 void WorkspaceRuntimeModel::updateAllBondGroupThickness() {
     SPDLOG_DEBUG("Updating bond thickness for all groups to {:.1f}", bondThickness);
     atoms::domain::updateAllBondGroupThickness(this, bondThickness);
 }
 
-// [?섏젙] VTKRenderer ?ъ슜
+// [??륁젟] VTKRenderer ????
 void WorkspaceRuntimeModel::updateAllBondGroupOpacity() {
     SPDLOG_DEBUG("Updating bond opacity for all groups to {:.1f}", bondOpacity);
     atoms::domain::updateAllBondGroupOpacity(this, bondOpacity);
@@ -2708,12 +2708,12 @@ WorkspaceRuntimeModel::BondPerfStats WorkspaceRuntimeModel::getBondPerformanceSt
 
 // InitializeAtomicStructure, createSurroundingAtoms
 /**
- * @brief ?먯옄 ?앹꽦 ?⑥닔 - ?듯빀 ?쒖뒪?쒕쭔 ?ъ슜 (?덇굅???숆린???쒓굅)
+ * @brief ?癒?쁽 ??밴쉐 ??λ땾 - ???? ??뽯뮞??뺤춸 ????(??뉕탢????녿┛????볤탢)
  * 
- * ?뵩 ?④퀎 2 蹂寃쎌궗??
- * - elementTransforms, elementColors, elementAtomIndices ?숆린???꾩쟾 ?쒓굅
- * - ?듯빀 atomGroups ?쒖뒪?쒕쭔 ?ъ슜
- * - ?댁쨷 ?쒖뒪???숆린??濡쒖쭅 ?쒓굅
+ * ?逾???ｍ?2 癰궰野껋럩沅??
+ * - elementTransforms, elementColors, elementAtomIndices ??녿┛???袁⑹읈 ??볤탢
+ * - ???? atomGroups ??뽯뮞??뺤춸 ????
+ * - ??곸㉦ ??뽯뮞????녿┛??嚥≪뮇彛???볤탢
  */
 void WorkspaceRuntimeModel::createAtomSphere(
     const char* symbol, 
@@ -2725,10 +2725,10 @@ void WorkspaceRuntimeModel::createAtomSphere(
 
     std::string symbolStr(symbol);
     
-    // 통합 원자 그룹 초기화
+    // ?듯빀 ?먯옄 洹몃９ 珥덇린??
     initializeAtomGroup(symbolStr, radius);
 
-    // 그룹이 없으면 visibility 상태 초기화
+    // 洹몃９???놁쑝硫?visibility ?곹깭 珥덇린??
     if (m_AtomGroupVisibility.find(symbolStr) == m_AtomGroupVisibility.end()) {
         m_AtomGroupVisibility[symbolStr] = true;
     }
@@ -2742,7 +2742,7 @@ void WorkspaceRuntimeModel::createAtomSphere(
     float scaleFactor = adjustedRadius / 0.5f;
     transform->Scale(scaleFactor, scaleFactor, scaleFactor);
     
-    // AtomType???곕Ⅸ ?됱긽 議곗젙
+    // AtomType???怨뺚뀲 ??깃맒 鈺곌퀣??
     atoms::domain::Color4f adjustedColor = color;
     if (atomType == atoms::domain::AtomType::SURROUNDING) {
         float colorMultiplier = 200.0f / 255.0f;
@@ -2751,33 +2751,33 @@ void WorkspaceRuntimeModel::createAtomSphere(
         adjustedColor.b *= colorMultiplier;
     }
     
-    // 怨좎쑀 ID ?앹꽦
+    // ?⑥쥙? ID ??밴쉐
     uint32_t atomId = atoms::domain::generateUniqueAtomId();
     
-    // ???듯빀 洹몃９ ?쒖뒪?쒖뿉留?異붽?
+    // ?????? 域밸챶竊???뽯뮞??뽯퓠筌??곕떽?
     size_t originalIndex = (atomType == atoms::domain::AtomType::ORIGINAL) ? 
                           createdAtoms.size() : surroundingAtoms.size();
     
     // (domain) atom_manager.cpp                      
     atoms::domain::addAtomToGroup(symbolStr, transform, adjustedColor, atomId, atomType, originalIndex);
     
-    // AtomInfo ?앹꽦 (CPU ?몄뒪?댁떛留?
+    // AtomInfo ??밴쉐 (CPU ?紐꾨뮞??곷뼓筌?
     atoms::domain::AtomInfo atomInfo(symbolStr, adjustedColor, radius, position, atomType);
     atomInfo.id = atomId;
     atomInfo.structureId = m_CurrentStructureId;
-    atomInfo.isInstanced = true;  // ??긽 true
+    atomInfo.isInstanced = true;  // ??湲?true
     atomInfo.bondRadius = std::max(
         atoms::domain::ElementDatabase::getInstance().getDefaultRadius(symbolStr),
         0.001f);
     
-    // 洹몃９ ???몄뒪?댁뒪 ?몃뜳???ㅼ젙
+    // 域밸챶竊????紐꾨뮞??곷뮞 ?紐껊쑔????쇱젟
     if (atomGroups.find(symbolStr) != atomGroups.end()) {
         atomInfo.instanceIndex = atomGroups[symbolStr].transforms.size() - 1;
     }
     
     atoms::domain::cartesianToFractional(position, atomInfo.fracPosition, cellInfo.invmatrix);
     
-    // 임시 값들 초기화
+    // ?꾩떆 媛믩뱾 珥덇린??
     atomInfo.tempSymbol = symbolStr;
     atomInfo.tempPosition[0] = position[0];
     atomInfo.tempPosition[1] = position[1];
@@ -2789,19 +2789,19 @@ void WorkspaceRuntimeModel::createAtomSphere(
     atomInfo.modified = false;
     atomInfo.selected = false;
     
-    // 원래/주변 원자 벡터에 추가
+    // ?먮옒/二쇰? ?먯옄 踰≫꽣??異붽?
     if (atomType == atoms::domain::AtomType::ORIGINAL) {
         createdAtoms.push_back(atomInfo);
     } else {
         surroundingAtoms.push_back(atomInfo);
     }
     
-    // 諛곗튂 ?ㅼ?以꾨쭅
+    // 獄쏄퀣?????餓κ쑬彛?
     scheduleAtomGroupUpdate(symbolStr);
     
     SPDLOG_DEBUG("Created atom {} with radius {:.3f}, ID {}, type {} (unified system only)", 
                 symbolStr, adjustedRadius, atomId, 
-                atomType == AtomType::ORIGINAL ? "ORIGINAL" : "SURROUNDING");
+                atomType == atoms::domain::AtomType::ORIGINAL ? "ORIGINAL" : "SURROUNDING");
 }
 
 void WorkspaceRuntimeModel::clearUnitCell() {
@@ -2820,7 +2820,7 @@ void WorkspaceRuntimeModel::clearUnitCell() {
         m_UnitCells.clear();
     }
     
-    cellEdgeActors.clear();  // 기존 유지
+    cellEdgeActors.clear();  // 湲곗〈 ?좎?
     atoms::domain::setCellVisible(false);
     cellInfo.hasCell = false;
 }
@@ -2852,7 +2852,7 @@ void WorkspaceRuntimeModel::createUnitCell(const float matrix[3][3]) {
     cellInfo.hasCell = true;
 }
 
-// *** ?섏젙: createSurroundingAtoms ?⑥닔???먯옄 諛섏?由?寃??媛쒖꽑 ***
+// *** ??륁젟: createSurroundingAtoms ??λ땾???癒?쁽 獄쏆꼷???野꺜??揶쏆뮇苑?***
 void WorkspaceRuntimeModel::createSurroundingAtoms() {
     if (m_surroundingAtomManager) {
         m_surroundingAtomManager->createSurroundingAtoms();
@@ -2861,12 +2861,12 @@ void WorkspaceRuntimeModel::createSurroundingAtoms() {
 
 // renderCreatedAtomsSection, applyAtomChanges
 /**
- * @brief 二쇰? ?먯옄 ?④린湲?- ?듯빀 洹몃９?먯꽌留??쒓굅
+ * @brief 雅뚯눖? ?癒?쁽 ??ｋ┛疫?- ???? 域밸챶竊?癒?퐣筌???볤탢
  * 
- * ?뵩 蹂寃쎌궗??
- * - isInstanced 泥댄겕 濡쒖쭅 ?꾩쟾 ?쒓굅 (紐⑤뱺 ?먯옄媛 ??긽 ?몄뒪?댁뒪??
- * - VTK 媛쒕퀎 ?≫꽣 ?쒓굅 遺꾧린 ?꾩쟾 ?쒓굅  
- * - 洹몃９ 湲곕컲 ?쒓굅留??섑뻾
+ * ?逾?癰궰野껋럩沅??
+ * - isInstanced 筌ｋ똾寃?嚥≪뮇彛??袁⑹읈 ??볤탢 (筌뤴뫀諭??癒?쁽揶쎛 ??湲??紐꾨뮞??곷뮞??
+ * - VTK 揶쏆뮆????リ숲 ??볤탢 ?브쑨由??袁⑹읈 ??볤탢  
+ * - 域밸챶竊?疫꿸퀡而???볤탢筌???묐뻬
  */
 void WorkspaceRuntimeModel::hideSurroundingAtoms() {
     if (m_surroundingAtomManager) {
@@ -2875,15 +2875,15 @@ void WorkspaceRuntimeModel::hideSurroundingAtoms() {
 }
 
 /**
- * @brief ?먯옄 蹂寃쎌궗???곸슜 - ?꾩튂 蹂寃???紐⑤뱺 寃고빀 ?ъ깮?? * 
- * ?뵩 二쇱슂 蹂寃쎌궗??
- * - ?꾩튂 蹂寃??? clearAllBonds() ??createAllBonds() ?꾩껜 ?ъ깮?? * - Symbol 蹂寃??? 湲곗〈 濡쒖쭅 ?좎? (洹몃９ 媛??대룞)
- * - 紐⑤뱺 蹂寃????꾩쟾??寃고빀 ?ш뎄?깆쑝濡??쇨???蹂댁옣
+ * @brief ?癒?쁽 癰궰野껋럩沅???怨몄뒠 - ?袁⑺뒄 癰궰野???筌뤴뫀諭?野껉퀬鍮 ??源?? * 
+ * ?逾?雅뚯눘??癰궰野껋럩沅??
+ * - ?袁⑺뒄 癰궰野??? clearAllBonds() ??createAllBonds() ?袁⑷퍥 ??源?? * - Symbol 癰궰野??? 疫꿸퀣??嚥≪뮇彛??醫? (域밸챶竊?揶???猷?
+ * - 筌뤴뫀諭?癰궰野????袁⑹읈??野껉퀬鍮 ????源놁몵嚥??????癰귣똻??
  */
 void WorkspaceRuntimeModel::applyAtomChanges() {
     SPDLOG_INFO("Applying atom changes (bond rebuild only for symbol/position changes)...");
     
-    // 기존 구조 초기화
+    // 湲곗〈 援ъ“ 珥덇린??
     BatchGuard guard = createBatchGuard();
     
     try {
@@ -2891,11 +2891,11 @@ void WorkspaceRuntimeModel::applyAtomChanges() {
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Error during applyAtomChanges: {}", e.what());
         
-        // ?ㅻ쪟 諛쒖깮 ???곗씠???뺣━
+        // ??살첒 獄쏆뮇源????怨쀬뵠???類ｂ봺
         createdAtoms.clear();
         createdBonds.clear();
         
-        throw; // ?덉쇅 ?ъ쟾?? ?곸쐞 BatchGuard媛 ?덉쟾?섍쾶 ?뺣━
+        throw; // ??됱뇚 ????? ?怨몄맄 BatchGuard揶쎛 ??됱읈??띿쓺 ?類ｂ봺
     }
     
     SPDLOG_INFO("Successfully applied atom changes");
@@ -2904,50 +2904,50 @@ void WorkspaceRuntimeModel::applyAtomChanges() {
 void WorkspaceRuntimeModel::applyCellChanges() {
     SPDLOG_INFO("Cell matrix edit mode ended - applying changes with batch system");
     
-    // 寃⑹옄 蹂寃????꾩껜 援ъ“ ?ш퀎?곗씠 ?꾩슂?섎?濡?諛곗튂 泥섎━ ?곸슜
-    // 기존 구조 초기화
+    // 野꺿뫗??癰궰野????袁⑷퍥 ?닌듼?????怨쀬뵠 ?袁⑹뒄???嚥?獄쏄퀣??筌ｌ꼶???怨몄뒠
+    // 湲곗〈 援ъ“ 珥덇린??
     BatchGuard guard = createBatchGuard();
     
     try {
         atoms::domain::applyCellChanges(this);
     } catch (const std::exception& e) {
-        // BatchGuard媛 ?덉쇅 ?곹솴?먯꽌???덉쟾?섍쾶 ?뺣━
+        // BatchGuard揶쎛 ??됱뇚 ?怨뱀넺?癒?퐣????됱읈??띿쓺 ?類ｂ봺
         SPDLOG_ERROR("Error applying cell matrix changes: {}", e.what());
     }
 }
 
 /**
- * @brief ?깅뒫 ?듦퀎 ?낅뜲?댄듃 (BatchUpdateSystem ?듯빀 踰꾩쟾)
+ * @brief ?源낅뮟 ??????낅쑓??꾨뱜 (BatchUpdateSystem ???? 甕곌쑴??
  * 
- * BatchUpdateSystem?먯꽌 ?몄텧?섎뒗 ?대? 硫붿꽌?쒕줈 蹂寃? * 
- * @param duration 諛곗튂 ?ㅽ뻾 ?쒓컙 (諛由ъ큹)
- * @param atomGroupCount 泥섎━???먯옄 洹몃９ ?? * @param bondGroupCount 泥섎━??寃고빀 洹몃９ ?? */
+ * BatchUpdateSystem?癒?퐣 ?紐꾪뀱??롫뮉 ??? 筌롫뗄苑??뺤쨮 癰궰野? * 
+ * @param duration 獄쏄퀣????쎈뻬 ??볦퍢 (獄쎛?귐딇겧)
+ * @param atomGroupCount 筌ｌ꼶????癒?쁽 域밸챶竊??? * @param bondGroupCount 筌ｌ꼶???野껉퀬鍮 域밸챶竊??? */
 void WorkspaceRuntimeModel::updatePerformanceStatsInternal(float duration, 
                                                    size_t atomGroupCount, 
                                                    size_t bondGroupCount) {
     g_performanceStats.lastUpdateTime = duration;
     g_performanceStats.updateCount++;
     
-    // ?대룞 ?됯퇏 怨꾩궛
+    // ??猷????뇧 ?④쑴沅?
     if (g_performanceStats.updateCount == 1) {
         g_performanceStats.averageUpdateTime = duration;
     } else {
-        float alpha = 0.1f; // 吏???대룞 ?됯퇏 媛以묒튂
+        float alpha = 0.1f; // 筌왖????猷????뇧 揶쎛餓λ쵐??
         g_performanceStats.averageUpdateTime = 
             alpha * duration + (1.0f - alpha) * g_performanceStats.averageUpdateTime;
     }
     
-    // ?깅뒫 寃쎄퀬
-    if (duration > 100.0f) { // 100ms ?댁긽 ?뚯슂 ??寃쎄퀬
+    // ?源낅뮟 野껋럡??
+    if (duration > 100.0f) { // 100ms ??곴맒 ???뒄 ??野껋럡??
         SPDLOG_WARN("Batch update took {:.2f} ms - consider optimization", duration);
     }
     
-    // ?듦퀎 ?낅뜲?댄듃 (?섏젙: pendingAtomGroups/pendingBondGroups ???留ㅺ컻蹂???ъ슜)
+    // ??????낅쑓??꾨뱜 (??륁젟: pendingAtomGroups/pendingBondGroups ????筌띲끆而삭퉪???????
     g_performanceStats.totalAtoms = static_cast<int>(createdAtoms.size() + surroundingAtoms.size());
     g_performanceStats.totalGroups = static_cast<int>(atomGroupCount + bondGroupCount);
     g_performanceStats.totalBonds = getTotalBondCount();
     
-    // ?곸꽭 ?깅뒫 濡쒓렇 (?붾쾭洹?紐⑤뱶?먯꽌留?
+    // ?怨멸쉭 ?源낅뮟 嚥≪뮄??(?遺얠쒔域?筌뤴뫀諭?癒?퐣筌?
     if (duration > 50.0f) {
         SPDLOG_DEBUG("Performance details - Duration: {:.2f}ms, Atoms: {}, Groups: {}, Bonds: {}", 
                     duration, g_performanceStats.totalAtoms, 
@@ -2956,14 +2956,14 @@ void WorkspaceRuntimeModel::updatePerformanceStatsInternal(float duration,
 }
 
 /**
- * @brief ?깅뒫 ?듦퀎 ?낅뜲?댄듃 (?명솚???섑띁)
+ * @brief ?源낅뮟 ??????낅쑓??꾨뱜 (?紐낆넎????묐쓠)
  * 
- * 湲곗〈 肄붾뱶????명솚?깆쓣 ?꾪븳 ?섑띁 硫붿꽌?? * BatchUpdateSystem???듯빐 ?꾩옱 ?湲?以묒씤 洹몃９ ?섎? 媛?몄샂
+ * 疫꿸퀣???꾨뗀諭?????紐낆넎?源놁뱽 ?袁る립 ??묐쓠 筌롫뗄苑?? * BatchUpdateSystem?????퉸 ?袁⑹삺 ??疫?餓λ쵐??域밸챶竊???? 揶쎛?紐꾩긾
  * 
- * @param duration 諛곗튂 ?ㅽ뻾 ?쒓컙 (諛由ъ큹)
+ * @param duration 獄쏄퀣????쎈뻬 ??볦퍢 (獄쎛?귐딇겧)
  */
 void WorkspaceRuntimeModel::updatePerformanceStats(float duration) {
-    // BatchUpdateSystem에서 현재 대기 중인 그룹 수 가져오기
+    // BatchUpdateSystem?먯꽌 ?꾩옱 ?湲?以묒씤 洹몃９ ??媛?몄삤湲?
     size_t atomGroupCount = 0;
     size_t bondGroupCount = 0;
     
@@ -2972,7 +2972,7 @@ void WorkspaceRuntimeModel::updatePerformanceStats(float duration) {
         bondGroupCount = m_batchSystem->getPendingBondGroupCount();
     }
     
-    // ?대? 硫붿꽌???몄텧
+    // ??? 筌롫뗄苑???紐꾪뀱
     updatePerformanceStatsInternal(duration, atomGroupCount, bondGroupCount);
 }
 
@@ -3081,7 +3081,7 @@ std::string WorkspaceRuntimeModel::GetSymbolByActor(vtkActor* actor) const {
         return "";
     }
     
-    // VTKRenderer의 atomGroups에서 검색
+    // VTKRenderer??atomGroups?먯꽌 寃??
     for (const auto& [symbol, group] : m_vtkRenderer->getAtomGroups()) {
         if (group.actor.Get() == actor) {
             return symbol;
@@ -3100,13 +3100,13 @@ void WorkspaceRuntimeModel::UpdateHoveredAtomByPicker(vtkActor* actor, double pi
     std::string symbol = GetSymbolByActor(actor);
     if (symbol.empty()) return;
     
-    // atoms::domain::atomGroups에서 transforms 가져오기
+    // atoms::domain::atomGroups?먯꽌 transforms 媛?몄삤湲?
     auto it = atomGroups.find(symbol);
     if (it == atomGroups.end()) return;
     
     const auto& groupInfo = it->second;
     
-    // pickPos?먯꽌 媛??媛源뚯슫 ?먯옄 李얘린
+    // pickPos?癒?퐣 揶쎛??揶쎛繹먮슣???癒?쁽 筌≪뼐由?
     float minDist = std::numeric_limits<float>::max();
     size_t nearestIndex = SIZE_MAX;
     
@@ -3207,7 +3207,7 @@ void WorkspaceRuntimeModel::ClearHover() {
 }
 
 //void WorkspaceRuntimeModel::RenderAtomTooltip(float mouseX, float mouseY) {
-//    // ???붾쾭源? ??긽 ?몄텧?섎뒗吏 ?뺤씤
+//    // ???遺얠쒔繹? ??湲??紐꾪뀱??롫뮉筌왖 ?類ㅼ뵥
 //    SPDLOG_DEBUG("RenderAtomTooltip called: mouseX={}, mouseY={}, isHovered={}", 
 //                 mouseX, mouseY, m_HoveredAtom.isHovered);
 //    if (!m_HoveredAtom.isHovered) return;
@@ -3245,7 +3245,7 @@ void WorkspaceRuntimeModel::ClearHover() {
 
 void WorkspaceRuntimeModel::RenderAtomTooltip(float mouseX, float mouseY)
 {
-    // ??Settings?먯꽌 爰쇱졇 ?덉쑝硫??꾨Т 寃껊룄 ??洹몃┝
+    // ??Settings?癒?퐣 ?곗눘議???됱몵筌??袁ⓓ?野껉퍓猷???域밸챶??
     if (!m_NodeInfoEnabled)
         return;
 
@@ -5406,11 +5406,11 @@ bool WorkspaceRuntimeModel::LoadChgcarParsedData(const atoms::infrastructure::Ch
         return false;
     }
 
-    // 기존 구조 초기화
+    // 湲곗〈 援ъ“ 珥덇린??
     BatchGuard guard = createBatchGuard();
 
 
-    // ??2.5. cellInfo ?ㅼ젙 異붽?
+    // ??2.5. cellInfo ??쇱젟 ?곕떽?
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             cellInfo.matrix[i][j] = result.lattice[i][j];
@@ -5419,20 +5419,20 @@ bool WorkspaceRuntimeModel::LoadChgcarParsedData(const atoms::infrastructure::Ch
     cellInfo.modified = true;
     cellInfo.hasCell = true;
     atoms::domain::calculateInverseMatrix(cellInfo.matrix, cellInfo.invmatrix);
-    atoms::domain::setCellMatrix(result.lattice);  // ??domain?먮룄 ?ㅼ젙
+    atoms::domain::setCellMatrix(result.lattice);  // ??domain?癒?즲 ??쇱젟
  
     
-    // 3. Unit Cell ?앹꽦
+    // 3. Unit Cell ??밴쉐
     createUnitCell(result.lattice);
     
-    // 4. ?먯옄 ?앹꽦
+    // 4. ?癒?쁽 ??밴쉐
     int atomIndex = 0;
     std::vector<uint32_t> newAtomIds;
     for (size_t elemIdx = 0; elemIdx < result.elements.size(); ++elemIdx) {
         const std::string& symbol = result.elements[elemIdx];
         int count = result.atomCounts[elemIdx];
         
-        // ElementDatabase에서 정보 가져오기
+        // ElementDatabase?먯꽌 ?뺣낫 媛?몄삤湲?
         float radius = 1.0f;
         atoms::domain::Color4f color = {0.5f, 0.5f, 0.5f, 1.0f};
         
@@ -5442,7 +5442,7 @@ bool WorkspaceRuntimeModel::LoadChgcarParsedData(const atoms::infrastructure::Ch
                 radius = elemInfo->covalentRadius;
                 color = elemInfo->defaultColor;
             } else {
-                // ElementDatabase?먯꽌 紐?李얠쑝硫?湲곕낯媛?硫붿꽌???ъ슜
+                // ElementDatabase?癒?퐣 筌?筌≪뼚?앾쭖?疫꿸퀡??첎?筌롫뗄苑??????
                 radius = m_elementDB->getDefaultRadius(symbol);
                 color = m_elementDB->getDefaultColor(symbol);
             }
@@ -5453,7 +5453,7 @@ bool WorkspaceRuntimeModel::LoadChgcarParsedData(const atoms::infrastructure::Ch
             
             float cartPos[3];
             if (result.isDirect) {
-                // Direct(분수) 좌표 -> Cartesian 변환
+                // Direct(遺꾩닔) 醫뚰몴 -> Cartesian 蹂??
                 atoms::domain::fractionalToCartesian(pos.data(), cartPos, result.lattice);
             } else {
                 cartPos[0] = pos[0];
@@ -5471,15 +5471,15 @@ bool WorkspaceRuntimeModel::LoadChgcarParsedData(const atoms::infrastructure::Ch
         }
     }
     
-    // 5. 寃고빀 ?앹꽦 (?좉퇋 ?먯옄留?
+    // 5. 野껉퀬鍮 ??밴쉐 (?醫됲뇣 ?癒?쁽筌?
     if (!newAtomIds.empty()) {
         createBondsForAtoms(newAtomIds, true, false, false);
     }
     
-    // 6. Unit Cell ?쒖떆
+    // 6. Unit Cell ??뽯뻻
     setCellVisible(true);
     
-    // 7. ?꾪븯 諛??濡쒕뱶
+    // 7. ?袁る릭 獄쎛??嚥≪뮆諭?
     if (m_chargeDensityUI) {
         if (m_chargeDensityUI->loadFromParseResult(result)) {
             SetChargeDensityStructureId(m_CurrentStructureId);
@@ -5817,6 +5817,7 @@ bool WorkspaceRuntimeModel::getBondStructureId(uint32_t bondId, int32_t& structu
     }
     return false;
 }
+
 
 
 

@@ -40,7 +40,7 @@ bool isWindowVisible(const shell::domain::ShellUiState& state, shell::domain::Sh
 namespace shell {
 namespace application {
 
-ShellStateQueryService& ShellStateQueryService::Instance() {
+ShellStateQueryService& ShellStateQueryService::Shared() {
     static ShellStateQueryService service;
     return service;
 }
@@ -54,8 +54,9 @@ bool ShellStateQueryService::IsWindowVisible(domain::ShellWindowId windowId) con
 }
 
 ShellStateQueryService& GetShellStateQueryService() {
-    return ShellStateQueryService::Instance();
+    return ShellStateQueryService::Shared();
 }
 
 } // namespace application
 } // namespace shell
+

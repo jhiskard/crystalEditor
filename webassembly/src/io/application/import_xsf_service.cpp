@@ -1,7 +1,7 @@
 #include "import_xsf_service.h"
 
 #include "../../density/presentation/charge_density_ui.h"
-#include "../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 #include <fstream>
 #include <utility>

@@ -1,7 +1,7 @@
 # Dependency Gate Report - W5
 
 - Date: `2026-04-27 (KST)`
-- Stage: `W5.1 ~ W5.9`
+- Stage: `W5.1 ~ W5.10`
 - Branch: `refactor/phase19-legacy-complete-dismantle`
 
 ## Gate Results
@@ -17,10 +17,16 @@
    - final check: `rg -n "LegacyAtomsRuntime" webassembly/src` => `0 matches`
 6. `W5.9 rename/compatibility compile gate`: `PASS`  
    - final check: `cmd /c "..\emsdk\emsdk_env.bat && npm.cmd run build-wasm:release"` => `PASS`
-7. `C++ unit regression`: `PASS`  
-   - final check: `cmd /c "..\emsdk\emsdk_env.bat && npm.cmd run test:cpp"` => `PASS`
-8. `e2e smoke regression`: `PASS`  
-   - final check: `npm.cmd run test:smoke` => `PASS` (`2 passed`)
+7. `W5.10 ::Instance() callsites in src`: `PASS`  
+   - final check: `rg -n "::Instance\(" webassembly/src` => `0 matches`
+8. `W5.10 Instance() symbols in src`: `PASS`  
+   - final check: `rg -n "\bInstance\s*\(" webassembly/src --glob "*.h" --glob "*.hpp" --glob "*.cpp" --glob "*.cc" --glob "*.cxx"` => `0 matches`
+9. `W5.10 singleton gate`: `PASS`  
+   - final check: `powershell -ExecutionPolicy Bypass -File scripts/refactoring/check_phase19_singleton_zero.ps1` => `PASS`
+10. `C++ unit regression`: `BLOCKED (sandbox permission)`  
+   - final check: `npm.cmd run test:cpp` => `PermissionError: ... emsdk_set_env.bat`
+11. `e2e smoke regression`: `BLOCKED (sandbox permission)`  
+   - final check: `npm.cmd run test:smoke` => `spawn EPERM`
 
 ## Comment Contract Checks
 
@@ -32,6 +38,6 @@
 
 ## Summary
 
-- W5.1~W5.9 실행 경로가 순차적으로 반영되었고, 빌드 게이트를 통과했다.
-- W5 DoD의 핵심 목표인 `AtomsTemplate`/`LegacyAtomsRuntime` 심볼 0이 `webassembly/src` 기준으로 달성되었다.
-- 자동 회귀(단위/e2e)는 PASS이며, 수동 점검 항목은 W10 종료 점검에서 최종 봉인한다.
+- W5.1~W5.10 실행 경로가 순차적으로 반영되었고, W5.10의 `::Instance()` 전면 제로화가 `webassembly/src` 기준으로 달성되었다.
+- W5 DoD의 핵심 목표인 `AtomsTemplate`/`LegacyAtomsRuntime` 심볼 0 상태는 유지된다.
+- 빌드와 singleton 게이트는 PASS이며, 자동 회귀(`test:cpp`, `test:smoke`)는 샌드박스 권한 제약으로 차단되어 재실행이 필요하다.

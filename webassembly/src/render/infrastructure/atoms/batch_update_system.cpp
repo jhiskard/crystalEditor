@@ -1,6 +1,6 @@
 // render/infrastructure/atoms/batch_update_system.cpp
 #include "batch_update_system.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../application/render_gateway.h"
 #include <spdlog/spdlog.h>
 
@@ -8,7 +8,7 @@ namespace atoms {
 namespace infrastructure {
 
 // ============================================================================
-// BatchUpdateSystem ����
+// BatchUpdateSystem 占쏙옙占쏙옙
 // ============================================================================
 
 BatchUpdateSystem::BatchUpdateSystem(WorkspaceRuntimeModel* parent) 
@@ -43,13 +43,13 @@ void BatchUpdateSystem::endBatch() {
     auto batchStart = std::chrono::high_resolution_clock::now();
     
     try {
-        // 1. ���� �׷� ������Ʈ (���� �ý��� - ���� �Լ� ȣ��)
+        // 1. 占쏙옙占쏙옙 占쌓뤄옙 占쏙옙占쏙옙占쏙옙트 (占쏙옙占쏙옙 占시쏙옙占쏙옙 - 占쏙옙占쏙옙 占쌉쇽옙 호占쏙옙)
         for (const std::string& symbol : pendingAtomGroups) {
-            ::updateUnifiedAtomGroupVTK(symbol);  // ���� �Լ� ȣ��
+            ::updateUnifiedAtomGroupVTK(symbol);  // 占쏙옙占쏙옙 占쌉쇽옙 호占쏙옙
             SPDLOG_DEBUG("Updated unified atom group: {}", symbol);
         }
         
-        // 2. ���� �׷� ������Ʈ (���� �Լ� ȣ��)
+        // 2. 占쏙옙占쏙옙 占쌓뤄옙 占쏙옙占쏙옙占쏙옙트 (占쏙옙占쏙옙 占쌉쇽옙 호占쏙옙)
         for (const std::string& bondKey : pendingBondGroups) {
             if (parent) {
                 parent->updateBondGroupVTK(bondKey);
@@ -57,15 +57,15 @@ void BatchUpdateSystem::endBatch() {
             SPDLOG_DEBUG("Updated bond group: {}", bondKey);
         }
         
-        // 3. ��ġ ���� ����
+        // 3. 占쏙옙치 占쏙옙占쏙옙 占쏙옙占쏙옙
         batchMode = false;
         pendingAtomGroups.clear();
         pendingBondGroups.clear();
         
-        // 4. ���� ������ ȣ��
+        // 4. 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 호占쏙옙
         render::application::GetRenderGateway().RequestRender();
         
-        // 5. ���� ����
+        // 5. 占쏙옙占쏙옙 占쏙옙占쏙옙
         auto batchEnd = std::chrono::high_resolution_clock::now();
         float duration = std::chrono::duration<float, std::milli>(batchEnd - batchStart).count();
         
@@ -88,7 +88,7 @@ void BatchUpdateSystem::forceBatchEnd() {
         pendingAtomGroups.clear();
         pendingBondGroups.clear();
         
-        // ������ ���·� �����ϱ� ���� ������ ����
+        // 占쏙옙占쏙옙占쏙옙 占쏙옙占승뤄옙 占쏙옙占쏙옙占싹깍옙 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙
         try {
             render::application::GetRenderGateway().RequestRender();
         } catch (const std::exception& e) {
@@ -102,7 +102,7 @@ void BatchUpdateSystem::scheduleAtomGroupUpdate(const std::string& symbol) {
         pendingAtomGroups.insert(symbol);
         SPDLOG_DEBUG("Scheduled unified atom group update: {}", symbol);
     } else {
-        // ���� ������ ��ġ�� ������ �ϰ��� ��η� ó��
+        // 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙치占쏙옙 占쏙옙占쏙옙占쏙옙 占싹곤옙占쏙옙 占쏙옙管占?처占쏙옙
         BatchGuard guard(this);
         pendingAtomGroups.insert(symbol);
         SPDLOG_DEBUG("Scheduled unified atom group update (single-item batch): {}", symbol);
@@ -114,7 +114,7 @@ void BatchUpdateSystem::scheduleBondGroupUpdate(const std::string& bondKey) {
         pendingBondGroups.insert(bondKey);
         SPDLOG_DEBUG("Scheduled bond group update: {}", bondKey);
     } else {
-        // ���� ������ ��ġ�� ������ �ϰ��� ��η� ó��
+        // 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙치占쏙옙 占쏙옙占쏙옙占쏙옙 占싹곤옙占쏙옙 占쏙옙管占?처占쏙옙
         BatchGuard guard(this);
         pendingBondGroups.insert(bondKey);
         SPDLOG_DEBUG("Scheduled bond group update (single-item batch): {}", bondKey);
@@ -122,15 +122,15 @@ void BatchUpdateSystem::scheduleBondGroupUpdate(const std::string& bondKey) {
 }
 
 void BatchUpdateSystem::updatePerformanceStats(float duration) {
-    // WorkspaceRuntimeModel�� updatePerformanceStats ȣ��
-    // parent�� ���� ��� ������Ʈ�� ����
+    // WorkspaceRuntimeModel占쏙옙 updatePerformanceStats 호占쏙옙
+    // parent占쏙옙 占쏙옙占쏙옙 占쏙옙占?占쏙옙占쏙옙占쏙옙트占쏙옙 占쏙옙占쏙옙
     parent->UpdateBatchPerformanceStats(duration,
                                         pendingAtomGroups.size(),
                                         pendingBondGroups.size());
 }
 
 // ============================================================================
-// RAII BatchGuard ����
+// RAII BatchGuard 占쏙옙占쏙옙
 // ============================================================================
 
 BatchUpdateSystem::BatchGuard::BatchGuard(BatchUpdateSystem* sys) 

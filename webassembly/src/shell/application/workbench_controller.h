@@ -26,7 +26,7 @@ public:
     /**
      * @brief Returns singleton controller instance.
      */
-    static WorkbenchController& Instance();
+    static WorkbenchController& Shared();
 
     /**
      * @brief Opens structure import flow from shell menu actions.
@@ -135,3 +135,4 @@ WorkbenchController& GetWorkbenchController();
 
 } // namespace application
 } // namespace shell
+

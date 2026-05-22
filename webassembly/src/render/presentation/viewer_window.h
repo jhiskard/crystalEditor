@@ -2,7 +2,6 @@
 
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "../../macro/singleton_macro.h"
 #include "../infrastructure/interaction/mouse_interactor_style.h"
 #include "../../enum/viewer_enums.h"
 
@@ -28,9 +27,14 @@ class vtkVolume;
 
 
 class VtkViewer {
-    DECLARE_SINGLETON(VtkViewer)
-
 public:
+    VtkViewer();
+    ~VtkViewer();
+    VtkViewer(const VtkViewer&) = delete;
+    VtkViewer& operator=(const VtkViewer&) = delete;
+    VtkViewer(VtkViewer&&) = delete;
+    VtkViewer& operator=(VtkViewer&&) = delete;
+
     void Render(bool* openWindow = nullptr);
     void RenderBgColorPopup(bool* openWindow = nullptr);
     void RequestInitialLayout();

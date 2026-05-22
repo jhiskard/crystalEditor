@@ -1,6 +1,6 @@
 #include "import_chgcar_service.h"
 
-#include "../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 namespace io::application {
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstdint>
 #include <string>
@@ -73,15 +73,15 @@ enum class DataRequest;
 
 /**
  * @brief Runtime composition root facade for legacy singleton graph.
- * @details main/app/wasm binding 계층은 이 타입을 통해서만 런타임 객체에 접근한다.
- *          Phase 13에서는 App/Toolbar 진입점을 runtime-owned instance로 전환했다.
+ * @details main/app/wasm binding 怨꾩링? ????낆쓣 ?듯빐?쒕쭔 ?고???媛앹껜???묎렐?쒕떎.
+ *          Phase 13?먯꽌??App/Toolbar 吏꾩엯?먯쓣 runtime-owned instance濡??꾪솚?덈떎.
  */
 class WorkbenchRuntime {
 public:
     /**
      * @brief Returns the global runtime facade instance.
      */
-    static WorkbenchRuntime& Instance();
+    static WorkbenchRuntime& Shared();
 
     /**
      * @brief Initializes singleton-backed services used during runtime bootstrap.
@@ -275,3 +275,4 @@ WorkbenchRuntime& GetWorkbenchRuntime();
  * @brief Returns const global runtime facade.
  */
 const WorkbenchRuntime& GetWorkbenchRuntimeConst();
+

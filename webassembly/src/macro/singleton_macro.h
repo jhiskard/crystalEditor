@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 // Generate a singleton class
 // Constructor and destructor should be implemented in the .cpp file.
 #define DECLARE_SINGLETON(ClassName)                 \
 public:                                              \
-    static ClassName& Instance() {                   \
+    static ClassName& Shared() {                   \
         static ClassName s_Instance;                 \
         return s_Instance;                           \
     }                                                \

@@ -17,7 +17,7 @@ namespace application {
 /**
  * @brief Render port contract consumed by non-render feature modules.
  * @details Non-render layers must use this interface instead of calling
- *          `VtkViewer::Instance()` directly.
+ *          render presentation internals directly.
  */
 class RenderGateway {
 public:

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "atom_manager.h"
 #include "bond_manager.h"
@@ -42,7 +42,7 @@ struct BondLocation {
 
 class StructureStateStore {
 public:
-    static StructureStateStore& Instance();
+    static StructureStateStore& Shared();
 
     StructureState& GetOrCreate(StructureId structureId);
     const StructureState* Find(StructureId structureId) const;
@@ -91,3 +91,4 @@ private:
 
 } // namespace domain
 } // namespace atoms
+

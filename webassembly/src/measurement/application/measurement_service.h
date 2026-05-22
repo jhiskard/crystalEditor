@@ -10,9 +10,6 @@
 #include <cstdint>
 #include <vector>
 
-class vtkActor;
-class vtkRenderer;
-
 namespace measurement {
 namespace application {
 
@@ -33,19 +30,8 @@ public:
     void EnterMode(MeasurementMode mode);
     void ExitMode();
 
-    render::application::PickedAtomInfo ResolvePickedAtomInfo(
-        vtkActor* actor,
-        const double pickPos[3]) const;
     void HandlePickerClick(const render::application::PickedAtomInfo& pickedAtomInfo);
     void HandleEmptyClick();
-    void HandleDragSelectionInScreenRect(
-        int x0,
-        int y0,
-        int x1,
-        int y1,
-        vtkRenderer* renderer,
-        int viewportHeight,
-        bool additive);
     void RenderModeOverlay();
 
     std::vector<MeasurementListItem> GetMeasurementsForStructure(int32_t structureId) const;

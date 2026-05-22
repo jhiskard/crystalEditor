@@ -1,9 +1,9 @@
-#include "structure_state_store.h"
+﻿#include "structure_state_store.h"
 
 namespace atoms {
 namespace domain {
 
-StructureStateStore& StructureStateStore::Instance() {
+StructureStateStore& StructureStateStore::Shared() {
     static StructureStateStore store;
     return store;
 }
@@ -194,3 +194,4 @@ void StructureStateStore::RebuildIndexes() {
 
 } // namespace domain
 } // namespace atoms
+

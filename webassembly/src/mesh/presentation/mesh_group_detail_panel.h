@@ -14,14 +14,14 @@ public:
      * @brief Compatibility accessor resolved via runtime-owned panel instance.
      * @note Phase 11 runtime shim. Remove this wrapper in Phase 12.
      */
-    static MeshGroupDetail& Instance();
+    static MeshGroupDetail& Shared();
 
     MeshGroupDetail();
     ~MeshGroupDetail();
 
     void Render(int32_t meshId);
 
-    static int32_t GetSelectedMeshGroupId() { return Instance().m_SelectedMeshGroupId; }
+    static int32_t GetSelectedMeshGroupId() { return Shared().m_SelectedMeshGroupId; }
 
     void SetUiPointSize(float size) { m_UiPointSize = size; }
     void SetUiGroupColor(const double* color);
@@ -46,3 +46,4 @@ private:
     void renderTableRowPointSize(MeshGroup* group);
     void renderTableRowGroupColor(MeshGroup* group);
 };
+

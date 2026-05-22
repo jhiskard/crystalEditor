@@ -1,4 +1,4 @@
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 
 #include "bravais_lattice_ui.h"
 #include "bz_plot_ui.h"

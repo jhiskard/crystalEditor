@@ -1,5 +1,5 @@
 #include "bz_plot_ui.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../../structure/domain/atoms/special_points.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
 #include "../../../app.h"
@@ -81,7 +81,7 @@ void BZPlotUI::renderBandpathConfig() {
     ImGui::Text("Bandpath Configuration:");
     ImGui::Spacing();
 
-    // Path �Է�
+    // Path 占쌉뤄옙
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Path:");
     ImGui::SameLine();
@@ -98,7 +98,7 @@ void BZPlotUI::renderBandpathConfig() {
         );
     }
 
-    // Npoints �Է�
+    // Npoints 占쌉뤄옙
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Npoints:");
     ImGui::SameLine();
@@ -119,45 +119,45 @@ void BZPlotUI::renderOptions() {
     ImGui::Text("Options:");
     ImGui::Spacing();
 
-    // ?? ��� ���� ���� ����
+    // ?? 占쏙옙占?占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙
     bool prevShowVectors = m_showVectors;
     bool prevShowLabels  = m_showLabels;
 
-    // ?? ���� ǥ�� ���
+    // ?? 占쏙옙占쏙옙 표占쏙옙 占쏙옙占?
     ImGui::Checkbox("Show reciprocal vectors", &m_showVectors);
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Toggle visibility of reciprocal lattice vectors.");
     }
 
-    // ?? �� ǥ�� ���
+    // ?? 占쏙옙 표占쏙옙 占쏙옙占?
     ImGui::Checkbox("Show special point labels", &m_showLabels);
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Toggle labels for special k-points.");
     }
 
-    // ?? �� �� �ϳ��� ���� �ٲ������ Ȯ��
+    // ?? 占쏙옙 占쏙옙 占싹놂옙占쏙옙 占쏙옙占쏙옙 占쌕뀐옙占쏙옙占쏙옙占?확占쏙옙
     bool vectorsChanged = (prevShowVectors != m_showVectors);
     bool labelsChanged  = (prevShowLabels  != m_showLabels);
     bool optionsChanged = vectorsChanged || labelsChanged;
 
-    // �̹� BZ Plot ����� ���� ��� ������Ʈ
+    // 占싱뱄옙 BZ Plot 占쏙옙占쏙옙占?占쏙옙占쏙옙 占쏙옙占?占쏙옙占쏙옙占쏙옙트
     if (optionsChanged && m_showingBZ && m_parent) {
         m_lastErrorMessage.clear();
 
         std::string pathStr(m_pathInput);
         int npoints = m_npointsInput;
 
-        // ?? �߿�: ���� �ɼ�(m_showVectors / m_showLabels)�� �״�� �Ѱܼ�
-        // ��ü BZ Plot�� �ٽ� �����ϵ��� �Ѵ�.
+        // ?? 占쌩울옙: 占쏙옙占쏙옙 占심쇽옙(m_showVectors / m_showLabels)占쏙옙 占쌓댐옙占?占싼겨쇽옙
+        // 占쏙옙체 BZ Plot占쏙옙 占쌕쏙옙 占쏙옙占쏙옙占싹듸옙占쏙옙 占싼댐옙.
         bool success = m_parent->EnterBZPlotMode(
             pathStr,
             npoints,
-            m_showVectors,   // �� ���� ǥ�� ����
-            m_showLabels,    // �� �� ǥ�� ���� (���Ⱑ �ٽ�)
+            m_showVectors,   // 占쏙옙 占쏙옙占쏙옙 표占쏙옙 占쏙옙占쏙옙
+            m_showLabels,    // 占쏙옙 占쏙옙 표占쏙옙 占쏙옙占쏙옙 (占쏙옙占썩가 占쌕쏙옙)
             m_lastErrorMessage
         );
 
-        // �ٽ� �׸��� ���� ���ο� ���� �α׸� ��������� ���
+        // 占쌕쏙옙 占쌓몌옙占쏙옙 占쏙옙占쏙옙 占쏙옙占싸울옙 占쏙옙占쏙옙 占싸그몌옙 占쏙옙占쏙옙占쏙옙占쏙옙占?占쏙옙占?
         if (!success && !m_lastErrorMessage.empty()) {
             SPDLOG_ERROR("Failed to update BZ options: {}", m_lastErrorMessage);
         }
@@ -180,12 +180,12 @@ void BZPlotUI::renderToggleAndClearButtons() {
         : availableWidth;
     const ImVec2 buttonSize(buttonWidth, 0.0f);
 
-    // Show BZ Plot / Show Crystal ��� ��ư
+    // Show BZ Plot / Show Crystal 占쏙옙占?占쏙옙튼
     if (ImGui::Button(buttonText, buttonSize)) {
         m_lastErrorMessage.clear();
 
         if (!m_showingBZ) {
-            // BZ Plot ��� ����
+            // BZ Plot 占쏙옙占?占쏙옙占쏙옙
             std::string pathStr(m_pathInput);
             int npoints = m_npointsInput;
 
@@ -204,7 +204,7 @@ void BZPlotUI::renderToggleAndClearButtons() {
                 m_showingBZ = true;
             }
         } else {
-            // Crystal ���� ����
+            // Crystal 占쏙옙占쏙옙 占쏙옙占쏙옙
             if (m_parent) {
                 m_parent->ExitBZPlotMode();
             }
@@ -216,11 +216,11 @@ void BZPlotUI::renderToggleAndClearButtons() {
         ImGui::SameLine();
     }
 
-    // Clear BZ ��ư
+    // Clear BZ 占쏙옙튼
     if (ImGui::Button("Clear BZ", buttonSize)) {
         m_lastErrorMessage.clear();
         if (m_parent) {
-            // BZ Plot�� �����ϰ� crystal ���� ����
+            // BZ Plot占쏙옙 占쏙옙占쏙옙占싹곤옙 crystal 占쏙옙占쏙옙 占쏙옙占쏙옙
             m_parent->ExitBZPlotMode();
         }
         m_showingBZ = false;
@@ -232,7 +232,7 @@ void BZPlotUI::renderStatus() {
 
     if (m_showingBZ) {
         ImGui::TextColored(ImVec4(0.0f, 0.5f, 1.0f, 1.0f),
-                           "�� BZ Plot Mode");
+                           "占쏙옙 BZ Plot Mode");
         ImGui::SameLine();
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f),
                            "(vectors: %s, labels: %s)",
@@ -240,7 +240,7 @@ void BZPlotUI::renderStatus() {
                            m_showLabels ? "ON" : "OFF");
     } else {
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f),
-                           "�� Crystal Mode");
+                           "占쏙옙 Crystal Mode");
     }
 
     if (!m_lastErrorMessage.empty()) {
@@ -252,7 +252,7 @@ void BZPlotUI::renderStatus() {
 }
 
 void BZPlotUI::renderSpecialPointsTable() {
-    // ���� Ÿ�� ���� �� Ư���� ������ ��ȸ
+    // 占쏙옙占쏙옙 타占쏙옙 占쏙옙占쏙옙 占쏙옙 특占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙회
     refreshSpecialPointsCache();
 
     ImGui::Spacing();
@@ -319,7 +319,7 @@ void BZPlotUI::refreshSpecialPointsCache() {
 }
 
 /*
-// ���� static ���� �������� ����� �̵�
+// 占쏙옙占쏙옙 static 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占?占싱듸옙
 char  m_pathInput[128] = "All";
 int   m_npointsInput   = 50;
 bool  m_showVectors    = true;
@@ -327,22 +327,22 @@ bool  m_showLabels     = true;
 bool  m_showingBZ      = false;
 */
 void BZPlotUI::renderBZplot() {
-    // �Է� �ʵ� ���� (static���� ����)
-    static char pathInput[128] = "All";  // ? �⺻�� "All"�� ����
+    // 占쌉뤄옙 占십듸옙 占쏙옙占쏙옙 (static占쏙옙占쏙옙 占쏙옙占쏙옙)
+    static char pathInput[128] = "All";  // ? 占썩본占쏙옙 "All"占쏙옙 占쏙옙占쏙옙
     static int npointsInput = 50;
     static bool showVectors = true;
     static bool showLabels = true;
-    static bool showingBZ = false;  // BZ ǥ�� ����
+    static bool showingBZ = false;  // BZ 표占쏙옙 占쏙옙占쏙옙
     static std::string lastErrorMessage;
     
     // ========================================================================
-    // 1. �Է� UI
+    // 1. 占쌉뤄옙 UI
     // ========================================================================
     
     ImGui::Text("Bandpath Configuration:");
     ImGui::Spacing();
     
-    // Path �Է�
+    // Path 占쌉뤄옙
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Path:");
     ImGui::SameLine();
@@ -359,7 +359,7 @@ void BZPlotUI::renderBZplot() {
         );
     }
     
-    // Npoints �Է�
+    // Npoints 占쌉뤄옙
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Npoints:");
     ImGui::SameLine();
@@ -373,7 +373,7 @@ void BZPlotUI::renderBZplot() {
     
     ImGui::Spacing();
     
-    // �ɼ� üũ�ڽ�
+    // 占심쇽옙 체크占쌘쏙옙
     ImGui::Checkbox("Show reciprocal vectors", &showVectors);
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Display the reciprocal lattice vectors (b1, b2, b3)");
@@ -381,7 +381,7 @@ void BZPlotUI::renderBZplot() {
     
     ImGui::Checkbox("Show special point labels", &showLabels);
     if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("Display labels at high-symmetry points (��, X, M, etc.)");
+        ImGui::SetTooltip("Display labels at high-symmetry points (占쏙옙, X, M, etc.)");
     }
     
     ImGui::Spacing();
@@ -389,7 +389,7 @@ void BZPlotUI::renderBZplot() {
     ImGui::Spacing();
     
     // ========================================================================
-    // 2. ��� ��ư (Show BZ Plot �� Show Crystal)
+    // 2. 占쏙옙占?占쏙옙튼 (Show BZ Plot 占쏙옙 Show Crystal)
     // ========================================================================
     
     const char* buttonText = showingBZ ? "Show Crystal" : "Show BZ Plot";
@@ -410,7 +410,7 @@ void BZPlotUI::renderBZplot() {
     if (ImGui::Button(buttonText, buttonSize)) {
         if (!showingBZ) {
             // ============================================================
-            // BZ Plot ǥ�� ���� ��ȯ
+            // BZ Plot 표占쏙옙 占쏙옙占쏙옙 占쏙옙환
             // ============================================================
             SPDLOG_INFO("=== Switching to BZ Plot mode ===");
             SPDLOG_INFO("Path: '{}', npoints: {}, vectors: {}, labels: {}", 
@@ -419,7 +419,7 @@ void BZPlotUI::renderBZplot() {
             lastErrorMessage.clear();
             
             try {
-                // 1. ������ ��� �غ�
+                // 1. 占쏙옙占쏙옙占쏙옙 占쏙옙占?占쌔븝옙
                 double cell[3][3];
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
@@ -440,7 +440,7 @@ void BZPlotUI::renderBZplot() {
                 SPDLOG_DEBUG("  [{}, {}, {}]", icell[1][0], icell[1][1], icell[1][2]);
                 SPDLOG_DEBUG("  [{}, {}, {}]", icell[2][0], icell[2][1], icell[2][2]);
                 
-                // 2. BZ vertices ���
+                // 2. BZ vertices 占쏙옙占?
                 SPDLOG_INFO("Calculating BZ vertices...");
                 auto bzData = atoms::domain::BZCalculator::calculateBZVertices(icell);
                 
@@ -454,7 +454,7 @@ void BZPlotUI::renderBZplot() {
                            bzData.facets.size(), 
                            bzData.facets.empty() ? 0 : bzData.facets[0].vertices.size());
                 
-                // 3. ���� ��ü ����� (����, ����, Unit Cell)
+                // 3. 占쏙옙占쏙옙 占쏙옙체 占쏙옙占쏙옙占?(占쏙옙占쏙옙, 占쏙옙占쏙옙, Unit Cell)
                 SPDLOG_INFO("Hiding crystal structure...");
                 
                 if (auto* vtkRenderer = m_parent->vtkRenderer()) {
@@ -466,24 +466,24 @@ void BZPlotUI::renderBZplot() {
                     }
                 }
                 
-                // ? 4. "All" Ű���� ó�� - �ڵ� ��� ����
+                // ? 4. "All" 키占쏙옙占쏙옙 처占쏙옙 - 占쌘듸옙 占쏙옙占?占쏙옙占쏙옙
                 std::string pathStr(pathInput);
                 
                 if (pathStr == "All" || pathStr == "all" || pathStr == "ALL") {
                     SPDLOG_INFO("'All' keyword detected - determining lattice type automatically");
 
-                    // ? SpecialPointsDatabase::detectLatticeType() ȣ��
+                    // ? SpecialPointsDatabase::detectLatticeType() 호占쏙옙
                     std::string latticeType = atoms::domain::SpecialPointsDatabase::detectLatticeType(cellInfo.matrix);
                     
                     SPDLOG_INFO("Detected lattice type: {}", latticeType);
                     
-                    // SpecialPointsDatabase���� �⺻ ��� ��������
+                    // SpecialPointsDatabase占쏙옙占쏙옙 占썩본 占쏙옙占?占쏙옙占쏙옙占쏙옙占쏙옙
                     pathStr = atoms::domain::SpecialPointsDatabase::getDefaultPath(latticeType);
                     
                     SPDLOG_INFO("Auto-selected path: '{}'", pathStr);
                 }
 
-                // 5. ������ BZ Plot ���� (��� ��� ����)
+                // 5. 占쏙옙占쏙옙占쏙옙 BZ Plot 占쏙옙占쏙옙 (占쏙옙占?占쏙옙占?占쏙옙占쏙옙)
                 if (auto* vtkRenderer = m_parent->vtkRenderer()) {
                     SPDLOG_INFO("Creating complete BZ Plot with path: '{}'", pathStr);
                     
@@ -491,10 +491,10 @@ void BZPlotUI::renderBZplot() {
                         bzData,
                         cell, 
                         icell, 
-                        showVectors,    // ������ ���� ǥ��
-                        showLabels,     // Ư���� �� ǥ��
-                        pathStr,        // ��� ���
-                        npointsInput    // ���� �� ����
+                        showVectors,    // 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 표占쏙옙
+                        showLabels,     // 특占쏙옙占쏙옙 占쏙옙 표占쏙옙
+                        pathStr,        // 占쏙옙占?占쏙옙占?
+                        npointsInput    // 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙
                     );
                     
                     SPDLOG_INFO("Complete BZ Plot created successfully");
@@ -514,17 +514,17 @@ void BZPlotUI::renderBZplot() {
             
         } else {
             // ============================================================
-            // Crystal ǥ�� ���� ��ȯ
+            // Crystal 표占쏙옙 占쏙옙占쏙옙 占쏙옙환
             // ============================================================
             SPDLOG_INFO("=== Switching to Crystal mode ===");
             
-            // 1. BZ Plot �����
+            // 1. BZ Plot 占쏙옙占쏙옙占?
             if (auto* vtkRenderer = m_parent->vtkRenderer()) {
                 SPDLOG_INFO("Hiding BZ Plot...");
                 vtkRenderer->setBZPlotVisible(false);
             }
             
-            // 2. ���� ��ü �ٽ� ǥ�� (����, ����, Unit Cell)
+            // 2. 占쏙옙占쏙옙 占쏙옙체 占쌕쏙옙 표占쏙옙 (占쏙옙占쏙옙, 占쏙옙占쏙옙, Unit Cell)
             SPDLOG_INFO("Showing crystal structure...");
             
             if (auto* vtkRenderer = m_parent->vtkRenderer()) {
@@ -539,7 +539,7 @@ void BZPlotUI::renderBZplot() {
             showingBZ = false;
         }
         
-        // ������ ������Ʈ
+        // 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙트
         render::application::GetRenderGateway().RequestRender();
     }
     
@@ -547,12 +547,12 @@ void BZPlotUI::renderBZplot() {
         ImGui::SameLine();
     }
     
-    // Clear ��ư
+    // Clear 占쏙옙튼
     if (ImGui::Button("Clear BZ", buttonSize)) {
         if (auto* vtkRenderer = m_parent->vtkRenderer()) {
             vtkRenderer->clearBZPlot();
             
-            // Crystal ���� ���ư���
+            // Crystal 占쏙옙占쏙옙 占쏙옙占싣곤옙占쏙옙
             if (showingBZ) {
                 if (auto* restoreRenderer = m_parent->vtkRenderer()) {
                     restoreRenderer->setAllAtomGroupsVisible(true);
@@ -572,15 +572,15 @@ void BZPlotUI::renderBZplot() {
     }
     
     // ========================================================================
-    // 3. ���� ǥ��
+    // 3. 占쏙옙占쏙옙 표占쏙옙
     // ========================================================================
     
     ImGui::Spacing();
     
-    // ���� ��� ǥ��
+    // 占쏙옙占쏙옙 占쏙옙占?표占쏙옙
     if (showingBZ) {
         ImGui::TextColored(ImVec4(0.0f, 0.5f, 1.0f, 1.0f), 
-                         "�� BZ Plot Mode");
+                         "占쏙옙 BZ Plot Mode");
         ImGui::SameLine();
         ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), 
                          "(vectors: %s, labels: %s)", 
@@ -588,10 +588,10 @@ void BZPlotUI::renderBZplot() {
                          showLabels ? "ON" : "OFF");
     } else {
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), 
-                         "�� Crystal Mode");
+                         "占쏙옙 Crystal Mode");
     }
     
-    // ���� �޽��� ǥ��
+    // 占쏙옙占쏙옙 占쌨쏙옙占쏙옙 표占쏙옙
     if (!lastErrorMessage.empty()) {
         ImGui::Spacing();
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
@@ -600,19 +600,19 @@ void BZPlotUI::renderBZplot() {
     }
     
     // ========================================================================
-    // 4. �߰� ����
+    // 4. 占쌩곤옙 占쏙옙占쏙옙
     // ========================================================================
     
     ImGui::Spacing();
     
-    // ���� Ÿ��
+    // 占쏙옙占쏙옙 타占쏙옙
     std::string latticeType;
     latticeType = atoms::domain::SpecialPointsDatabase::detectLatticeType(cellInfo.matrix);
 
-    // special points ��������
+    // special points 占쏙옙占쏙옙占쏙옙占쏙옙
     auto special_points = atoms::domain::SpecialPointsDatabase::getSpecialPoints(latticeType);
 
-    // special points ���
+    // special points 占쏙옙占?
     // atoms::domain::SpecialPointsDatabase::printSpecialPointsTable(special_points);
     
     if (special_points.empty()) {
@@ -624,37 +624,37 @@ void BZPlotUI::renderBZplot() {
         ImGui::Separator();
         ImGui::Spacing();
         
-        // ImGui ���̺� ����
+        // ImGui 占쏙옙占싱븝옙 占쏙옙占쏙옙
         ImGuiTableFlags tableFlags = 
             ImGuiTableFlags_Borders | 
             ImGuiTableFlags_RowBg | 
             ImGuiTableFlags_SizingFixedFit;
         
         ImGui::BeginTable("SpecialPointsTable", 4, tableFlags);
-        // ��� ����
+        // 占쏙옙占?占쏙옙占쏙옙
         ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed, 60.0f);
         ImGui::TableSetupColumn("a", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("b", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableSetupColumn("c", ImGuiTableColumnFlags_WidthFixed, 100.0f);
         ImGui::TableHeadersRow();
         
-        // ������ ��
+        // 占쏙옙占쏙옙占쏙옙 占쏙옙
         for (const auto& [label, coords] : special_points) {
             ImGui::TableNextRow();
             
-            // Label ��
+            // Label 占쏙옙
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("%s", label.c_str());
             
-            // a ��
+            // a 占쏙옙
             ImGui::TableSetColumnIndex(1);
             ImGui::Text("%.6f", coords[0]);
             
-            // b ��
+            // b 占쏙옙
             ImGui::TableSetColumnIndex(2);
             ImGui::Text("%.6f", coords[1]);
             
-            // c ��
+            // c 占쏙옙
             ImGui::TableSetColumnIndex(3);
             ImGui::Text("%.6f", coords[2]);
         }

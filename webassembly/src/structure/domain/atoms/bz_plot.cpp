@@ -1,5 +1,5 @@
 #include "bz_plot.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../../render/infrastructure/atoms/vtk_renderer.h"
 #include "../../../render/application/render_gateway.h"
 #include "cell_manager.h"
@@ -21,11 +21,11 @@ std::vector<std::array<double, 4>> BZCalculator::generateLatticePoints(
     const double icell[3][3]) 
 {
     std::vector<std::array<double, 4>> points;
-    points.reserve(27);  // 3x3x3 ����
+    points.reserve(27);  // 3x3x3 占쏙옙占쏙옙
     
     int id = 0;
     // Python: I = (np.indices((3, 3, 3)) - 1).reshape((3, 27))
-    // i, j, k �� {-1, 0, 1}
+    // i, j, k 占쏙옙 {-1, 0, 1}
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
             for (int k = -1; k <= 1; k++) {
@@ -66,7 +66,7 @@ std::array<double, 6> BZCalculator::calculateBounds(
         zmax = std::max(zmax, p[2]);
     }
     
-    // ���� �߰�
+    // 占쏙옙占쏙옙 占쌩곤옙
     xmin -= margin; xmax += margin;
     ymin -= margin; ymax += margin;
     zmin -= margin; zmax += margin;
@@ -82,7 +82,7 @@ std::array<double, 3> BZCalculator::calculateNormal(
     const std::array<double, 3>& point2)
 {
     // Python: normal = G[points].sum(0)
-    // �� �̿� �������� �� (���� ����)
+    // 占쏙옙 占싱울옙 占쏙옙占쏙옙占쏙옙占쏙옙 占쏙옙 (占쏙옙占쏙옙 占쏙옙占쏙옙)
     double nx = point1[0] + point2[0];
     double ny = point1[1] + point2[1];
     double nz = point1[2] + point2[2];
@@ -92,7 +92,7 @@ std::array<double, 3> BZCalculator::calculateNormal(
     
     if (norm < 1e-10) {
         SPDLOG_WARN("Normal vector has near-zero length");
-        return {0.0, 0.0, 1.0};  // �⺻��
+        return {0.0, 0.0, 1.0};  // 占썩본占쏙옙
     }
     
     return {nx/norm, ny/norm, nz/norm};
@@ -102,7 +102,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
     BZVerticesResult result;
     
     try {
-        // 1. 27�� ������ �� ����
+        // 1. 27占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙
         auto points = generateLatticePoints(icell);
         
         if (points.size() != 27) {
@@ -111,40 +111,40 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
             return result;
         }
         
-        // �߽� ������ ID�� 13 (i=0, j=0, k=0)
+        // 占쌩쏙옙 占쏙옙占쏙옙占쏙옙 ID占쏙옙 13 (i=0, j=0, k=0)
         // id = (i+1)*9 + (j+1)*3 + (k+1) = 1*9 + 1*3 + 1 = 13
         const int centralId = 13;
         SPDLOG_INFO("Central lattice point ID: {}", centralId);
         SPDLOG_DEBUG("Central point: ({:.3f}, {:.3f}, {:.3f})", 
                     points[centralId][0], points[centralId][1], points[centralId][2]);
         
-        // 2. �����̳� ��� ���
+        // 2. 占쏙옙占쏙옙占싱놂옙 占쏙옙占?占쏙옙占?
         auto bounds = calculateBounds(points);
         
-        // 3. Voro++ �����̳� ����
+        // 3. Voro++ 占쏙옙占쏙옙占싱놂옙 占쏙옙占쏙옙
         voro::container con(
-            bounds[0], bounds[1],  // x ����
-            bounds[2], bounds[3],  // y ����
-            bounds[4], bounds[5],  // z ����
-            6, 6, 6,               // ��� ���� (���� ����ȭ)
-            false, false, false,   // �ֱ⼺ (x, y, z) - BZ�� �ֱ⼺ ����
-            8                      // �޸� �Ҵ� ����
+            bounds[0], bounds[1],  // x 占쏙옙占쏙옙
+            bounds[2], bounds[3],  // y 占쏙옙占쏙옙
+            bounds[4], bounds[5],  // z 占쏙옙占쏙옙
+            6, 6, 6,               // 占쏙옙占?占쏙옙占쏙옙 (占쏙옙占쏙옙 占쏙옙占쏙옙화)
+            false, false, false,   // 占쌍기성 (x, y, z) - BZ占쏙옙 占쌍기성 占쏙옙占쏙옙
+            8                      // 占쌨몌옙 占쌀댐옙 占쏙옙占쏙옙
         );
         
         SPDLOG_DEBUG("Created Voro++ container with bounds [{:.3f}, {:.3f}] x [{:.3f}, {:.3f}] x [{:.3f}, {:.3f}]",
                     bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
         
-        // 4. ������ �����̳ʿ� �߰�
+        // 4. 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占싱너울옙 占쌩곤옙
         for (const auto& p : points) {
             int id = static_cast<int>(p[3]);
             con.put(id, p[0], p[1], p[2]);
         }
         SPDLOG_DEBUG("Added {} points to Voro++ container", points.size());
         
-        // 5. �߽� ���� Voronoi �� ���
+        // 5. 占쌩쏙옙 占쏙옙占쏙옙 Voronoi 占쏙옙 占쏙옙占?
         voro::voronoicell_neighbor cell;
         
-        // c_loop_all�� ��� �� ��ȸ�Ͽ� �߽� �� ã��
+        // c_loop_all占쏙옙 占쏙옙占?占쏙옙 占쏙옙회占싹울옙 占쌩쏙옙 占쏙옙 찾占쏙옙
         voro::c_loop_all vl(con);
         bool cellComputed = false;
         
@@ -168,7 +168,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
         SPDLOG_DEBUG("  Number of faces: {}", cell.number_of_faces());
         SPDLOG_DEBUG("  Number of edges: {}", cell.number_of_edges());
         
-        // 6. Vertex �� Face ���� ����
+        // 6. Vertex 占쏙옙 Face 占쏙옙占쏙옙 占쏙옙占쏙옙
         std::vector<double> allVertices;
         std::vector<int> faceVertexIndices;
         std::vector<int> neighborIds;
@@ -181,7 +181,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
         SPDLOG_DEBUG("  Total vertices: {}", numVertices);
         SPDLOG_DEBUG("  Neighbor count: {}", neighborIds.size());
         
-        // 7. Face���� BZFacet ����
+        // 7. Face占쏙옙占쏙옙 BZFacet 占쏙옙占쏙옙
         // Python: for vertices, points in zip(vor.ridge_vertices, vor.ridge_points):
         //             if -1 not in vertices and 13 in points:
         int offset = 0;
@@ -189,13 +189,13 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
             int numFaceVertices = faceVertexIndices[offset];
             int neighborId = neighborIds[faceIdx];
             
-            // Python������ ridge_points[0] �Ǵ� [1]�� 13���� Ȯ��
-            // Voro++������ compute_cell(cell, 13)���� �̹� �߽��� 13��
+            // Python占쏙옙占쏙옙占쏙옙 ridge_points[0] 占실댐옙 [1]占쏙옙 13占쏙옙占쏙옙 확占쏙옙
+            // Voro++占쏙옙占쏙옙占쏙옙 compute_cell(cell, 13)占쏙옙占쏙옙 占싱뱄옙 占쌩쏙옙占쏙옙 13占쏙옙
             
             BZFacet facet;
             facet.neighborId = neighborId;
             
-            // Face�� vertex�� ����
+            // Face占쏙옙 vertex占쏙옙 占쏙옙占쏙옙
             for (int i = 1; i <= numFaceVertices; i++) {
                 int vIdx = faceVertexIndices[offset + i];
                 
@@ -211,7 +211,7 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
                 });
             }
             
-            // ���� ���� ���
+            // 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占?
             // Python: normal = G[points].sum(0) / norm
             // points = [13, neighborId]
             // G[13] = (0, 0, 0), G[neighborId] = neighbor point
@@ -252,10 +252,10 @@ BZVerticesResult BZCalculator::calculateBZVertices(const double icell[3][3]) {
 namespace BZTestUtils {
 
 void createCubicReciprocalLattice(double icell[3][3], double a) {
-    // Cubic ������ �����ڴ� ������ cubic
-    // b1 = 2��/a * (1, 0, 0)
-    // b2 = 2��/a * (0, 1, 0)
-    // b3 = 2��/a * (0, 0, 1)
+    // Cubic 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쌘댐옙 占쏙옙占쏙옙占쏙옙 cubic
+    // b1 = 2占쏙옙/a * (1, 0, 0)
+    // b2 = 2占쏙옙/a * (0, 1, 0)
+    // b3 = 2占쏙옙/a * (0, 0, 1)
     
     const double factor = 2.0 * M_PI / a;
     
@@ -323,7 +323,7 @@ bool compareToPythonResult(
     SPDLOG_INFO("Comparing C++ result with Python result");
     SPDLOG_INFO("========================================");
     
-    // �� ���� ��
+    // 占쏙옙 占쏙옙占쏙옙 占쏙옙
     SPDLOG_INFO("Number of facets - C++: {}, Python: {}", 
                cppResult.facets.size(), pythonRidgeVertices.size());
     
@@ -332,10 +332,10 @@ bool compareToPythonResult(
         SPDLOG_WARN("Facet count mismatch!");
     }
     
-    // ������ ���� ��
+    // 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙
     SPDLOG_INFO("Python vertices count: {}", pythonVertices.size());
     
-    // �� ���� ������ ���� ��
+    // 占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙
     int matchingFaces = 0;
     for (size_t i = 0; i < std::min(cppResult.facets.size(), pythonRidgeVertices.size()); i++) {
         size_t cppVertCount = cppResult.facets[i].vertices.size();

@@ -1,6 +1,6 @@
 #include "../../density/presentation/charge_density_ui.h"
 
-#include "../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../density/infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"
@@ -49,7 +49,7 @@ void ChargeDensityUI::renderIsosurfaceSection(const std::vector<GridMeshEntry>& 
                     std::string label = "Show " + displayName;
                     if (ImGui::Checkbox(label.c_str(), &visible)) {
                         if (visible) {
-                            MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
+                            MeshDetail::Shared().SetUiVolumeMeshVisibility(true);
                             meshCommandService.ShowMesh(entry.id);
                         } else {
                             meshCommandService.HideMesh(entry.id);
@@ -218,6 +218,7 @@ void ChargeDensityUI::rebuildMultipleIsosurfaces() {
 
 }  // namespace ui
 }  // namespace atoms
+
 
 
 

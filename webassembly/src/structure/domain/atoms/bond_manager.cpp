@@ -1,5 +1,5 @@
 #include "bond_manager.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../../render/application/render_gateway.h"
 #include "../structure_repository.h"
 #include <algorithm>
@@ -270,7 +270,7 @@ calculateBondTransforms2Color(
     matrix1->SetElement(2, 3, centerAC_Z);
 
     transform1->SetMatrix(matrix1);
-    transform1->Scale(1.0, halfHeight, 1.0);  // Y�� �������� ������
+    transform1->Scale(1.0, halfHeight, 1.0);  // Y占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙
 
     vtkSmartPointer<vtkTransform> transform2 = vtkSmartPointer<vtkTransform>::New();
     vtkSmartPointer<vtkMatrix4x4> matrix2 = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -292,7 +292,7 @@ calculateBondTransforms2Color(
     matrix2->SetElement(2, 3, centerCB_Z);
 
     transform2->SetMatrix(matrix2);
-    transform2->Scale(1.0, halfHeight, 1.0);  // Y�� �������� ������
+    transform2->Scale(1.0, halfHeight, 1.0);  // Y占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙
 
     SPDLOG_DEBUG("Calculated 2-color bond transforms: length={:.3f}, centers=({:.3f},{:.3f},{:.3f})-({:.3f},{:.3f},{:.3f})",
                 height, centerAC_X, centerAC_Y, centerAC_Z, centerCB_X, centerCB_Y, centerCB_Z);
@@ -677,12 +677,12 @@ void createBondsForAtoms(
 
                     totalPairsChecked++;
 
-                    // �ֺ�-�ֺ� ������ �������� ���� (���� ���� ��� �ֺ� ǥ�� ��å)
+                    // 占쌍븝옙-占쌍븝옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 (占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占?占쌍븝옙 표占쏙옙 占쏙옙책)
                     if (isSurroundingSurrounding) {
                         continue;
                     }
 
-                    // �ֺ� ���� ���� �� ���� ���� ���� �� ���� ����-���� ���� �ߺ� ����
+                    // 占쌍븝옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙-占쏙옙占쏙옙 占쏙옙占쏙옙 占쌩븝옙 占쏙옙占쏙옙
                     if (!clearExisting && includeOriginal && includeSurrounding && isOriginalOriginal) {
                         continue;
                     }
@@ -889,8 +889,8 @@ bool shouldCreateBond(
     double bondDistance = radius1 + radius2;
     double scaledBondDistance = bondDistance * bondScalingFactor * 0.8; // 0.8 : magic number
 
-    double minBondDistance = 0.1;                      // �ʹ� ������ ���� ����
-    double maxBondDistance = scaledBondDistance * 1.5; // �ʹ� �ָ� ���� ����
+    double minBondDistance = 0.1;                      // 占십뱄옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙
+    double maxBondDistance = scaledBondDistance * 1.5; // 占십뱄옙 占쌍몌옙 占쏙옙占쏙옙 占쏙옙占쏙옙
 
     bool shouldBond = (distance >= minBondDistance && distance <= maxBondDistance);
 

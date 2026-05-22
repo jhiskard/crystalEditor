@@ -1,10 +1,11 @@
 #include "vtk_render_gateway.h"
 
+#include "../../shell/runtime/workbench_runtime.h"
 #include "../presentation/viewer_window.h"
 
 namespace {
 VtkViewer& viewerFacade() {
-    return VtkViewer::Instance();
+    return GetWorkbenchRuntime().Viewer();
 }
 } // namespace
 

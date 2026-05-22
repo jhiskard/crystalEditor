@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file workspace_store.h
  * @brief Workspace context store that owns active selection identifiers.
  */
@@ -19,7 +19,7 @@ public:
     /**
      * @brief Returns global workspace store instance.
      */
-    static WorkspaceStore& Instance();
+    static WorkspaceStore& Shared();
 
     /**
      * @brief Clears all active context identifiers.
@@ -52,4 +52,5 @@ WorkspaceStore& GetWorkspaceStore();
 
 } // namespace domain
 } // namespace workspace
+
 

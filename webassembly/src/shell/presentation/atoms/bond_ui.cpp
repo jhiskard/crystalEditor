@@ -1,6 +1,6 @@
 // webassembly/src/atoms/ui/bond_ui.cpp
 #include "bond_ui.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../../structure/domain/atoms/bond_manager.h"
 #include "../../../config/log_config.h"
 
@@ -33,7 +33,7 @@ void BondUI::render() {
 void BondUI::renderBondOperationsSection() {
     ImGui::Text("Bond Operations:");
 
-    // ��� ���� ���� ��ư
+    // 占쏙옙占?占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙튼
     if (ImGui::Button("Add Bonds (All)")) {
         SPDLOG_INFO("User requested to create all bonds");
 
@@ -51,7 +51,7 @@ void BondUI::renderBondOperationsSection() {
 
     ImGui::SameLine();
 
-    // ��� ���� ���� ��ư
+    // 占쏙옙占?占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙튼
     if (ImGui::Button("Clear Bonds (All)")) {
         SPDLOG_INFO("User requested to clear all bonds");
 
@@ -71,7 +71,7 @@ void BondUI::renderBondOperationsSection() {
 void BondUI::renderBondStyleSection() {
     ImGui::Text("Bond Style:");
 
-    // �β� ����
+    // 占싸뀐옙 占쏙옙占쏙옙
     float thickness = m_parent->getBondThickness();
     bool thicknessChanged = false;
 
@@ -97,7 +97,7 @@ void BondUI::renderBondStyleSection() {
         m_parent->updateAllBondGroupThickness();
     }
 
-    // ����� ����
+    // 占쏙옙占쏙옙占?占쏙옙占쏙옙
     float opacity = m_parent->getBondOpacity();
     bool opacityChanged = false;
 
@@ -127,7 +127,7 @@ void BondUI::renderBondStyleSection() {
 void BondUI::renderBondDistanceSection() {
     ImGui::Text("Bond Distance Parameters:");
 
-    // �Ÿ� ������ ����
+    // 占신몌옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙
     float scalingFactor = m_parent->getBondScalingFactor();
     bool scalingChanged = false;
 
@@ -151,12 +151,12 @@ void BondUI::renderBondDistanceSection() {
         SPDLOG_DEBUG("Bond distance factor changed to {:.2f}", scalingFactor);
         m_parent->setBondScalingFactor(scalingFactor);
 
-        // �Ÿ� ������ ���� ��, ��ü ������ �ٽ� �����Ͽ� �ݿ�
+        // 占신몌옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙, 占쏙옙체 占쏙옙占쏙옙占쏙옙 占쌕쏙옙 占쏙옙占쏙옙占싹울옙 占쌥울옙
         auto guard = m_parent->createBatchGuard();
         m_parent->createAllBonds();
     }
 
-    // ��� ���� ����
+    // 占쏙옙占?占쏙옙占쏙옙 占쏙옙占쏙옙
     float toleranceFactor = m_parent->getBondToleranceFactor();
     bool toleranceChanged = false;
 

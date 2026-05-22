@@ -1,6 +1,6 @@
 #include "measurement_service.h"
 
-#include "../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 namespace {
 measurement::application::MeasurementMode toMeasurementMode(WorkspaceRuntimeModel::MeasurementMode mode) {
@@ -84,30 +84,12 @@ void MeasurementService::ExitMode() {
     workspace::legacy::WorkspaceRuntimeModelRef().ExitMeasurementMode();
 }
 
-render::application::PickedAtomInfo MeasurementService::ResolvePickedAtomInfo(
-    vtkActor* actor,
-    const double pickPos[3]) const {
-    return workspace::legacy::WorkspaceRuntimeModelRef().ResolvePickedAtomInfo(actor, pickPos);
-}
-
 void MeasurementService::HandlePickerClick(const render::application::PickedAtomInfo& pickedAtomInfo) {
     workspace::legacy::WorkspaceRuntimeModelRef().HandleMeasurementClickByPicker(pickedAtomInfo);
 }
 
 void MeasurementService::HandleEmptyClick() {
     workspace::legacy::WorkspaceRuntimeModelRef().HandleMeasurementEmptyClick();
-}
-
-void MeasurementService::HandleDragSelectionInScreenRect(
-    int x0,
-    int y0,
-    int x1,
-    int y1,
-    vtkRenderer* renderer,
-    int viewportHeight,
-    bool additive) {
-    workspace::legacy::WorkspaceRuntimeModelRef().HandleDragSelectionInScreenRect(
-        x0, y0, x1, y1, renderer, viewportHeight, additive);
 }
 
 void MeasurementService::RenderModeOverlay() {

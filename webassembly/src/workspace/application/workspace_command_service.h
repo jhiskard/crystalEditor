@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file workspace_command_service.h
  * @brief Command service for workspace context mutations.
  */
@@ -19,7 +19,7 @@ public:
     /**
      * @brief Returns singleton command service instance.
      */
-    static WorkspaceCommandService& Instance();
+    static WorkspaceCommandService& Shared();
 
     void Reset();
     void SetCurrentStructureId(int32_t structureId);
@@ -38,4 +38,5 @@ WorkspaceCommandService& GetWorkspaceCommandService();
 
 } // namespace application
 } // namespace workspace
+
 

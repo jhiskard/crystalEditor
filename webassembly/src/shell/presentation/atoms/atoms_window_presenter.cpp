@@ -1,6 +1,6 @@
 #include "atoms_window_presenter.h"
 
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 
 namespace shell::presentation::atoms {
 

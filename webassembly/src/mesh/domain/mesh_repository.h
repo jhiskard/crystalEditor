@@ -20,8 +20,8 @@ namespace domain {
 
 /**
  * @brief Repository facade that centralizes mesh access/mutation.
- * @details This class wraps the legacy `MeshManager` singleton so callers can
- *          migrate to mesh-module contracts without immediate runtime behavior changes.
+ * @details This class wraps a mesh-module composition-root managed `MeshManager`
+ *          instance so callers can use stable contracts without direct global singleton access.
  */
 class MeshRepository {
 public:
@@ -30,7 +30,7 @@ public:
     /**
      * @brief Returns singleton repository facade instance.
      */
-    static MeshRepository& Instance();
+    static MeshRepository& Shared();
 
     Mesh* InsertMesh(const char* name,
         vtkSmartPointer<vtkDataSet> edgeDataSet = nullptr,
@@ -81,5 +81,6 @@ MeshRepository& GetMeshRepository();
 
 } // namespace domain
 } // namespace mesh
+
 
 

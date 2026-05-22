@@ -1,4 +1,4 @@
-#include "../../mesh/presentation/model_tree_panel.h"
+﻿#include "../../mesh/presentation/model_tree_panel.h"
 #include "../../shell/presentation/font/font_registry.h"
 #include "../../mesh/domain/lcrs_tree.h"
 #include "../../mesh/presentation/mesh_detail_panel.h"
@@ -155,7 +155,7 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                     structureService.SetStructureVisible(entry.id, true);
-                    MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
+                    MeshDetail::Shared().SetUiVolumeMeshVisibility(true);
                     meshCommand.ShowMesh(entry.id);
                     densityService.ApplyAdvancedGridVisibilityForStructure(entry.id);
                     if (densityService.HasChargeDensity() &&
@@ -1565,3 +1565,4 @@ void ModelTree::renderXsfStructureTable(ImGuiTableFlags tableFlags) {
         }
     }
 }
+

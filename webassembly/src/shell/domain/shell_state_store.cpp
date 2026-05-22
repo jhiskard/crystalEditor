@@ -3,7 +3,7 @@
 namespace shell {
 namespace domain {
 
-ShellStateStore& ShellStateStore::Instance() {
+ShellStateStore& ShellStateStore::Shared() {
     static ShellStateStore store;
     return store;
 }
@@ -13,8 +13,9 @@ void ShellStateStore::Reset() {
 }
 
 ShellStateStore& GetShellStateStore() {
-    return ShellStateStore::Instance();
+    return ShellStateStore::Shared();
 }
 
 } // namespace domain
 } // namespace shell
+

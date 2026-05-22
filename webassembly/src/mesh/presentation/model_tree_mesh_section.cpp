@@ -68,7 +68,7 @@ void ModelTree::renderMeshTable(ImGuiTableFlags tableFlags) {
     }
 
     // Delete mesh handling for regular VTK meshes.
-    MeshDetail& meshDetail = MeshDetail::Instance();
+    MeshDetail& meshDetail = MeshDetail::Shared();
     if (m_DeleteMeshId != -1) {
         if (m_DeleteMeshId != 0) {
             mesh::application::GetMeshCommandService().DeleteMesh(m_DeleteMeshId);
@@ -156,7 +156,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
             return;
         }
 
-        MeshDetail& meshDetail = MeshDetail::Instance();
+        MeshDetail& meshDetail = MeshDetail::Shared();
 
         if (m_SelectedMeshId != node->GetId()) {
             m_SelectedMeshId = node->GetId();
@@ -228,7 +228,7 @@ void ModelTree::renderMeshTree(TreeNode* node) {
                 TextColoredCentered(ImVec4(curColor.x, curColor.y, curColor.z, 0.4f), ICON_FA6_EYE_SLASH);
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                     structureService.SetStructureVisible(node->GetId(), true);
-                    MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
+                    MeshDetail::Shared().SetUiVolumeMeshVisibility(true);
                     meshCommand.ShowMesh(node->GetId());
                 }
             }
@@ -272,3 +272,4 @@ void ModelTree::renderMeshTree(TreeNode* node) {
         renderMeshTree(node->GetRightSiblingMutable());
     }
 }
+

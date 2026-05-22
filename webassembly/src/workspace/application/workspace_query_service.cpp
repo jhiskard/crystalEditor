@@ -1,11 +1,11 @@
-#include "workspace_query_service.h"
+﻿#include "workspace_query_service.h"
 
 #include "../domain/workspace_store.h"
 
 namespace workspace {
 namespace application {
 
-WorkspaceQueryService& WorkspaceQueryService::Instance() {
+WorkspaceQueryService& WorkspaceQueryService::Shared() {
     static WorkspaceQueryService service;
     return service;
 }
@@ -27,9 +27,10 @@ int32_t WorkspaceQueryService::ActiveDensityGridMeshId() const {
 }
 
 WorkspaceQueryService& GetWorkspaceQueryService() {
-    return WorkspaceQueryService::Instance();
+    return WorkspaceQueryService::Shared();
 }
 
 } // namespace application
 } // namespace workspace
+
 

@@ -39,7 +39,7 @@
 #include <vtkCameraOrientationRepresentation.h>
 #include <vtkCamera.h>
 #include <vtkCommand.h>
-#include "../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 namespace {
 constexpr int kInteractionSampleDistanceIndex = 5;

@@ -1,5 +1,5 @@
 #include "cell_info_ui.h"
-#include "../../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../../structure/domain/atoms/cell_manager.h"   // cellInfo, calculateInverseMatrix, cartesianToFractional
 #include "../../../config/log_config.h"
 #include <cstdio>  // snprintf
@@ -19,7 +19,7 @@ void CellInfoUI::applyCellChangesOnEditEnd() {
         return;
     }
 
-    // ���� �� ���� ������ ������ ����(WorkspaceRuntimeModel)���� ����
+    // 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙(WorkspaceRuntimeModel)占쏙옙占쏙옙 占쏙옙占쏙옙
     m_parent->ApplyCellChangesFromEditor();
 }
 
@@ -37,35 +37,35 @@ void CellInfoUI::render() {
 
     ImGuiTableFlags columnFlags = ImGuiTableColumnFlags_WidthStretch;
     
-    // Edit mode ���
+    // Edit mode 占쏙옙占?
     ImGui::Checkbox("Edit mode##cellEdit", &m_editMode);
 
-    // Edit mode ����( true �� false ) �� �� ���� ����
+    // Edit mode 占쏙옙占쏙옙( true 占쏙옙 false ) 占쏙옙 占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙
     if (m_prevEditMode && !m_editMode) {
         applyCellChangesOnEditEnd();
     }
     m_prevEditMode = m_editMode;
     
-    // Cell matrix ���̺� ǥ��
+    // Cell matrix 占쏙옙占싱븝옙 표占쏙옙
     if (ImGui::BeginTable("CellMatrix", 4, tableFlags)) {
-        // ��� ����
+        // 占쏙옙占?占쏙옙占쏙옙
         ImGui::TableSetupColumn("",  columnFlags, 50.0f);
         ImGui::TableSetupColumn("x", columnFlags, 100.0f);
         ImGui::TableSetupColumn("y", columnFlags, 100.0f);
         ImGui::TableSetupColumn("z", columnFlags, 100.0f);
         ImGui::TableHeadersRow();
         
-        // �� ��
+        // 占쏙옙 占쏙옙
         const char* rowLabels[] = { "v1", "v2", "v3" };
         
         for (int row = 0; row < 3; row++) {
             ImGui::TableNextRow();
             
-            // ù ��° ��: �� ��
+            // 첫 占쏙옙째 占쏙옙: 占쏙옙 占쏙옙
             ImGui::TableSetColumnIndex(0);
             ImGui::Text("%s", rowLabels[row]);
             
-            // ������ ��: ��Ʈ���� ����
+            // 占쏙옙占쏙옙占쏙옙 占쏙옙: 占쏙옙트占쏙옙占쏙옙 占쏙옙占쏙옙
             for (int col = 0; col < 3; col++) {
                 ImGui::TableSetColumnIndex(col + 1);
 
@@ -86,7 +86,7 @@ void CellInfoUI::render() {
         ImGui::EndTable();
     }
     
-    // Edit mode �ȳ� �޽���
+    // Edit mode 占싫놂옙 占쌨쏙옙占쏙옙
     if (m_editMode) {
         ImGui::Separator();
         ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), "[Edit Mode Active]");

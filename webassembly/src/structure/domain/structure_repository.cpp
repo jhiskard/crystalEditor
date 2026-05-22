@@ -1,19 +1,19 @@
-#include "structure_repository.h"
+﻿#include "structure_repository.h"
 
 namespace {
 atoms::domain::StructureStateStore& Store() {
-    return atoms::domain::StructureStateStore::Instance();
+    return atoms::domain::StructureStateStore::Shared();
 }
 
 const atoms::domain::StructureStateStore& StoreConst() {
-    return atoms::domain::StructureStateStore::Instance();
+    return atoms::domain::StructureStateStore::Shared();
 }
 } // namespace
 
 namespace structure {
 namespace domain {
 
-StructureRepository& StructureRepository::Instance() {
+StructureRepository& StructureRepository::Shared() {
     static StructureRepository repository;
     return repository;
 }
@@ -108,9 +108,10 @@ void StructureRepository::RebuildIndexes() {
 }
 
 StructureRepository& GetStructureRepository() {
-    return StructureRepository::Instance();
+    return StructureRepository::Shared();
 }
 
 } // namespace domain
 } // namespace structure
+
 

@@ -1,4 +1,4 @@
-#include "../../workspace/runtime/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 #include "../../render/application/render_gateway.h"
 #include "../../density/presentation/charge_density_ui.h"
