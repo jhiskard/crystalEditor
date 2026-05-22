@@ -25,7 +25,7 @@
 
 ## 3. 운영 규칙 (v2 필수)
 
-1. `W5.1~W5.6`은 **병렬 금지, 순차 실행**.
+1. `W5.1~W5.10`은 **병렬 금지, 순차 실행**.
 2. 각 단계에서 **Thin-shim 3단계** 허용:
    - 1차: 신규 서비스 이관
    - 2차: 호출자 전환
@@ -74,6 +74,24 @@
 
 - `wb_workspace.cmake`에서 legacy 소스 완전 제거
 
+### W5.9 심볼 제로화 (`AtomsTemplate`, `LegacyAtomsRuntime`)
+
+- 대상: `webassembly/src/**`의 타입명/전방 선언/include/alias 잔존 참조
+- 실행: 코드 기준 심볼 인벤토리 동결(`docs/**` 제외 후 `rg` 기준선 확정)
+- 실행: 잔존 호출자/헤더를 중립 명칭 기반 경로로 치환 후 shim 제거
+- 검증: 재검색으로 `AtomsTemplate`, `LegacyAtomsRuntime` 심볼 0 확인
+- 산출: `atoms_template_decomposition_progress_W5_9.md` + call graph 최신화
+
+### W5.10 `::Instance()` 호출 전면 제로화
+
+- 대상: `webassembly/src/**`의 모든 `::Instance()` 호출/정의/호환 래퍼
+- 실행: 호출 패턴을 클래스별로 인벤토리화하고 composition root 책임/기능 모듈 책임으로 재분류
+- 실행: 기능 코드의 `Class::Instance()` 접근을 생성자 주입 또는 runtime 조립 경로 참조로 전환
+- 실행: self-return 래퍼(`return Class::Instance();`)와 잔존 `Instance()` 정의를 제거하거나 비싱글턴 접근자로 치환
+- 실행: `check_phase19_singleton_zero.ps1`를 `::Instance()` 전역 0 기준으로 확장
+- 검증: `rg -n "::Instance\\(" webassembly/src` 결과 0, `check:phase19:singleton-zero` PASS
+- 산출: `singleton_decomposition_progress_W5_10.md` + `dependency_gate_report_W5.md` W5.10 항목 갱신
+
 ## 5. 파일 변경 명세
 
 | 경로 | 변경 유형 | 비고 |
@@ -89,8 +107,13 @@
 | `webassembly/src/shell/presentation/**` | 신규/수정 | W5.5 |
 | `webassembly/src/io/application/**` | 수정 | W5.6 |
 | `webassembly/cmake/modules/wb_workspace.cmake` | 수정 | W5.8 |
+| `webassembly/src/**` | 수정/치환 | W5.9 (잔존 심볼 제거) |
+| `webassembly/src/**` | 수정/치환 | W5.10 (`::Instance()` 호출/정의 제거) |
+| `scripts/refactoring/check_phase19_singleton_zero.ps1` | 수정 | W5.10 (`::Instance()` 전역 0 게이트) |
 | `docs/refactoring/phase19/logs/atoms_template_call_graph_phase19_latest.md` | **신규/갱신** | 단계별 갱신 |
 | `docs/refactoring/phase19/logs/w5_state_ownership_matrix_phase19_latest.md` | **신규** | 상태 소유권 기록 |
+| `docs/refactoring/phase19/logs/atoms_template_decomposition_progress_W5_9.md` | **신규** | W5.9 증빙 |
+| `docs/refactoring/phase19/logs/singleton_decomposition_progress_W5_10.md` | **신규** | W5.10 증빙 |
 | `docs/refactoring/phase19/logs/dependency_gate_report_W5.md` | **신규** | 완료 리포트 |
 
 ## 6. 완료 기준 (DoD)
@@ -99,9 +122,13 @@
 |---|---|---|
 | `AtomsTemplate` 심볼 | grep | 0 |
 | `LegacyAtomsRuntime` 심볼 | grep | 0 |
+| `::Instance()` 호출(`webassembly/src`) | rg | 0 |
 | `webassembly/src/workspace/legacy/` 존재 | find | 없음 |
-| W5.1~W5.6 순차 증빙 | 로그 | 전 단계 기록 완료 |
+| W5.1~W5.10 순차 증빙 | 로그 | 전 단계 기록 완료 |
 | `atoms_template_call_graph_phase19_latest.md` | 문서 체크 | 최신 반영 |
+| `atoms_template_decomposition_progress_W5_9.md` | 문서 체크 | 작성 완료 |
+| `singleton_decomposition_progress_W5_10.md` | 문서 체크 | 작성 완료 |
+| `check_phase19_singleton_zero.ps1` | 스크립트 실행 | PASS (`::Instance()` 전역 0 기준) |
 | 회귀 테스트 | 단위/e2e/수동 | PASS |
 
 ## 7. 리스크와 완화
@@ -117,25 +144,31 @@
 - `workspace/legacy` 삭제 결과
 - 기능별 신규/수정 서비스 및 presenter
 - 단계별 call graph/소유권 로그
+- W5.9 심볼 제로화 증빙 로그
+- W5.10 `::Instance()` 전면 제거 증빙 로그
 - `dependency_gate_report_W5.md`
 
 ## 9. Git 커밋 템플릿
 
 ```
-refactor(workspace): phase19/W5 — fully decompose AtomsTemplate and remove legacy runtime
+refactor(workspace): phase19/W5 — fully decompose AtomsTemplate, remove legacy runtime, and zeroize Instance calls
 
-- Execute W5.1~W5.6 sequential migration with thin-shim strategy
+- Execute W5.1~W5.10 sequential migration with thin-shim strategy
 - Delete workspace/legacy files (atoms_template_facade + legacy_atoms_runtime)
 - Update workspace cmake sources
+- Execute W5.9 symbol zeroization for AtomsTemplate and LegacyAtomsRuntime
+- Execute W5.10 global ::Instance() call elimination and gate hardening
 - Refresh call graph and ownership matrix logs
 
 metrics:
   AtomsTemplate references: N -> 0
   LegacyAtomsRuntime caller files: 14 -> 0
+  ::Instance() calls in webassembly/src: N -> 0
   workspace/legacy directory: present -> removed
 
 verif:
-  stage regressions (W5.1~W5.6): PASS
+  stage regressions (W5.1~W5.10): PASS
+  check:phase19:singleton-zero: PASS
   build/test gates: PASS
 ```
 

@@ -1,11 +1,11 @@
-#include "mesh_query_service.h"
+﻿#include "mesh_query_service.h"
 
 #include "../domain/mesh_repository.h"
 
 namespace mesh {
 namespace application {
 
-MeshQueryService& MeshQueryService::Instance() {
+MeshQueryService& MeshQueryService::Shared() {
     static MeshQueryService service;
     return service;
 }
@@ -35,9 +35,10 @@ bool MeshQueryService::GetGlobalVolumeDataRange(double& minOut, double& maxOut) 
 }
 
 MeshQueryService& GetMeshQueryService() {
-    return MeshQueryService::Instance();
+    return MeshQueryService::Shared();
 }
 
 } // namespace application
 } // namespace mesh
+
 

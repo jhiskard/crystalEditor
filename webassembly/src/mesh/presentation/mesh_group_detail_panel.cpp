@@ -9,7 +9,7 @@
 #include <imgui.h>
 
 
-MeshGroupDetail& MeshGroupDetail::Instance() {
+MeshGroupDetail& MeshGroupDetail::Shared() {
     return GetWorkbenchRuntime().MeshGroupDetailPanel();
 }
 
@@ -295,6 +295,7 @@ void MeshGroupDetail::renderTableRowGroupColor(MeshGroup* group) {
     }
     ImGui::PopStyleVar();
 }
+
 
 
 

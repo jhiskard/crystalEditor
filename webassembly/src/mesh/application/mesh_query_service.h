@@ -23,7 +23,7 @@ public:
     /**
      * @brief Returns singleton query service instance.
      */
-    static MeshQueryService& Instance();
+    static MeshQueryService& Shared();
 
     const LcrsTreeUPtr& MeshTree() const;
     size_t MeshCount() const;
@@ -43,6 +43,7 @@ MeshQueryService& GetMeshQueryService();
 
 } // namespace application
 } // namespace mesh
+
 
 
 

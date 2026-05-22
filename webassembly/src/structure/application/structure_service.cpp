@@ -1,70 +1,73 @@
 #include "structure_service.h"
 
-#include "../infrastructure/legacy/legacy_structure_service_port.h"
+#include "structure_lifecycle_service.h"
 
-namespace {
-structure::application::StructureServicePort& defaultStructureServicePort() {
-    static structure::infrastructure::legacy::LegacyStructureServicePort port;
-    return port;
-}
-} // namespace
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 namespace structure {
 namespace application {
 
-StructureService::StructureService()
-    : StructureService(defaultStructureServicePort()) {}
-
-StructureService::StructureService(StructureServicePort& port)
-    : m_Port(&port) {}
+StructureService::StructureService() = default;
 
 int StructureService::GetStructureCount() const {
-    return m_Port->GetStructureCount();
+    return static_cast<int>(workspace::legacy::WorkspaceRuntimeModelRef().GetStructures().size());
 }
 
 int32_t StructureService::GetCurrentStructureId() const {
-    return m_Port->GetCurrentStructureId();
+    return workspace::legacy::WorkspaceRuntimeModelRef().GetCurrentStructureId();
 }
 
 void StructureService::SetCurrentStructureId(int32_t structureId) {
-    m_Port->SetCurrentStructureId(structureId);
+    workspace::legacy::WorkspaceRuntimeModelRef().SetCurrentStructureId(structureId);
 }
 
 std::vector<StructureEntryView> StructureService::GetStructures() const {
-    return m_Port->GetStructures();
+    std::vector<StructureEntryView> output;
+    const auto entries = workspace::legacy::WorkspaceRuntimeModelRef().GetStructures();
+    output.reserve(entries.size());
+    for (const auto& entry : entries) {
+        output.push_back({ entry.id, entry.name, entry.visible });
+    }
+    return output;
 }
 
 bool StructureService::IsStructureVisible(int32_t structureId) const {
-    return m_Port->IsStructureVisible(structureId);
+    return workspace::legacy::WorkspaceRuntimeModelRef().IsStructureVisible(structureId);
 }
 
 void StructureService::SetStructureVisible(int32_t structureId, bool visible) {
-    m_Port->SetStructureVisible(structureId, visible);
+    workspace::legacy::WorkspaceRuntimeModelRef().SetStructureVisible(structureId, visible);
 }
 
 void StructureService::RegisterStructure(int32_t structureId, const std::string& name) {
-    m_Port->RegisterStructure(structureId, name);
+    static StructureLifecycleService lifecycle;
+    lifecycle.RegisterStructure(structureId, name);
 }
 
 void StructureService::RemoveStructure(int32_t structureId) {
-    m_Port->RemoveStructure(structureId);
+    static StructureLifecycleService lifecycle;
+    lifecycle.RemoveStructure(structureId);
 }
 
 void StructureService::RemoveUnassignedData() {
-    m_Port->RemoveUnassignedData();
+    static StructureLifecycleService lifecycle;
+    lifecycle.RemoveUnassignedData();
 }
 
 size_t StructureService::GetAtomCountForStructure(int32_t structureId) const {
-    return m_Port->GetAtomCountForStructure(structureId);
+    return workspace::legacy::WorkspaceRuntimeModelRef().GetAtomCountForStructure(structureId);
 }
 
 bool StructureService::IsBoundaryAtomsEnabled() const {
-    return m_Port->IsBoundaryAtomsEnabled();
+    return workspace::legacy::WorkspaceRuntimeModelRef().isSurroundingsVisible();
 }
 
 void StructureService::SetBoundaryAtomsEnabled(bool enabled) {
-    m_Port->SetBoundaryAtomsEnabled(enabled);
+    workspace::legacy::WorkspaceRuntimeModelRef().SetBoundaryAtomsEnabled(enabled);
 }
 
 } // namespace application
 } // namespace structure
+
+
+

@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "structure_service_port.h"
 #include "structure_service_types.h"
 
 #include <cstdint>
@@ -15,21 +14,16 @@ namespace structure {
 namespace application {
 
 /**
- * @brief Structure use-case facade extracted from AtomsTemplate.
+ * @brief Structure use-case facade extracted from WorkspaceRuntimeModel.
  * @details 서비스 레이어는 포트 계약만 의존하며, legacy 호환 경로는
  *          infrastructure adapter에서만 관리한다.
  */
 class StructureService {
 public:
     /**
-     * @brief Creates structure service with default legacy adapter.
+     * @brief Creates structure service facade.
      */
     StructureService();
-
-    /**
-     * @brief Creates structure service with injected compatibility port.
-     */
-    explicit StructureService(StructureServicePort& port);
 
     /**
      * @brief Returns number of registered structures.
@@ -91,10 +85,10 @@ public:
      */
     void SetBoundaryAtomsEnabled(bool enabled);
 
-private:
-    StructureServicePort* m_Port { nullptr };
 };
 
 } // namespace application
 } // namespace structure
+
+
 

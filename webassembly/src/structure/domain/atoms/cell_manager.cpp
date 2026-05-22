@@ -1,7 +1,7 @@
-﻿#include "cell_manager.h"
+#include "cell_manager.h"
 #include "cell_transform.h"
 #include "../../../config/log_config.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "atom_manager.h"
 #include "../structure_repository.h"
 
@@ -64,7 +64,7 @@ bool isCellModified() {
     return cellInfo.modified;
 }
 
-void applyCellChanges(::AtomsTemplate* parent) {
+void applyCellChanges(::WorkspaceRuntimeModel* parent) {
     if (!parent) {
         SPDLOG_ERROR("applyCellChanges called with null parent");
         return;
@@ -95,6 +95,8 @@ void applyCellChanges(::AtomsTemplate* parent) {
     SPDLOG_INFO("Cell matrix update completed within batch");
 }
 } // namespace atoms::domain
+
+
 
 
 

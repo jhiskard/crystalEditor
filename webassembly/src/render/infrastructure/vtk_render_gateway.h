@@ -57,12 +57,5 @@ public:
     void EndInteractionLod() override;
 };
 
-/**
- * @brief Returns legacy viewer facade through render infrastructure boundary.
- * @details Runtime/shell code should access the viewer via this adapter helper
- *          instead of calling `VtkViewer::Instance()` directly.
- */
-VtkViewer& GetLegacyViewerFacade();
-
 } // namespace infrastructure
 } // namespace render

@@ -19,7 +19,7 @@ public:
     /**
      * @brief Returns singleton command service instance.
      */
-    static ShellStateCommandService& Instance();
+    static ShellStateCommandService& Shared();
 
     /**
      * @brief Resets shell state to defaults.
@@ -77,3 +77,4 @@ ShellStateCommandService& GetShellStateCommandService();
 
 } // namespace application
 } // namespace shell
+

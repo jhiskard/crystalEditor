@@ -6,7 +6,8 @@
 
 namespace {
 MeshManager& Manager() {
-    return MeshManager::Instance();
+    static MeshManager manager;
+    return manager;
 }
 
 const MeshManager& ManagerConst() {
@@ -17,7 +18,7 @@ const MeshManager& ManagerConst() {
 namespace mesh {
 namespace domain {
 
-MeshRepository& MeshRepository::Instance() {
+MeshRepository& MeshRepository::Shared() {
     static MeshRepository repository;
     return repository;
 }
@@ -143,11 +144,12 @@ void MeshRepository::PrintMeshTree() const {
 #endif
 
 MeshRepository& GetMeshRepository() {
-    return MeshRepository::Instance();
+    return MeshRepository::Shared();
 }
 
 } // namespace domain
 } // namespace mesh
+
 
 
 

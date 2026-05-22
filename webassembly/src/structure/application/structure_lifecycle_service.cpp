@@ -1,11 +1,54 @@
-﻿#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "structure_lifecycle_service.h"
+
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../domain/structure_repository.h"
 
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 
-void AtomsTemplate::RegisterStructure(int32_t id, const std::string& name) {
+namespace structure {
+namespace application {
+
+StructureLifecycleService::StructureLifecycleService() = default;
+
+void StructureLifecycleService::RegisterStructure(int32_t structureId, const std::string& name) {
+    workspace::legacy::WorkspaceRuntimeModelRef().RegisterStructure(structureId, name);
+}
+
+void StructureLifecycleService::RemoveStructure(int32_t structureId) {
+    workspace::legacy::WorkspaceRuntimeModelRef().RemoveStructure(structureId);
+}
+
+void StructureLifecycleService::RemoveUnassignedData() {
+    workspace::legacy::WorkspaceRuntimeModelRef().RemoveUnassignedData();
+}
+
+void StructureLifecycleService::RenderBrillouinZonePlotWindow(bool* openWindow) {
+    workspace::legacy::WorkspaceRuntimeModelRef().RenderBrillouinZonePlotWindow(openWindow);
+}
+
+bool StructureLifecycleService::EnterBZPlotMode(
+    const std::string& path,
+    int npoints,
+    bool showVectors,
+    bool showLabels,
+    std::string& outErrorMessage) {
+    return workspace::legacy::WorkspaceRuntimeModelRef().EnterBZPlotMode(
+        path, npoints, showVectors, showLabels, outErrorMessage);
+}
+
+void StructureLifecycleService::ExitBZPlotMode() {
+    workspace::legacy::WorkspaceRuntimeModelRef().ExitBZPlotMode();
+}
+
+bool StructureLifecycleService::IsBZPlotMode() const {
+    return workspace::legacy::WorkspaceRuntimeModelRef().IsBZPlotMode();
+}
+
+} // namespace application
+} // namespace structure
+void WorkspaceRuntimeModel::RegisterStructure(int32_t id, const std::string& name) {
     if (id < 0) {
         return;
     }
@@ -19,7 +62,7 @@ void AtomsTemplate::RegisterStructure(int32_t id, const std::string& name) {
 }
 
 
-void AtomsTemplate::RemoveStructure(int32_t id) {
+void WorkspaceRuntimeModel::RemoveStructure(int32_t id) {
     auto& repository = structure::domain::GetStructureRepository();
     auto& createdAtoms = repository.CreatedAtoms();
     auto& surroundingAtoms = repository.SurroundingAtoms();
@@ -249,7 +292,7 @@ void AtomsTemplate::RemoveStructure(int32_t id) {
 }
 
 
-void AtomsTemplate::RemoveUnassignedData() {
+void WorkspaceRuntimeModel::RemoveUnassignedData() {
     auto& repository = structure::domain::GetStructureRepository();
     auto& createdAtoms = repository.CreatedAtoms();
     auto& surroundingAtoms = repository.SurroundingAtoms();
@@ -472,6 +515,8 @@ void AtomsTemplate::RemoveUnassignedData() {
 
     refreshRenderedGroups();
 }
+
+
 
 
 

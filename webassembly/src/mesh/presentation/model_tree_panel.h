@@ -17,14 +17,14 @@ public:
      * @brief Compatibility accessor resolved via runtime-owned panel instance.
      * @note Phase 11 runtime shim. Remove this wrapper in Phase 12.
      */
-    static ModelTree& Instance();
+    static ModelTree& Shared();
 
     ModelTree();
     ~ModelTree();
 
     void Render(bool* openWindow = nullptr);
 
-    static int32_t GetSelectedMeshId() { return Instance().m_SelectedMeshId; }
+    static int32_t GetSelectedMeshId() { return Shared().m_SelectedMeshId; }
 
 private:
     int32_t m_DeleteMeshId = -1;
@@ -42,3 +42,4 @@ private:
     int32_t m_PendingClearMeasurementsStructureId = -1;
     bool m_ShowClearMeasurementsConfirmPopup = false;
 };
+

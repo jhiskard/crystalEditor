@@ -15,10 +15,10 @@
 
 namespace atoms::ui {
 
-AtomsTemplateMainWindowUI::AtomsTemplateMainWindowUI(::AtomsTemplate* parent)
+WorkspaceRuntimeModelMainWindowUI::WorkspaceRuntimeModelMainWindowUI(::WorkspaceRuntimeModel* parent)
     : m_parent(parent)
 {
-    // parent 타입은 ::AtomsTemplate* 로 고정되어야 함
+    // parent 타입은 ::WorkspaceRuntimeModel* 로 고정되어야 함
     m_atomEditorUI     = std::make_unique<AtomEditorUI>(m_parent);
     m_bondUI           = std::make_unique<BondUI>(m_parent);
     m_cellInfoUI       = std::make_unique<CellInfoUI>(m_parent);
@@ -27,9 +27,9 @@ AtomsTemplateMainWindowUI::AtomsTemplateMainWindowUI(::AtomsTemplate* parent)
     m_bravaisLatticeUI = std::make_unique<BravaisLatticeUI>(m_parent);
 }
 
-AtomsTemplateMainWindowUI::~AtomsTemplateMainWindowUI() = default;
+WorkspaceRuntimeModelMainWindowUI::~WorkspaceRuntimeModelMainWindowUI() = default;
 
-void AtomsTemplateMainWindowUI::render(bool* openWindow)
+void WorkspaceRuntimeModelMainWindowUI::render(bool* openWindow)
 {
     if (openWindow != nullptr) {
         if (!*openWindow) {
@@ -75,3 +75,5 @@ void AtomsTemplateMainWindowUI::render(bool* openWindow)
 }
 
 } // namespace atoms::ui
+
+

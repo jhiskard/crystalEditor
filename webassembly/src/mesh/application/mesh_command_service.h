@@ -27,7 +27,7 @@ public:
     /**
      * @brief Returns singleton command service instance.
      */
-    static MeshCommandService& Instance();
+    static MeshCommandService& Shared();
 
     Mesh* InsertMesh(const char* name,
         vtkSmartPointer<vtkDataSet> edgeDataSet = nullptr,
@@ -56,5 +56,6 @@ MeshCommandService& GetMeshCommandService();
 
 } // namespace application
 } // namespace mesh
+
 
 

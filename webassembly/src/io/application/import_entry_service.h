@@ -2,6 +2,7 @@
 
 #include "import_apply_service.h"
 #include "file_dialog_port.h"
+#include "import_popup_state.h"
 #include "progress_port.h"
 #include "import_workflow_service.h"
 #include "parser_worker_service.h"
@@ -72,9 +73,27 @@ public:
     void OpenChgcarFileBrowser();
     void LoadChgcarFile(const std::string& filename);
 
-private:
-    friend class shell::presentation::ImportPopupPresenter;
+    /**
+     * @brief Returns immutable popup state for shell presentation layer.
+     */
+    const io::application::ImportPopupState& getImportPopupState() const noexcept;
 
+    /**
+     * @brief Opens structure import browser with replace-scene decision.
+     */
+    void acknowledgeStructureReplacePopup(bool shouldReplace);
+
+    /**
+     * @brief Closes structure import error popup and clears message state.
+     */
+    void dismissStructureImportErrorPopup();
+
+    /**
+     * @brief Closes XSF grid warning popup and clears warning message.
+     */
+    void dismissXsfGridCellWarningPopup();
+
+private:
     FileLoader(const FileLoader&) = delete;
     FileLoader& operator=(const FileLoader&) = delete;
     FileLoader(FileLoader&&) = delete;
@@ -91,15 +110,7 @@ private:
     io::application::ProgressPort& m_ProgressPort;
     io::platform::MemfsChunkStream m_MemfsChunkStream;
     std::unique_ptr<shell::presentation::ImportPopupPresenter> m_ImportPopupPresenter;
-
-    bool m_ShowStructureReplacePopup = false;
-    bool m_ReplaceSceneOnNextStructureImport = false;
-    std::string m_DeferredStructureFileName;
-    bool m_ShowStructureImportErrorPopup = false;
-    std::string m_StructureImportErrorTitle;
-    std::string m_StructureImportErrorMessage;
-    bool m_ShowXsfGridCellWarningPopup = false;
-    std::string m_XsfGridCellWarningText;
+    io::application::ImportPopupState m_ImportPopupState;
 
     Mesh* readVtkFile(const std::string& fileName);
     Mesh* readVtuFile(const std::string& fileName);

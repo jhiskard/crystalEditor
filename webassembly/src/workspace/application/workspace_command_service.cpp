@@ -1,11 +1,11 @@
-#include "workspace_command_service.h"
+﻿#include "workspace_command_service.h"
 
 #include "../domain/workspace_store.h"
 
 namespace workspace {
 namespace application {
 
-WorkspaceCommandService& WorkspaceCommandService::Instance() {
+WorkspaceCommandService& WorkspaceCommandService::Shared() {
     static WorkspaceCommandService service;
     return service;
 }
@@ -31,9 +31,10 @@ void WorkspaceCommandService::SetActiveDensityGridMeshId(int32_t meshId) {
 }
 
 WorkspaceCommandService& GetWorkspaceCommandService() {
-    return WorkspaceCommandService::Instance();
+    return WorkspaceCommandService::Shared();
 }
 
 } // namespace application
 } // namespace workspace
+
 

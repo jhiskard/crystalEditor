@@ -1,8 +1,8 @@
-﻿#include "workbench_controller.h"
+#include "workbench_controller.h"
 
 #include "shell_state_command_service.h"
 #include "shell_state_query_service.h"
-#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../mesh/application/mesh_command_service.h"
 #include "../../render/application/render_gateway.h"
 #include "../../structure/application/structure_service.h"
@@ -37,7 +37,7 @@ structure::application::StructureService& structureService() {
 namespace shell {
 namespace application {
 
-WorkbenchController& WorkbenchController::Instance() {
+WorkbenchController& WorkbenchController::Shared() {
     static WorkbenchController controller;
     return controller;
 }
@@ -128,11 +128,11 @@ void WorkbenchController::OpenDataPanel(DataPanelAction action) {
 }
 
 bool WorkbenchController::IsNodeInfoEnabled() const {
-    return workspace::legacy::LegacyAtomsRuntime().IsNodeInfoEnabled();
+    return workspace::legacy::WorkspaceRuntimeModelRef().IsNodeInfoEnabled();
 }
 
 void WorkbenchController::SetNodeInfoEnabled(bool enabled) {
-    workspace::legacy::LegacyAtomsRuntime().SetNodeInfoEnabled(enabled);
+    workspace::legacy::WorkspaceRuntimeModelRef().SetNodeInfoEnabled(enabled);
 }
 
 bool WorkbenchController::IsViewerFpsOverlayEnabled() const {
@@ -199,11 +199,15 @@ void WorkbenchController::SetArrowRotateStepDeg(int stepDeg) {
 }
 
 WorkbenchController& GetWorkbenchController() {
-    return WorkbenchController::Instance();
+    return WorkbenchController::Shared();
 }
 
 } // namespace application
 } // namespace shell
+
+
+
+
 
 
 

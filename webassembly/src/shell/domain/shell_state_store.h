@@ -103,7 +103,7 @@ public:
     /**
      * @brief Returns global shell state store instance.
      */
-    static ShellStateStore& Instance();
+    static ShellStateStore& Shared();
 
     /**
      * @brief Resets shell state to default values.
@@ -133,3 +133,4 @@ ShellStateStore& GetShellStateStore();
 
 } // namespace domain
 } // namespace shell
+

@@ -40,7 +40,6 @@ private:
     WorkerPort& m_WorkerPort;
     ProgressPort& m_ProgressPort;
 
-    static bool ContainsDatagrid3d(const std::string& filePath);
     void DispatchToMainThread(ParserResultCallback callback, ParserWorkerResult* result) const;
 };
 

@@ -19,7 +19,7 @@ public:
     /**
      * @brief Returns singleton repository facade instance.
      */
-    static StructureRepository& Instance();
+    static StructureRepository& Shared();
 
     atoms::domain::StructureState& GetOrCreate(atoms::domain::StructureId structureId);
     const atoms::domain::StructureState* Find(atoms::domain::StructureId structureId) const;
@@ -61,4 +61,5 @@ StructureRepository& GetStructureRepository();
 
 } // namespace domain
 } // namespace structure
+
 

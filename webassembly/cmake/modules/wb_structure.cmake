@@ -1,9 +1,9 @@
 target_sources(wb_structure PRIVATE
   webassembly/src/structure/application/structure_lifecycle_service.cpp
   webassembly/src/structure/application/structure_read_model.cpp
+  webassembly/src/structure/application/structure_interaction_service.cpp
   webassembly/src/structure/application/structure_service.cpp
   webassembly/src/structure/application/visibility_service.cpp
-  webassembly/src/structure/infrastructure/legacy/legacy_structure_service_port.cpp
   webassembly/src/structure/domain/atoms/atom_manager.cpp
   webassembly/src/structure/domain/atoms/bond_manager.cpp
   webassembly/src/structure/domain/atoms/bz_plot.cpp

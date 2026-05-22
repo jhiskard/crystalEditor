@@ -6,7 +6,7 @@
 // ImGui
 #include <imgui.h>
 
-ModelTree& ModelTree::Instance() {
+ModelTree& ModelTree::Shared() {
     return GetWorkbenchRuntime().ModelTreePanel();
 }
 
@@ -39,6 +39,7 @@ void ModelTree::Render(bool* openWindow) {
 
     ImGui::End();
 }
+
 
 
 

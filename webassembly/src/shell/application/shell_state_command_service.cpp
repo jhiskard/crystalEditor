@@ -50,7 +50,7 @@ void setWindowVisible(shell::domain::ShellUiState& state, shell::domain::ShellWi
 namespace shell {
 namespace application {
 
-ShellStateCommandService& ShellStateCommandService::Instance() {
+ShellStateCommandService& ShellStateCommandService::Shared() {
     static ShellStateCommandService service;
     return service;
 }
@@ -100,8 +100,9 @@ void ShellStateCommandService::RequestDataPanel(workbench::panel::DataRequest re
 }
 
 ShellStateCommandService& GetShellStateCommandService() {
-    return ShellStateCommandService::Instance();
+    return ShellStateCommandService::Shared();
 }
 
 } // namespace application
 } // namespace shell
+

@@ -1,6 +1,6 @@
-﻿#include "surrounding_atom_manager.h"
+#include "surrounding_atom_manager.h"
 
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "atom_manager.h"
 #include "bond_manager.h"
 #include "cell_manager.h"
@@ -12,7 +12,7 @@
 
 namespace atoms::domain {
 
-SurroundingAtomManager::SurroundingAtomManager(::AtomsTemplate* parent)
+SurroundingAtomManager::SurroundingAtomManager(::WorkspaceRuntimeModel* parent)
     : m_parent(parent) {}
 
 void SurroundingAtomManager::createSurroundingAtoms() {
@@ -388,6 +388,8 @@ void SurroundingAtomManager::setVisible(bool visible) {
 }
 
 } // namespace atoms::domain
+
+
 
 
 

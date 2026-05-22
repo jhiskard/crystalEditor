@@ -13,7 +13,7 @@ namespace domain {
 
 /**
  * @brief Stable domain row for measurement queries.
- * @details This type decouples presentation read models from legacy AtomsTemplate structs.
+ * @details This type decouples presentation read models from legacy WorkspaceRuntimeModel structs.
  */
 struct MeasurementRecord {
     uint32_t id = 0;
@@ -32,4 +32,6 @@ public:
 
 } // namespace domain
 } // namespace measurement
+
+
 

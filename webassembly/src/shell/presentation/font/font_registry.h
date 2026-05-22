@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../macro/singleton_macro.h"
 #include "../../../enum/font_icon_enums.h"
 
 // Font icons
@@ -29,9 +28,14 @@ class ImFont;
 
 
 class FontManager {
-    DECLARE_SINGLETON(FontManager)
-
 public:
+    FontManager();
+    ~FontManager();
+    FontManager(const FontManager&) = delete;
+    FontManager& operator=(const FontManager&) = delete;
+    FontManager(FontManager&&) = delete;
+    FontManager& operator=(FontManager&&) = delete;
+
     void SetFontIcon(FontIcon fontIcon);
     void SetDefaultFontIcon();
 

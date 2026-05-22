@@ -1,11 +1,12 @@
-﻿#include "../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"
 
 #include "../../app.h"
+#include "../../render/application/picked_atom_info.h"
 #include "../../render/application/render_gateway.h"
 
 #include <algorithm>
 
-void AtomsTemplate::EnterMeasurementMode(MeasurementMode mode) {
+void WorkspaceRuntimeModel::EnterMeasurementMode(MeasurementMode mode) {
     if (mode == MeasurementMode::None) {
         ExitMeasurementMode();
         return;
@@ -27,7 +28,7 @@ void AtomsTemplate::EnterMeasurementMode(MeasurementMode mode) {
 }
 
 
-void AtomsTemplate::ExitMeasurementMode() {
+void WorkspaceRuntimeModel::ExitMeasurementMode() {
     if (m_MeasurementMode == MeasurementMode::None && m_MeasurementPickedAtomIds.empty()) {
         return;
     }
@@ -40,7 +41,8 @@ void AtomsTemplate::ExitMeasurementMode() {
 }
 
 
-void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickPos[3]) {
+void WorkspaceRuntimeModel::HandleMeasurementClickByPicker(
+    const render::application::PickedAtomInfo& pickedAtomInfo) {
     if (!IsMeasurementModeActive()) {
         return;
     }
@@ -51,14 +53,13 @@ void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickP
         return;
     }
 
-    uint32_t atomId = 0;
-    int32_t structureId = -1;
-    std::array<double, 3> atomPosition {};
-    if (!resolvePickedAtom(actor, pickPos, atomId, structureId, atomPosition)) {
+    if (!pickedAtomInfo.hit) {
         HandleMeasurementEmptyClick();
         return;
     }
-    (void)atomPosition;
+
+    const uint32_t atomId = pickedAtomInfo.atomId;
+    const int32_t structureId = pickedAtomInfo.structureId;
     if (structureId < 0) {
         return;
     }
@@ -109,7 +110,7 @@ void AtomsTemplate::HandleMeasurementClickByPicker(vtkActor* actor, double pickP
 }
 
 
-void AtomsTemplate::RenderMeasurementModeOverlay() {
+void WorkspaceRuntimeModel::RenderMeasurementModeOverlay() {
     if (!IsMeasurementModeActive()) {
         return;
     }
@@ -222,6 +223,8 @@ void AtomsTemplate::RenderMeasurementModeOverlay() {
     ImGui::PopStyleColor();
     ImGui::PopStyleVar(3);
 }
+
+
 
 
 

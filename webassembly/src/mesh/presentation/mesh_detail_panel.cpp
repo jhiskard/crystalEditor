@@ -78,7 +78,7 @@ ImVec2 calcVolumeActionButtonPadding() {
 // ============================================================================
 // Constructor / Destructor
 // ============================================================================
-MeshDetail& MeshDetail::Instance() {
+MeshDetail& MeshDetail::Shared() {
     return GetWorkbenchRuntime().MeshDetailPanel();
 }
 
@@ -1272,6 +1272,7 @@ void MeshDetail::SetUiVolumeColorCurve(double midpoint, double sharpness) {
     m_UiVolumeColorMidpoint = static_cast<float>(midpoint);
     m_UiVolumeColorSharpness = static_cast<float>(sharpness);
 }
+
 
 
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file workspace_query_service.h
  * @brief Read-only workspace context query service.
  */
@@ -19,7 +19,7 @@ public:
     /**
      * @brief Returns singleton query service instance.
      */
-    static WorkspaceQueryService& Instance();
+    static WorkspaceQueryService& Shared();
 
     int32_t CurrentStructureId() const;
     int32_t SelectedMeshId() const;
@@ -37,4 +37,5 @@ WorkspaceQueryService& GetWorkspaceQueryService();
 
 } // namespace application
 } // namespace workspace
+
 

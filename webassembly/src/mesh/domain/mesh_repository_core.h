@@ -1,7 +1,6 @@
 ﻿// Manage mesh tree and the whole mesh data
 #pragma once
 
-#include "../../macro/singleton_macro.h"
 #include "lcrs_tree.h"
 #include "mesh_entity.h"
 
@@ -14,9 +13,14 @@ class vtkDataSet;
 
 
 class MeshManager {
-    DECLARE_SINGLETON(MeshManager)
-
 public:
+    MeshManager();
+    ~MeshManager();
+    MeshManager(const MeshManager&) = delete;
+    MeshManager& operator=(const MeshManager&) = delete;
+    MeshManager(MeshManager&&) = delete;
+    MeshManager& operator=(MeshManager&&) = delete;
+
     // ========================================================================
     // ✅ 추가: Volume Display Settings 구조체
     // ========================================================================

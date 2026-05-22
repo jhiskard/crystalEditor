@@ -1,7 +1,7 @@
-﻿// webassembly/src/atoms/ui/periodic_table_ui.cpp
+// webassembly/src/atoms/ui/periodic_table_ui.cpp
 #include "periodic_table_ui.h"
 #include "ui_color_utils.h"
-#include "../../../workspace/legacy/legacy_atoms_runtime.h"
+#include "../../../workspace/runtime/workspace_runtime_model_ref.h"
 #include "../../../structure/domain/atoms/element_database.h"
 #include "../../../structure/domain/atoms/cell_manager.h"
 #include "../../../config/log_config.h"
@@ -11,10 +11,10 @@ namespace atoms {
 namespace ui {
 
 // ============================================================================
-// 생성자
+// 占쏙옙占쏙옙占쏙옙
 // ============================================================================
 
-PeriodicTableUI::PeriodicTableUI(AtomsTemplate* parent)
+PeriodicTableUI::PeriodicTableUI(WorkspaceRuntimeModel* parent)
     : m_parent(parent)
     , m_elementDB(&atoms::domain::ElementDatabase::getInstance())
     , m_selectedElementSymbol("")
@@ -26,22 +26,22 @@ PeriodicTableUI::PeriodicTableUI(AtomsTemplate* parent)
 }
 
 // ============================================================================
-// 메인 렌더링
+// 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::render() {
-    // 카테고리 필터
+    // 카占쌓곤옙占?占쏙옙占쏙옙
     renderCategoryFilter();
     
-    // 선택된 원소 표시
+    // 占쏙옙占시듸옙 占쏙옙占쏙옙 표占쏙옙
     ImGui::TextWrapped("Click on an element to select it. Selected element: %s", 
                       m_selectedElementSymbol.empty() ? "None" : m_selectedElementSymbol.c_str());
     ImGui::Separator();
     
-    // 메인 주기율표
+    // 占쏙옙占쏙옙 占쌍깍옙占쏙옙표
     renderMainPeriodicTable();
     
-    // 란타넘족/악티늄족
+    // 占쏙옙타占쏙옙占쏙옙/占쏙옙티占쏙옙占쏙옙
     if (m_category == 0 || m_category == 9) {
         ImGui::Dummy(ImVec2(1.0f, 10.0f));
         renderLanthanides();
@@ -52,14 +52,14 @@ void PeriodicTableUI::render() {
         renderActinides();
     }
     
-    // 선택된 원소 상세 정보
+    // 占쏙옙占시듸옙 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙
     if (!m_selectedElementSymbol.empty()) {
         renderSelectedElementDetails();
     }
 }
 
 // ============================================================================
-// 카테고리 필터
+// 카占쌓곤옙占?占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::renderCategoryFilter() {
@@ -89,23 +89,23 @@ void PeriodicTableUI::renderCategoryFilter() {
 }
 
 // ============================================================================
-// 메인 주기율표 렌더링
+// 占쏙옙占쏙옙 占쌍깍옙占쏙옙표 占쏙옙占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::renderMainPeriodicTable() {
-    // 창 너비에 맞게 스케일 조정
+    // 창 占십븝옙 占승곤옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙
     const float availWidth = ImGui::GetContentRegionAvail().x;
     const float scale = availWidth / TOTAL_WIDTH;
     const float scaledButtonSize = BUTTON_SIZE * scale;
     const float scaledSpacing = SPACING * scale;
     
-    // 스타일 설정
+    // 占쏙옙타占쏙옙 占쏙옙占쏙옙
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(scaledSpacing, scaledSpacing));
     
-    // 주기율표 순회 (1-7주기, 1-18족)
+    // 占쌍깍옙占쏙옙표 占쏙옙회 (1-7占쌍깍옙, 1-18占쏙옙)
     for (int period = 1; period <= 7; period++) {
         for (int group = 1; group <= 18; group++) {
-            // 해당 위치에 원소 찾기
+            // 占쌔댐옙 占쏙옙치占쏙옙 占쏙옙占쏙옙 찾占쏙옙
             const atoms::domain::ElementInfo* element = nullptr;
             
             auto allSymbols = m_elementDB->getAllSymbols();
@@ -117,16 +117,16 @@ void PeriodicTableUI::renderMainPeriodicTable() {
                 }
             }
             
-            // 같은 줄에 배치
+            // 占쏙옙占쏙옙 占쌕울옙 占쏙옙치
             if (group > 1) {
                 ImGui::SameLine();
             }
             
             if (element && shouldShowElement(*element)) {
-                // 원소 버튼 렌더링
+                // 占쏙옙占쏙옙 占쏙옙튼 占쏙옙占쏙옙占쏙옙
                 renderElementButton(*element, scaledButtonSize);
             } else {
-                // 빈 공간 또는 필터링된 원소
+                // 占쏙옙 占쏙옙占쏙옙 占실댐옙 占쏙옙占싶몌옙占쏙옙 占쏙옙占쏙옙
                 ImGui::Dummy(ImVec2(scaledButtonSize, scaledButtonSize));
             }
         }
@@ -136,13 +136,13 @@ void PeriodicTableUI::renderMainPeriodicTable() {
 }
 
 // ============================================================================
-// 란타넘족 렌더링
+// 占쏙옙타占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::renderLanthanides() {
     ImGui::Text("Lanthanides:");
     
-    // 창 너비에 맞게 스케일 조정
+    // 창 占십븝옙 占승곤옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙
     const float availWidth = ImGui::GetContentRegionAvail().x;
     const float scale = availWidth / TOTAL_WIDTH;
     const float scaledButtonSize = BUTTON_SIZE * scale;
@@ -178,13 +178,13 @@ void PeriodicTableUI::renderLanthanides() {
 }
 
 // ============================================================================
-// 악티늄족 렌더링
+// 占쏙옙티占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::renderActinides() {
     ImGui::Text("Actinides:");
     
-    // 창 너비에 맞게 스케일 조정
+    // 창 占십븝옙 占승곤옙 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙
     const float availWidth = ImGui::GetContentRegionAvail().x;
     const float scale = availWidth / TOTAL_WIDTH;
     const float scaledButtonSize = BUTTON_SIZE * scale;
@@ -220,16 +220,16 @@ void PeriodicTableUI::renderActinides() {
 }
 
 // ============================================================================
-// 개별 원소 버튼 렌더링
+// 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙튼 占쏙옙占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::renderElementButton(const atoms::domain::ElementInfo& element, 
                                           float buttonSize) {
-    // 색상 정보를 스택에 푸시할 개수 추적
+    // 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占시울옙 푸占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙
     int pushedColors = 0;
     int pushedVars = 0;
     
-    // 호버 및 액티브 색상 계산
+    // 호占쏙옙 占쏙옙 占쏙옙티占쏙옙 占쏙옙占쏙옙 占쏙옙占?
     // ImVec4 hoveredColor = calculateHoveredColor(element.defaultColor);
     // ImVec4 activeColor = calculateActiveColor(element.defaultColor);
     // ImVec4 textColor = GetContrastTextColor(element.defaultColor);
@@ -238,7 +238,7 @@ void PeriodicTableUI::renderElementButton(const atoms::domain::ElementInfo& elem
     ImVec4 activeColor = calculateActiveColor(baseColor);
     ImVec4 textColor = GetContrastTextColor(baseColor);
 
-    // 원소 버튼 스타일 설정
+    // 占쏙옙占쏙옙 占쏙옙튼 占쏙옙타占쏙옙 占쏙옙占쏙옙
     // ImGui::PushStyleColor(ImGuiCol_Button, element.defaultColor);
     ImGui::PushStyleColor(ImGuiCol_Button, baseColor);
     pushedColors++;
@@ -252,7 +252,7 @@ void PeriodicTableUI::renderElementButton(const atoms::domain::ElementInfo& elem
     ImGui::PushStyleColor(ImGuiCol_Text, textColor);
     pushedColors++;
     
-    // 선택된 원소는 테두리로 표시
+    // 占쏙옙占시듸옙 占쏙옙占쌀댐옙 占쌓두몌옙占쏙옙 표占쏙옙
     if (element.symbol == m_selectedElementSymbol) {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
         pushedColors++;
@@ -261,7 +261,7 @@ void PeriodicTableUI::renderElementButton(const atoms::domain::ElementInfo& elem
         pushedVars++;
     }
     
-    // 버튼 생성
+    // 占쏙옙튼 占쏙옙占쏙옙
     char buttonLabel[16];
     snprintf(buttonLabel, sizeof(buttonLabel), "%s\n%d", 
              element.symbol.c_str(), element.atomicNumber);
@@ -271,12 +271,12 @@ void PeriodicTableUI::renderElementButton(const atoms::domain::ElementInfo& elem
         SPDLOG_DEBUG("Selected element: {}", element.symbol);
     }
     
-    // 마우스 호버 시 툴팁 표시
+    // 占쏙옙占쎌스 호占쏙옙 占쏙옙 占쏙옙占쏙옙 표占쏙옙
     if (ImGui::IsItemHovered()) {
         renderElementTooltip(element);
     }
     
-    // 스타일 스택 정리
+    // 占쏙옙타占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙
     if (pushedColors > 0) {
         ImGui::PopStyleColor(pushedColors);
     }
@@ -286,27 +286,27 @@ void PeriodicTableUI::renderElementButton(const atoms::domain::ElementInfo& elem
 }
 
 // ============================================================================
-// 원소 툴팁 렌더링
+// 占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::renderElementTooltip(const atoms::domain::ElementInfo& element) {
-    // 툴팁용 별도 스타일 관리
+    // 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 占쏙옙타占쏙옙 占쏙옙占쏙옙
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     
     ImGui::BeginTooltip();
     ImGui::Text("%s (%s)", element.name.c_str(), element.symbol.c_str());
     ImGui::Text("Atomic Number: %d", element.atomicNumber);
     ImGui::Text("Atomic Mass: %.4f", element.atomicMass);
-    ImGui::Text("Covalent Radius: %.2f Å", element.covalentRadius);
+    ImGui::Text("Covalent Radius: %.2f A", element.covalentRadius);
     ImGui::Text("Group: %d, Period: %d", element.groupNumber, element.period);
     ImGui::Text("Classification: %s", element.classification.c_str());
     ImGui::EndTooltip();
     
-    ImGui::PopStyleColor(); // 툴팁용 색상만 Pop
+    ImGui::PopStyleColor(); // 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙 Pop
 }
 
 // ============================================================================
-// 선택된 원소 상세 정보
+// 占쏙옙占시듸옙 占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙
 // ============================================================================
 
 void PeriodicTableUI::renderSelectedElementDetails() {
@@ -318,7 +318,7 @@ void PeriodicTableUI::renderSelectedElementDetails() {
     ImGui::Separator();
     ImGui::Text("Atom Position");
     
-    // Cell이 없는 경우 체크박스 비활성화
+    // Cell占쏙옙 占쏙옙占쏙옙 占쏙옙占?체크占쌘쏙옙 占쏙옙활占쏙옙화
     // bool hasCellInfo = !cellEdgeActors.empty();
     bool hasCellInfo = m_parent->hasUnitCell();
     // bool hasCellInfo = true;
@@ -327,10 +327,10 @@ void PeriodicTableUI::renderSelectedElementDetails() {
         ImGui::BeginDisabled();
     }
     
-    // 분율 좌표 사용 여부 체크박스
+    // 占쏙옙占쏙옙 占쏙옙표 占쏙옙占?占쏙옙占쏙옙 체크占쌘쏙옙
     ImGui::Checkbox("Use Fractional Coordinates##PeriodicTable", &m_useFractionalCoords);
     
-    // 체크박스 툴팁
+    // 체크占쌘쏙옙 占쏙옙占쏙옙
     if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !hasCellInfo) {
         ImGui::BeginTooltip();
         ImGui::Text("Fractional coordinates require a unit cell.");
@@ -347,18 +347,18 @@ void PeriodicTableUI::renderSelectedElementDetails() {
         ImGui::EndDisabled();
     }
     
-    // 좌표 입력 및 추가 버튼
+    // 占쏙옙표 占쌉뤄옙 占쏙옙 占쌩곤옙 占쏙옙튼
     if (m_useFractionalCoords && hasCellInfo) {
         static float fracPosition[3] = {0.0f, 0.0f, 0.0f};
         
         ImGui::DragFloat3("Fractional (a,b,c)", fracPosition, 0.01f, 0.0f, 1.0f);
         
         if (ImGui::Button("Add to Structure")) {
-            // Fractional 좌표를 Cartesian 좌표로 변환
+            // Fractional 占쏙옙표占쏙옙 Cartesian 占쏙옙표占쏙옙 占쏙옙환
             float cartPosition[3];
             atoms::domain::fractionalToCartesian(fracPosition, cartPosition, cellInfo.matrix);
             
-            // 원자 추가
+            // 占쏙옙占쏙옙 占쌩곤옙
             // (const char* symbol, const ImVec4& color, float radius, 
             // const float position[3], atoms::domain::AtomType atomType)
             m_parent->createAtomSphere(
@@ -372,11 +372,11 @@ void PeriodicTableUI::renderSelectedElementDetails() {
                        element->symbol, fracPosition[0], fracPosition[1], fracPosition[2]);
         }
     } else {
-        // 직교 좌표 입력
+        // 占쏙옙占쏙옙 占쏙옙표 占쌉뤄옙
         ImGui::DragFloat3("Position (X,Y,Z)", m_atomPosition, 0.1f);
         
         if (ImGui::Button("Add to Structure")) {
-            // 원자 추가
+            // 占쏙옙占쏙옙 占쌩곤옙
             m_parent->createAtomSphere(
                 element->symbol.c_str(),
                 element->defaultColor,
@@ -391,7 +391,7 @@ void PeriodicTableUI::renderSelectedElementDetails() {
 }
 
 // ============================================================================
-// 유틸리티 메서드
+// 占쏙옙틸占쏙옙티 占쌨쇽옙占쏙옙
 // ============================================================================
 
 bool PeriodicTableUI::shouldShowElement(const atoms::domain::ElementInfo& element) const {
@@ -437,7 +437,7 @@ ImVec4 PeriodicTableUI::calculateActiveColor(const ImVec4& baseColor) const {
 }
 
 // ============================================================================
-// Getter 메서드
+// Getter 占쌨쇽옙占쏙옙
 // ============================================================================
 
 std::string PeriodicTableUI::getSelectedElementSymbol() const {
@@ -451,6 +451,8 @@ void PeriodicTableUI::clearSelection() {
 
 } // namespace ui
 } // namespace atoms
+
+
 
 
 

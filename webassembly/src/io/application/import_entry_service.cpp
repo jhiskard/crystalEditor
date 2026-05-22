@@ -46,14 +46,14 @@ FileLoader::~FileLoader() {
 
 void FileLoader::RequestOpenStructureImport() {
     // Clear stale one-shot state from previous canceled requests.
-    m_ReplaceSceneOnNextStructureImport = false;
-    m_DeferredStructureFileName.clear();
+    m_ImportPopupState.replaceSceneOnNextStructureImport = false;
+    m_ImportPopupState.deferredStructureFileName.clear();
 
     if (!hasSceneDataForStructureImport()) {
         OpenStructureFileBrowser();
         return;
     }
-    m_ShowStructureReplacePopup = true;
+    m_ImportPopupState.showStructureReplacePopup = true;
 }
 
 bool FileLoader::hasSceneDataForStructureImport() const {
@@ -61,8 +61,8 @@ bool FileLoader::hasSceneDataForStructureImport() const {
 }
 
 void FileLoader::clearReplaceSceneImportTransaction() {
-    m_ReplaceSceneOnNextStructureImport = false;
-    m_DeferredStructureFileName.clear();
+    m_ImportPopupState.replaceSceneOnNextStructureImport = false;
+    m_ImportPopupState.deferredStructureFileName.clear();
     m_ImportWorkflowService.ClearReplaceSceneImportTransaction();
 }
 
@@ -87,13 +87,13 @@ void FileLoader::cleanupImportedStructure(int32_t importedStructureId) {
 }
 
 void FileLoader::showStructureImportErrorPopup(const std::string& title, const std::string& message) {
-    m_StructureImportErrorTitle = title.empty() ? "Import Structure Failed" : title;
+    m_ImportPopupState.structureImportErrorTitle = title.empty() ? "Import Structure Failed" : title;
     if (message.empty()) {
-        m_StructureImportErrorMessage = "The selected structure file could not be imported.";
+        m_ImportPopupState.structureImportErrorMessage = "The selected structure file could not be imported.";
     } else {
-        m_StructureImportErrorMessage = message;
+        m_ImportPopupState.structureImportErrorMessage = message;
     }
-    m_ShowStructureImportErrorPopup = true;
+    m_ImportPopupState.showStructureImportErrorPopup = true;
 }
 
 void FileLoader::OpenFileBrowser(bool useMainThread) {
@@ -129,16 +129,16 @@ void FileLoader::handleXSFGridFile(const std::string& fileName) {
 }
 
 void FileLoader::handleStructureFile(const std::string& fileName) {
-    if (!m_ReplaceSceneOnNextStructureImport && hasSceneDataForStructureImport()) {
-        m_DeferredStructureFileName = fileName;
-        m_ShowStructureReplacePopup = true;
+    if (!m_ImportPopupState.replaceSceneOnNextStructureImport && hasSceneDataForStructureImport()) {
+        m_ImportPopupState.deferredStructureFileName = fileName;
+        m_ImportPopupState.showStructureReplacePopup = true;
         GetWorkbenchRuntime().ShowProgressPopup(false);
         return;
     }
 
-    if (m_ReplaceSceneOnNextStructureImport) {
+    if (m_ImportPopupState.replaceSceneOnNextStructureImport) {
         m_ImportWorkflowService.BeginReplaceSceneImportTransaction();
-        m_ReplaceSceneOnNextStructureImport = false;
+        m_ImportPopupState.replaceSceneOnNextStructureImport = false;
     }
 
     std::string extension;
@@ -381,8 +381,8 @@ void FileLoader::handleParserWorkerResult(io::application::ParserWorkerResult& r
     }
 
     if (applyResult.showXsfGridCellWarning) {
-        m_XsfGridCellWarningText = applyResult.xsfGridCellWarningText;
-        m_ShowXsfGridCellWarningPopup = true;
+        m_ImportPopupState.xsfGridCellWarningText = applyResult.xsfGridCellWarningText;
+        m_ImportPopupState.showXsfGridCellWarningPopup = true;
     }
 
     render::application::GetRenderGateway().ResetView();
@@ -402,4 +402,46 @@ void FileLoader::OpenChgcarFileBrowser() {
 void FileLoader::LoadChgcarFile(const std::string& filename) {
     SPDLOG_INFO("LoadChgcarFile called: {}", filename);
     processChgcarFileInBackground(filename);
+}
+
+const io::application::ImportPopupState& FileLoader::getImportPopupState() const noexcept {
+    return m_ImportPopupState;
+}
+
+void FileLoader::acknowledgeStructureReplacePopup(bool shouldReplace) {
+    m_ImportPopupState.showStructureReplacePopup = false;
+    m_ImportPopupState.replaceSceneOnNextStructureImport = shouldReplace;
+
+    if (shouldReplace) {
+        if (!m_ImportPopupState.deferredStructureFileName.empty()) {
+            GetWorkbenchRuntime().SetProgressPopupText(
+                "Loading structure file",
+                "File(" + m_ImportPopupState.deferredStructureFileName + ") is loading, please wait...");
+            GetWorkbenchRuntime().ShowProgressPopup(true);
+            const std::string deferredFileName = m_ImportPopupState.deferredStructureFileName;
+            m_ImportPopupState.deferredStructureFileName.clear();
+            handleStructureFile(deferredFileName);
+        } else {
+            OpenStructureFileBrowser();
+        }
+        return;
+    }
+
+    if (!m_ImportPopupState.deferredStructureFileName.empty()) {
+        const std::string memfsPath = "/" + m_ImportPopupState.deferredStructureFileName;
+        std::remove(memfsPath.c_str());
+        m_ImportPopupState.deferredStructureFileName.clear();
+    }
+    GetWorkbenchRuntime().ShowProgressPopup(false);
+}
+
+void FileLoader::dismissStructureImportErrorPopup() {
+    m_ImportPopupState.showStructureImportErrorPopup = false;
+    m_ImportPopupState.structureImportErrorTitle.clear();
+    m_ImportPopupState.structureImportErrorMessage.clear();
+}
+
+void FileLoader::dismissXsfGridCellWarningPopup() {
+    m_ImportPopupState.showXsfGridCellWarningPopup = false;
+    m_ImportPopupState.xsfGridCellWarningText.clear();
 }

@@ -19,7 +19,7 @@ public:
     /**
      * @brief Returns singleton query service instance.
      */
-    static ShellStateQueryService& Instance();
+    static ShellStateQueryService& Shared();
 
     /**
      * @brief Returns immutable shell state snapshot.
@@ -42,3 +42,4 @@ ShellStateQueryService& GetShellStateQueryService();
 
 } // namespace application
 } // namespace shell
+

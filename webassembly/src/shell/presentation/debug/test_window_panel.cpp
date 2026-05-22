@@ -20,7 +20,7 @@ TestWindow::TestWindow() {
 TestWindow::~TestWindow() {
 }
 
-TestWindow& TestWindow::Instance() {
+TestWindow& TestWindow::Shared() {
     return GetWorkbenchRuntime().TestWindowPanel();
 }
 
@@ -123,4 +123,5 @@ void TestWindow::Render(bool* openWindow) {
 
     ImGui::End();
 }
+
 

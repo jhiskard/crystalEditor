@@ -1,6 +1,6 @@
-﻿// atoms/ui/charge_density_ui.cpp
+// atoms/ui/charge_density_ui.cpp
 #include "charge_density_ui.h"
-#include "../../workspace/legacy/legacy_atoms_runtime.h"  // Keep full AtomsTemplate type for UI interactions.
+#include "../../workspace/runtime/workspace_runtime_model_ref.h"  // Keep full WorkspaceRuntimeModel type for UI interactions.
 #include "../infrastructure/charge_density_renderer.h"
 #include "../../config/log_config.h"
 #include "../../mesh/application/mesh_command_service.h"
@@ -96,9 +96,9 @@ WindowLevelRange resolveWindowLevelRange(double dataMin, double dataMax, double 
 bool nearlyEqual(double a, double b, double epsilon = 1e-6) {
     return std::abs(a - b) <= epsilon;
 }
-}  // ?대? ?ы띁
+}  // ?占쏙옙? ?占쏀띁
 
-ChargeDensityUI::ChargeDensityUI(::AtomsTemplate* atomsTemplate)  // ??:: ?곕떽?
+ChargeDensityUI::ChargeDensityUI(::WorkspaceRuntimeModel* atomsTemplate)  // ??:: ?占쎈떽?
     : m_atomsTemplate(atomsTemplate) {
     SPDLOG_DEBUG("ChargeDensityUI initialized");
 }
@@ -489,8 +489,8 @@ void ChargeDensityUI::updateSlice() {
 }
 
 void ChargeDensityUI::calculateDefaultIsoValue() {
-    // 疫꿸퀡??첎? 筌ㅼ뮆?揶쏅???10% ?癒?뮉 ???뇧 + ????紐꾧컧
-    // 揶쏄쑬???筌ㅼ뮆?揶쏅???10%嚥???쇱젟
+    // 疫꿸퀡??占쏙옙? 筌ㅼ뮆?揶쏉옙???10% ?占?占쏙옙 ???占쏙옙 + ????紐꾧컧
+    // 揶쏄쑬???筌ㅼ뮆?揶쏉옙???10%占???占쎌젟
     if (m_maxValue > 0) {
         m_isoValue = m_maxValue * 0.1f;
     } else if (m_minValue < 0) {
@@ -1178,7 +1178,7 @@ void ChargeDensityUI::syncGridMeshVisibility(const std::string& selectedName) {
             shouldShow = equalsIgnoreCase(entry.name, selectedName);
         }
         if (shouldShow && !entry.visible) {
-            MeshDetail::Instance().SetUiVolumeMeshVisibility(true);
+            MeshDetail::Shared().SetUiVolumeMeshVisibility(true);
             meshCommandService.ShowMesh(entry.id);
         } else if (!shouldShow && entry.visible) {
             meshCommandService.HideMesh(entry.id);
@@ -1693,7 +1693,7 @@ void ChargeDensityUI::syncSliceDisplayFromVolume(const std::string& gridName,
 
 
 // ============================================================================
-// ?醫딅빍筌롫뗄????온??筌롫뗄苑??// ============================================================================
+// ?醫딅빍筌롫뗄????占승??筌롫뗄占??// ============================================================================
 
 float ChargeDensityUI::getLevelPercent() const {
     if (m_maxValue <= m_minValue) return 0.0f;
@@ -1712,7 +1712,7 @@ void ChargeDensityUI::setLevelPercent(float percent, bool stopAnim) {
 void ChargeDensityUI::applyIsoValueFromPercent(float percent) {
     m_isoValue = m_minValue + (m_maxValue - m_minValue) * percent;
     
-    // Auto value ??곸젫 (??롫짗 鈺곌퀣????嚥?
+    // Auto value ??占쎌젫 (??占쎈짗 鈺곌퀣???占?占?
     m_autoIsoValue = false;
     
     updateIsosurface();
@@ -1731,7 +1731,7 @@ void ChargeDensityUI::startAnimation(float durationSeconds) {
         m_showIsosurface = true;
     }
     
-    // Auto value ??곸젫
+    // Auto value ??占쎌젫
     m_autoIsoValue = false;
     
     SPDLOG_INFO("Charge density animation started: duration={:.1f}s, startLevel={:.1f}%", 
@@ -1752,7 +1752,7 @@ void ChargeDensityUI::updateAnimation() {
     auto now = std::chrono::steady_clock::now();
     float elapsed = std::chrono::duration<float>(now - m_animationStartTime).count();
     
-    // 筌욊쑵六양몴??④쑴沅?(0.0 ~ 1.0)
+    // 筌욊쑵六양몴??占쎄쑴占?(0.0 ~ 1.0)
     float progress = elapsed / m_animationDuration;
     
     if (progress >= 1.0f) {
@@ -1762,10 +1762,10 @@ void ChargeDensityUI::updateAnimation() {
         SPDLOG_INFO("Charge density animation completed");
     }
     
-    // ??덇볼 ?④쑴沅? startLevel?癒?퐣 ??뽰삂??뤿연 100%繹먮슣? 筌욊쑵六?    // 筌띾슣鍮?筌ｌ꼷?ч겫?????뽰삂??랁???좎몵筌?startLevel??0??곗쨮 ??쇱젟
+    // ??占쎄볼 ?占쎄쑴占? startLevel?占?占쏙옙 ??占쎌삂??占쎈연 100%繹먮슣? 筌욊쑵占?    // 筌띾슣占?筌ｌ꼷?占썽겫?????占쎌삂??占쏙옙???占쎌몵占?startLevel??0??占쎌쨮 ??占쎌젟
     float targetLevel = m_animationStartLevel + (1.0f - m_animationStartLevel) * progress;
     
-    // ?癒?뮉 ??湲?0%?癒?퐣 100%繹먮슣?:
+    // ?占?占쏙옙 ??占?0%?占?占쏙옙 100%繹먮슣?:
     // float targetLevel = progress;
     
     applyIsoValueFromPercent(targetLevel);
@@ -1774,6 +1774,9 @@ void ChargeDensityUI::updateAnimation() {
 
 } // namespace ui
 } // namespace atoms
+
+
+
 
 
 
